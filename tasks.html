@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="Manage tasks for ACG Career Services.">
+
+  <title>Tasks | TaskFlow</title>
+
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/main.js"></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="header-container">
+
+      <div class="brand">
+        <a href="index.html" class="brand-link">
+          <span class="brand-name">TaskFlow</span>
+          <span class="brand-subtitle">
+            ACG Career Services
+          </span>
+        </a>
+      </div>
+
+      <button class="menu-toggle"
+              type="button"
+              aria-label="Toggle navigation"
+              aria-expanded="false"
+              aria-controls="main-navigation">
+        ☰
+      </button>
+
+      <nav id="main-navigation"
+           class="main-navigation"
+           aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="tasks.html" aria-current="page">Tasks</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <button class="theme-toggle"
+              type="button"
+              aria-label="Toggle dark mode"
+              aria-pressed="false">
+        Dark Mode
+      </button>
+
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <section class="hero-section">
+      <h1>Task Management</h1>
+      <p class="hero-subtitle">
+        Organize, prioritize, and track your tasks.
+      </p>
+      <p>
+        Manage activities and responsibilities
+        for the ACG Career Services Office.
+      </p>
+    </section>
+
+    <section class="dashboard-section"
+             aria-labelledby="create-heading">
+
+      <h2 id="create-heading">Create a New Task</h2>
+
+      <form id="task-form">
+
+        <div class="form-group">
+          <label for="task-title">Task Title</label>
+          <input type="text"
+                 id="task-title"
+                 name="title"
+                 maxlength="100"
+                 required
+                 placeholder="Enter task title">
+        </div>
+
+        <div class="form-group">
+          <label for="task-description">
+            Description
+          </label>
+          <textarea id="task-description"
+                    name="description"
+                    rows="4"
+                    placeholder="Describe the task"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority" name="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task-status">Status</label>
+          <select id="task-status" name="status">
+            <option value="pending">Pending</option>
+            <option value="progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="task-due-date">Due Date</label>
+          <input type="date"
+                 id="task-due-date"
+                 name="dueDate">
+        </div>
+
+        <button type="submit" class="primary-button">
+          Create Task
+        </button>
+
+      </form>
+    </section>
+
+    <section class="dashboard-section"
+             aria-labelledby="task-list-heading">
+
+      <h2 id="task-list-heading">Your Tasks</h2>
+
+      <div id="task-list" aria-live="polite">
+        <p>No tasks have been created yet.</p>
+      </div>
+
+    </section>
+
+    <p id="app-status" role="status"></p>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>TaskFlow | ACG Career Services</p>
+    <p>ITC4214 Internet Programming - Student Project</p>
+  </footer>
+
+</body>
+</html>

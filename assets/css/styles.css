@@ -1,47 +1,472 @@
+
+/* =========================================
+   TaskFlow | ACG Career Services
+   Main Stylesheet
+========================================= */
+
 :root {
-  font-family: Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   color-scheme: light;
+
+  --primary: #14213d;
+  --primary-light: #243b63;
+  --accent: #e9ad42;
+  --background: #f3f6fb;
+  --surface: #ffffff;
+  --text: #19263b;
+  --muted: #64748b;
+  --border: #e0e7f0;
+  --shadow: 0 8px 25px rgba(20, 33, 61, 0.07);
 }
 
+/* Dark mode */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --primary: #0c1425;
+  --primary-light: #243b63;
+  --background: #101827;
+  --surface: #1c293d;
+  --text: #f1f5f9;
+  --muted: #b5c2d3;
+  --border: #34445d;
+  --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Global settings */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #101d35;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.6;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* =========================================
+   HEADER AND BRANDING
+========================================= */
+
 .site-header {
-  padding: 2rem;
-  background-color: #101d35;
+  background: var(--primary);
+  color: #ffffff;
+  padding: 1.2rem 2rem;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.brand-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
   color: #ffffff;
 }
 
-.site-header h1 {
-  margin: 0;
+.brand-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1.2;
 }
 
-.site-header p {
-  margin-bottom: 0;
+.brand-subtitle {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin-top: 0.3rem;
 }
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.main-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.main-navigation a {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  color: #dce5f2;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.main-navigation a:hover,
+.main-navigation a[aria-current="page"] {
+  background: var(--primary-light);
+  color: #ffffff;
+}
+
+/* Theme button */
+.theme-toggle {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid #72819b;
+  color: #ffffff;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.theme-toggle:hover {
+  background: var(--primary-light);
+}
+
+/* Mobile menu button */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #72819b;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 1.4rem;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
 
 .main-content {
+  width: 100%;
   max-width: 1200px;
-  margin: 3rem auto;
-  padding: 0 1.5rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  flex: 1;
 }
 
-@media (max-width: 768px) {
+/* =========================================
+   HERO SECTION
+========================================= */
+
+.hero-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 3rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow);
+}
+
+.hero-section h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.hero-section p {
+  max-width: 750px;
+}
+
+/* Primary action button */
+.primary-button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.85rem 1.5rem;
+  background: var(--primary-light);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 9px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.primary-button:hover {
+  background: #34527f;
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+.dashboard-section {
+  margin-bottom: 2rem;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.dashboard-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(20, 33, 61, 0.12);
+}
+
+.dashboard-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.dashboard-number {
+  margin: 0.7rem 0 0;
+  font-size: 2.8rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.dashboard-note {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Status message */
+#app-status {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.site-footer {
+  background: var(--primary);
+  color: #ffffff;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.site-footer p {
+  margin: 0.2rem 0;
+  font-size: 0.85rem;
+}
+
+.site-footer p:last-child {
+  color: #cbd5e1;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+/* Tablet */
+@media (max-width: 950px) {
+  .header-container {
+    gap: 1rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-section {
+    padding: 2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
   .site-header {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .header-container {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.75rem;
+  }
+
+  .brand-name {
+    font-size: 1.5rem;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-navigation {
+    display: none;
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .main-navigation.is-open {
+    display: flex;
+  }
+
+  .main-navigation a {
+    display: block;
+    padding: 0.8rem;
+  }
+
+  .theme-toggle {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.8rem;
   }
 
   .main-content {
-    margin: 2rem auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .hero-section {
+    padding: 1.5rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    padding: 1.4rem;
+  }
+}
+
+/* ========================================
+   TASK MANAGEMENT FORM
+======================================== */
+
+#task-form {
+  max-width: 750px;
+  margin: 1.5rem auto;
+  padding: 2rem;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #dce3eb);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #182235;
+  font: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+#task-form .primary-button {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+/* Dark mode form support */
+[data-theme="dark"] #task-form {
+  background: #243b59;
+  border-color: #405574;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
+  background: #17263d;
+  color: #ffffff;
+  border-color: #526581;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  #task-form {
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+
+  #task-form .primary-button {
+    width: 100%;
+    text-align: center;
   }
 }
