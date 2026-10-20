@@ -1,4 +1,10 @@
+
 "use strict";
+
+/**
+ * TaskFlow | ACG Career Services
+ * Initializes the application.
+ */
 
 function initializeApp() {
   const statusElement =
