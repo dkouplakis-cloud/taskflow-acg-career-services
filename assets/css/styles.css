@@ -470,3 +470,182 @@ a {
     text-align: center;
   }
 }
+
+/* ========================================
+   TASK TABLE AND ACCORDION
+======================================== */
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-heading h2 {
+  margin-bottom: 0.3rem;
+}
+
+.section-description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Task table */
+
+.task-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.task-table th {
+  padding: 1rem 1.25rem;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.task-table td {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.9rem;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.task-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.task-table tbody tr:hover {
+  background: var(--background);
+}
+
+.empty-state {
+  padding: 3rem 1rem !important;
+  text-align: center;
+  color: var(--muted) !important;
+}
+
+.task-list-status {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Task accordion */
+
+.task-accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  list-style: none;
+}
+
+.accordion-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.accordion-symbol {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: #ffffff;
+  font-size: 1.3rem;
+}
+
+.accordion-chevron {
+  font-size: 1.4rem;
+  transition: transform 0.2s ease;
+}
+
+.task-accordion[open] .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-trigger:hover {
+  background: var(--background);
+}
+
+.accordion-content {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.accordion-content .section-description {
+  margin-bottom: 1.5rem;
+}
+
+/* Keep form inside accordion */
+
+.task-accordion #task-form {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Mobile responsiveness */
+
+@media (max-width: 700px) {
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .task-table {
+    min-width: 620px;
+  }
+
+  .task-table th,
+  .task-table td {
+    padding: 0.85rem;
+  }
+
+  .accordion-trigger {
+    padding: 1.1rem;
+  }
+
+  .accordion-content {
+    padding: 1rem;
+  }
+}

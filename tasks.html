@@ -12,6 +12,7 @@
 
   <link rel="stylesheet" href="assets/css/styles.css">
   <script type="module" src="assets/js/main.js"></script>
+  <script type="module" src="assets/js/tasks.js"></script>
 </head>
 
 <body>
@@ -28,28 +29,33 @@
         </a>
       </div>
 
-      <button class="menu-toggle"
-              type="button"
-              aria-label="Toggle navigation"
-              aria-expanded="false"
-              aria-controls="main-navigation">
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="main-navigation">
         ☰
       </button>
 
-      <nav id="main-navigation"
-           class="main-navigation"
-           aria-label="Main navigation">
+      <nav
+        id="main-navigation"
+        class="main-navigation"
+        aria-label="Main navigation">
+
         <a href="index.html">Home</a>
         <a href="tasks.html" aria-current="page">Tasks</a>
         <a href="analytics.html">Analytics</a>
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
+
       </nav>
 
-      <button class="theme-toggle"
-              type="button"
-              aria-label="Toggle dark mode"
-              aria-pressed="false">
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+        aria-pressed="false">
         Dark Mode
       </button>
 
@@ -58,84 +64,168 @@
 
   <main class="main-content">
 
-    <section class="hero-section">
-      <h1>Task Management</h1>
+    <!-- Page introduction -->
+    <section
+      class="hero-section"
+      aria-labelledby="page-heading">
+
+      <h1 id="page-heading">Task Management</h1>
+
       <p class="hero-subtitle">
         Organize, prioritize, and track your tasks.
       </p>
+
       <p>
         Manage activities and responsibilities
         for the ACG Career Services Office.
       </p>
+
     </section>
 
-    <section class="dashboard-section"
-             aria-labelledby="create-heading">
+    <!-- Tasks displayed first -->
+    <section
+      class="dashboard-section tasks-section"
+      aria-labelledby="task-list-heading">
 
-      <h2 id="create-heading">Create a New Task</h2>
-
-      <form id="task-form">
-
-        <div class="form-group">
-          <label for="task-title">Task Title</label>
-          <input type="text"
-                 id="task-title"
-                 name="title"
-                 maxlength="100"
-                 required
-                 placeholder="Enter task title">
+      <div class="section-heading">
+        <div>
+          <h2 id="task-list-heading">Your Tasks</h2>
+          <p class="section-description">
+            View and manage your Career Services activities.
+          </p>
         </div>
-
-        <div class="form-group">
-          <label for="task-description">
-            Description
-          </label>
-          <textarea id="task-description"
-                    name="description"
-                    rows="4"
-                    placeholder="Describe the task"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="task-priority">Priority</label>
-          <select id="task-priority" name="priority">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="task-status">Status</label>
-          <select id="task-status" name="status">
-            <option value="pending">Pending</option>
-            <option value="progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="task-due-date">Due Date</label>
-          <input type="date"
-                 id="task-due-date"
-                 name="dueDate">
-        </div>
-
-        <button type="submit" class="primary-button">
-          Create Task
-        </button>
-
-      </form>
-    </section>
-
-    <section class="dashboard-section"
-             aria-labelledby="task-list-heading">
-
-      <h2 id="task-list-heading">Your Tasks</h2>
-
-      <div id="task-list" aria-live="polite">
-        <p>No tasks have been created yet.</p>
       </div>
+
+      <div class="task-table-container">
+        <table class="task-table">
+          <thead>
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Due Date</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="task-table-body">
+            <tr>
+              <td colspan="5" class="empty-state">
+                No tasks have been created yet.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p
+        id="task-list-status"
+        class="task-list-status"
+        role="status"
+        aria-live="polite">
+      </p>
+
+    </section>
+
+    <!-- Collapsible task creation form -->
+    <section
+      class="dashboard-section"
+      aria-label="Task creation">
+
+      <details class="task-accordion" id="create-task-accordion">
+
+        <summary class="accordion-trigger">
+          <span class="accordion-title">
+            <span class="accordion-symbol" aria-hidden="true">+</span>
+            Create a New Task
+          </span>
+
+          <span class="accordion-chevron" aria-hidden="true">
+            ▾
+          </span>
+        </summary>
+
+        <div class="accordion-content">
+
+          <p class="section-description">
+            Complete the following fields to create
+            a new Career Services task.
+          </p>
+
+          <form id="task-form">
+
+            <div class="form-group">
+              <label for="task-title">
+                Task Title
+              </label>
+
+              <input
+                type="text"
+                id="task-title"
+                name="title"
+                maxlength="100"
+                required
+                placeholder="Enter task title">
+            </div>
+
+            <div class="form-group">
+              <label for="task-description">
+                Description
+              </label>
+
+              <textarea
+                id="task-description"
+                name="description"
+                maxlength="2000"
+                rows="4"
+                placeholder="Describe the task"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="task-priority">
+                Priority
+              </label>
+
+              <select id="task-priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="task-status">
+                Status
+              </label>
+
+              <select id="task-status" name="status">
+                <option value="pending">Pending</option>
+                <option value="progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="task-due-date">
+                Due Date
+              </label>
+
+              <input
+                type="date"
+                id="task-due-date"
+                name="dueDate">
+            </div>
+
+            <button
+              type="submit"
+              class="primary-button">
+              Create Task
+            </button>
+
+          </form>
+
+        </div>
+      </details>
 
     </section>
 
