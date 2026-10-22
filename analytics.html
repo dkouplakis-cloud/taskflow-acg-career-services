@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="TaskFlow analytics and task performance overview.">
+
+  <title>Analytics | TaskFlow</title>
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <!-- Main application JavaScript -->
+  <script type="module" src="assets/js/main.js"></script>
+
+  <!-- Analytics JavaScript -->
+  <script type="module" src="assets/js/analytics.js"></script>
+</head>
+
+<body>
+
+  <!-- Website header -->
+  <header class="site-header">
+    <div class="header-container">
+
+      <!-- Website branding -->
+      <div class="brand">
+        <a href="index.html" class="brand-link">
+          <span class="brand-name">TaskFlow</span>
+          <span class="brand-subtitle">
+            ACG Career Services
+          </span>
+        </a>
+      </div>
+
+      <!-- Mobile navigation button -->
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="main-navigation">
+        ☰
+      </button>
+
+      <!-- Main navigation -->
+      <nav
+        id="main-navigation"
+        class="main-navigation"
+        aria-label="Main navigation">
+
+        <a href="index.html">Home</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="analytics.html" aria-current="page">
+          Analytics
+        </a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+
+      </nav>
+
+      <!-- Dark/light mode toggle -->
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+        aria-pressed="false">
+        Dark Mode
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Main page content -->
+  <main class="main-content">
+
+    <!-- Analytics introduction -->
+    <section
+      class="hero-section"
+      aria-labelledby="analytics-heading">
+
+      <h1 id="analytics-heading">
+        Task Analytics
+      </h1>
+
+      <p class="hero-subtitle">
+        Monitor performance and track progress.
+      </p>
+
+      <p>
+        Explore task completion, workload distribution,
+        and priorities for the ACG Career Services Office.
+      </p>
+
+    </section>
+
+    <!-- Analytics summary -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="analytics-overview-heading">
+
+      <h2 id="analytics-overview-heading">
+        Performance Overview
+      </h2>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card">
+          <h3>Total Tasks</h3>
+          <p class="dashboard-number" data-analytics="total">
+            0
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Completed Tasks</h3>
+          <p class="dashboard-number" data-analytics="completed">
+            0
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Completion Rate</h3>
+          <p class="dashboard-number" data-analytics="rate">
+            0%
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>High Priority Tasks</h3>
+          <p class="dashboard-number" data-analytics="high">
+            0
+          </p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- Task status analysis -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="status-heading">
+
+      <h2 id="status-heading">
+        Task Status Distribution
+      </h2>
+
+      <p>
+        Compare pending, in-progress, and completed tasks.
+      </p>
+
+      <div id="status-chart" class="analytics-chart">
+        <p>Task status chart will appear here.</p>
+      </div>
+
+    </section>
+
+    <!-- Task priority analysis -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="priority-heading">
+
+      <h2 id="priority-heading">
+        Task Priority Breakdown
+      </h2>
+
+      <p>
+        Understand how tasks are distributed across
+        low, medium, and high priorities.
+      </p>
+
+      <div id="priority-chart" class="analytics-chart">
+        <p>Task priority chart will appear here.</p>
+      </div>
+
+    </section>
+
+    <!-- Application status message -->
+    <p id="app-status" role="status"></p>
+
+  </main>
+
+  <!-- Website footer -->
+  <footer class="site-footer">
+    <p>TaskFlow | ACG Career Services</p>
+    <p>
+      ITC4214 Internet Programming - Student Project
+    </p>
+  </footer>
+
+</body>
+</html>

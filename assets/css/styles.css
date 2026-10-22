@@ -649,3 +649,110 @@ a {
     padding: 1rem;
   }
 }
+
+/* =========================================
+   Task Table - Action Buttons
+   ========================================= */
+
+/* Keep action buttons aligned */
+.task-table td:last-child {
+  white-space: nowrap;
+}
+
+/* Shared styling for Edit and Delete buttons */
+.task-table td button {
+  padding: 0.5rem 0.85rem;
+  margin: 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease,
+              transform 0.2s ease;
+}
+
+/* Hover effect */
+.task-table td button:hover {
+  background: var(--background);
+  transform: translateY(-2px);
+}
+
+/* Keyboard accessibility */
+.task-table td button:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* =========================================
+   Task Action Buttons - Individual Colors
+   ========================================= */
+
+/* Edit button - Professional blue */
+.task-table .edit-button {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+/* Edit button hover effect */
+.task-table .edit-button:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* Delete button - Subtle red */
+.task-table .delete-button {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* Delete button hover effect */
+.task-table .delete-button:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+/* Task priority and status badges */
+.task-badge {
+    display: inline-block;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Priority colors */
+.priority-high {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.priority-medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.priority-low {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Status colors */
+.status-pending {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-progress {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
