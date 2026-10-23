@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="Learn about TaskFlow, a task management platform for ACG Career Services.">
+
+  <title>About | TaskFlow</title>
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <!-- Shared application functionality -->
+  <script type="module" src="assets/js/main.js"></script>
+</head>
+
+<body>
+
+  <!-- Website header -->
+  <header class="site-header">
+    <div class="header-container">
+
+      <!-- Website branding -->
+      <div class="brand">
+        <a href="index.html" class="brand-link">
+          <span class="brand-name">TaskFlow</span>
+          <span class="brand-subtitle">
+            ACG Career Services
+          </span>
+        </a>
+      </div>
+
+      <!-- Mobile navigation button -->
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="main-navigation">
+        ☰
+      </button>
+
+      <!-- Main navigation -->
+      <nav
+        id="main-navigation"
+        class="main-navigation"
+        aria-label="Main navigation">
+
+        <a href="index.html">Home</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="about.html" aria-current="page">About</a>
+        <a href="contact.html">Contact</a>
+
+      </nav>
+
+      <!-- Theme switch -->
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+        aria-pressed="false">
+        Dark Mode
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Main page content -->
+  <main class="main-content">
+
+    <!-- About page introduction -->
+    <section
+      class="hero-section"
+      aria-labelledby="about-heading">
+
+      <h1 id="about-heading">About TaskFlow</h1>
+
+      <p class="hero-subtitle">
+        Simplifying task management and improving organization.
+      </p>
+
+      <p>
+        TaskFlow is a web-based task management application
+        designed to support the organization of activities
+        and responsibilities within the ACG Career Services Office.
+      </p>
+
+    </section>
+
+    <!-- Project purpose -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="purpose-heading">
+
+      <h2 id="purpose-heading">Our Purpose</h2>
+
+      <p>
+        The purpose of TaskFlow is to provide a simple,
+        accessible, and organized environment for managing
+        everyday tasks. The platform helps users monitor
+        progress, prioritize responsibilities, and maintain
+        a clear overview of their workload.
+      </p>
+
+      <p>
+        TaskFlow is designed around activities such as
+        career workshops, employer events, student
+        registrations, and administrative responsibilities.
+      </p>
+
+    </section>
+
+    <!-- Application features -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="features-heading">
+
+      <h2 id="features-heading">Key Features</h2>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card">
+          <h3>Task Management</h3>
+          <p>
+            Create, edit, and delete tasks while keeping
+            responsibilities organized in one place.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Priority Tracking</h3>
+          <p>
+            Assign low, medium, or high priority levels
+            to identify important activities.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Progress Monitoring</h3>
+          <p>
+            Track tasks through pending, in-progress,
+            and completed stages.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Task Analytics</h3>
+          <p>
+            View performance statistics, completion rates,
+            and visual breakdowns of tasks.
+          </p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- Technologies used -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="technologies-heading">
+
+      <h2 id="technologies-heading">Technologies Used</h2>
+
+      <p>
+        TaskFlow is developed using standard web
+        technologies:
+      </p>
+
+      <ul>
+        <li>
+          <strong>HTML5:</strong>
+          Provides the structure and semantic content
+          of the website.
+        </li>
+        <li>
+          <strong>CSS3:</strong>
+          Controls the visual design, responsive layout,
+          and light and dark themes.
+        </li>
+        <li>
+          <strong>JavaScript:</strong>
+          Implements task management, dynamic content,
+          and analytics calculations.
+        </li>
+        <li>
+          <strong>localStorage:</strong>
+          Stores tasks and theme preferences within
+          the user's browser.
+        </li>
+      </ul>
+
+    </section>
+
+    <!-- Academic project information -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="project-heading">
+
+      <h2 id="project-heading">Academic Project</h2>
+
+      <p>
+        TaskFlow was developed as a student project
+        for ITC4214 Internet Programming at
+        the American College of Greece.
+      </p>
+
+      <p>
+        The project demonstrates practical applications
+        of front-end web development, responsive design,
+        DOM manipulation, event handling, and
+        browser-based data storage.
+      </p>
+
+      <a href="tasks.html" class="primary-button">
+        Explore Task Management
+      </a>
+
+    </section>
+
+    <!-- Application status -->
+    <p id="app-status" role="status"></p>
+
+  </main>
+
+  <!-- Website footer -->
+  <footer class="site-footer">
+    <p>TaskFlow | ACG Career Services</p>
+    <p>
+      ITC4214 Internet Programming - Student Project
+    </p>
+  </footer>
+
+</body>
+</html>

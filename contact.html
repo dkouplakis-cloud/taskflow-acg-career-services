@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="Contact TaskFlow - ACG Career Services task management project.">
+
+  <title>Contact | TaskFlow</title>
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <!-- Main application JavaScript -->
+  <script type="module" src="assets/js/main.js"></script>
+  <script type="module" src="assets/js/contact.js"></script>
+</head>
+
+<body>
+
+  <!-- Website header -->
+  <header class="site-header">
+    <div class="header-container">
+
+      <!-- Website branding -->
+      <div class="brand">
+        <a href="index.html" class="brand-link">
+          <span class="brand-name">TaskFlow</span>
+          <span class="brand-subtitle">
+            ACG Career Services
+          </span>
+        </a>
+      </div>
+
+      <!-- Mobile navigation button -->
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="main-navigation">
+        ☰
+      </button>
+
+      <!-- Main navigation -->
+      <nav
+        id="main-navigation"
+        class="main-navigation"
+        aria-label="Main navigation">
+
+        <a href="index.html">Home</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="about.html">About</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+
+      </nav>
+
+      <!-- Theme switch -->
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+        aria-pressed="false">
+        Dark Mode
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- Contact page introduction -->
+    <section
+      class="hero-section"
+      aria-labelledby="contact-heading">
+
+      <h1 id="contact-heading">
+        Contact TaskFlow
+      </h1>
+
+      <p class="hero-subtitle">
+        Questions, feedback, or suggestions?
+      </p>
+
+      <p>
+        We welcome feedback about TaskFlow and
+        its task management features.
+        Complete the form below to share your message.
+      </p>
+
+    </section>
+
+    <!-- Contact form section -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="contact-form-heading">
+
+      <h2 id="contact-form-heading">
+        Send a Message
+      </h2>
+
+      <p>
+        All fields marked with an asterisk (*) are required.
+      </p>
+
+      <form id="contact-form">
+
+        <!-- Full name -->
+        <div class="form-group">
+          <label for="contact-name">
+            Full Name *
+          </label>
+
+          <input
+            type="text"
+            id="contact-name"
+            name="name"
+            maxlength="100"
+            autocomplete="name"
+            required>
+        </div>
+
+        <!-- Email address -->
+        <div class="form-group">
+          <label for="contact-email">
+            Email Address *
+          </label>
+
+          <input
+            type="email"
+            id="contact-email"
+            name="email"
+            maxlength="150"
+            autocomplete="email"
+            required>
+        </div>
+
+        <!-- Message subject -->
+        <div class="form-group">
+          <label for="contact-subject">
+            Subject *
+          </label>
+
+          <select
+            id="contact-subject"
+            name="subject"
+            required>
+
+            <option value="">
+              Select a subject
+            </option>
+
+            <option value="feedback">
+              General Feedback
+            </option>
+
+            <option value="suggestion">
+              Feature Suggestion
+            </option>
+
+            <option value="issue">
+              Report an Issue
+            </option>
+
+            <option value="other">
+              Other
+            </option>
+
+          </select>
+        </div>
+
+        <!-- Message content -->
+        <div class="form-group">
+          <label for="contact-message">
+            Message *
+          </label>
+
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="6"
+            minlength="10"
+            maxlength="2000"
+            placeholder="Write your message here..."
+            required></textarea>
+        </div>
+
+        <!-- Submit button -->
+        <button
+          type="submit"
+          class="primary-button">
+          Send Message
+        </button>
+
+        <!-- Form feedback -->
+        <p
+          id="contact-feedback"
+          role="status"
+          aria-live="polite">
+        </p>
+
+      </form>
+
+    </section>
+
+    <!-- Project information -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="contact-info-heading">
+
+      <h2 id="contact-info-heading">
+        About This Contact Form
+      </h2>
+
+      <p>
+        TaskFlow is an academic web development project
+        created for ITC4214 Internet Programming
+        at the American College of Greece.
+      </p>
+
+      <p>
+        This contact form demonstrates front-end form
+        handling and validation. Messages are not
+        transmitted to an email address or server.
+      </p>
+
+    </section>
+
+    <!-- Application status -->
+    <p id="app-status" role="status"></p>
+
+  </main>
+
+  <!-- Website footer -->
+  <footer class="site-footer">
+    <p>
+      TaskFlow | ACG Career Services
+    </p>
+
+    <p>
+      ITC4214 Internet Programming - Student Project
+    </p>
+  </footer>
+
+</body>
+</html>

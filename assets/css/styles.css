@@ -756,3 +756,248 @@ a {
     background: #dcfce7;
     color: #166534;
 }
+
+/* ==========================================
+   ANALYTICS PAGE - BAR CHARTS
+   ========================================== */
+
+/* Container for each chart category */
+.analytics-bar-row {
+  margin-bottom: 1.5rem;
+}
+
+/* Separate the category name from its statistics */
+.analytics-bar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Align counts and percentages consistently */
+.analytics-bar-heading span:last-child {
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Background of each progress bar */
+.analytics-bar-track {
+  width: 100%;
+  height: 12px;
+  background-color: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+/* Filled portion of each progress bar */
+.analytics-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+/* Task status colors */
+.analytics-pending {
+  background-color: #f59e0b;
+}
+
+.analytics-progress {
+  background-color: #3b82f6;
+}
+
+.analytics-completed {
+  background-color: #16a34a;
+}
+
+/* Task priority colors */
+.analytics-low {
+  background-color: #16a34a;
+}
+
+.analytics-medium {
+  background-color: #f59e0b;
+}
+
+.analytics-high {
+  background-color: #dc2626;
+}
+
+/* Improve chart readability on smaller screens */
+@media (max-width: 480px) {
+  .analytics-bar-heading {
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .analytics-bar-row {
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* ==========================================
+   ABOUT PAGE
+   ========================================== */
+
+/* Consistent spacing and alignment */
+.main-content:has(#about-heading) {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+/* Align the introductory section */
+.main-content:has(#about-heading) .hero-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* Improve spacing between sections */
+.main-content:has(#about-heading) .dashboard-section {
+  width: 100%;
+  margin-bottom: 48px;
+}
+
+/* Section headings */
+.main-content:has(#about-heading) .dashboard-section h2 {
+  margin-bottom: 20px;
+}
+
+/* Improve paragraph readability */
+.main-content:has(#about-heading) .dashboard-section > p {
+  max-width: 850px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+/* Feature card layout */
+.main-content:has(#about-heading) .dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* Feature cards */
+.main-content:has(#about-heading) .dashboard-card {
+  padding: 28px;
+  border-radius: 12px;
+  height: 100%;
+}
+
+/* Feature card headings */
+.main-content:has(#about-heading) .dashboard-card h3 {
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+}
+
+/* Feature descriptions */
+.main-content:has(#about-heading) .dashboard-card p {
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Technologies list */
+.main-content:has(#about-heading) ul {
+  padding-left: 24px;
+  line-height: 1.9;
+}
+
+.main-content:has(#about-heading) li {
+  margin-bottom: 12px;
+}
+
+/* Responsive About page */
+@media (max-width: 768px) {
+  .main-content:has(#about-heading) {
+    padding: 32px 16px 48px;
+  }
+
+  .main-content:has(#about-heading) .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .main-content:has(#about-heading) .dashboard-card {
+    padding: 22px;
+  }
+
+  .main-content:has(#about-heading) .dashboard-section {
+    margin-bottom: 36px;
+  }
+}
+
+/* ==========================================
+   CONTACT PAGE
+   ========================================== */
+
+/* Consistent page width and alignment */
+.main-content:has(#contact-heading) {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+/* Align the introduction with the form */
+.main-content:has(#contact-heading) .hero-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* Consistent section spacing */
+.main-content:has(#contact-heading) .dashboard-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* Limit form width for readability */
+#contact-form {
+  max-width: 760px;
+  width: 100%;
+  margin-top: 24px;
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+/* Form field spacing */
+#contact-form .form-group {
+  margin-bottom: 24px;
+}
+
+/* Full-width form controls */
+#contact-form input,
+#contact-form select,
+#contact-form textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Message textarea */
+#contact-form textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+/* Form confirmation or validation feedback */
+#contact-feedback {
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .main-content:has(#contact-heading) {
+    padding: 32px 16px 48px;
+  }
+
+  #contact-form {
+    padding: 20px;
+  }
+}
