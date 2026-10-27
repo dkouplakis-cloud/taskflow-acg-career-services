@@ -1,6 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+<link rel="icon" href="data:,">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport"
@@ -94,6 +95,29 @@
             View and manage your Career Services activities.
           </p>
         </div>
+      </div>
+
+      <div class="task-search-container">
+        <label for="task-search">Search Tasks</label>
+
+        <input
+          type="search"
+          id="task-search"
+          name="task-search"
+          maxlength="200"
+          autocomplete="off"
+          placeholder="Search by title or description"
+          aria-describedby="task-search-help">
+
+        <p id="task-search-help" class="section-description">
+          Search task titles and descriptions (maximum 200 characters).
+        </p>
+
+        <p
+          id="task-search-feedback"
+          role="status"
+          aria-live="polite">
+        </p>
       </div>
 
       <div class="task-table-container">

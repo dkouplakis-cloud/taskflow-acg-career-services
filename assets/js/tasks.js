@@ -11,10 +11,15 @@
  * - Edit tasks through the existing accordion form
  * - Confirm before deleting a task
  * - Display color-coded priority and status badges
+ * - Search tasks by title and description
+ * - Debounce searches to improve performance
+ * - Safely handle extremely long search inputs
  * - Provide feedback after task operations
  */
 
 const TASK_STORAGE_KEY = "taskflow-tasks";
+const SEARCH_MAX_LENGTH = 200;
+const SEARCH_DEBOUNCE_MS = 300;
 
 
 /* ========================================
@@ -43,7 +48,7 @@ function loadTasks() {
 }
 
 /**
- * Save the task array to localStorage as JSON.
+ * Save the task array to localStorage.
  * Return true if saving succeeds.
  */
 function saveTasks(tasks) {
@@ -67,7 +72,6 @@ function saveTasks(tasks) {
 
 /**
  * Generate a unique identifier for each task.
- * Use crypto.randomUUID when supported.
  */
 function createTaskId() {
     if (
@@ -104,13 +108,13 @@ function showTaskMessage(message) {
 ======================================== */
 
 /**
- * Render the tasks inside the HTML table.
+ * Render tasks inside the HTML table.
  *
  * User-entered content is inserted using
- * textContent rather than innerHTML to
+ * textContent instead of innerHTML to
  * prevent HTML injection.
  */
-function renderTasks(tasks) {
+function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
     const tableBody = document.querySelector(
         "#task-table-body"
     );
@@ -122,14 +126,14 @@ function renderTasks(tasks) {
     // Remove previously displayed rows.
     tableBody.replaceChildren();
 
-    // Display an informative message if no tasks exist.
+    // Display an informative message when no tasks exist.
     if (tasks.length === 0) {
         const row = document.createElement("tr");
         const cell = document.createElement("td");
 
         cell.colSpan = 5;
         cell.className = "empty-state";
-        cell.textContent = "No tasks have been created yet.";
+        cell.textContent = emptyMessage;
 
         row.appendChild(cell);
         tableBody.appendChild(row);
@@ -167,7 +171,6 @@ function renderTasks(tasks) {
         title.textContent = task.title;
         titleCell.appendChild(title);
 
-        // Only display the description when one exists.
         if (task.description) {
             const description = document.createElement("p");
 
@@ -184,7 +187,6 @@ function renderTasks(tasks) {
         const priorityCell = document.createElement("td");
         const priorityBadge = document.createElement("span");
 
-        // CSS classes determine the badge color.
         priorityBadge.className =
             `task-badge priority-${task.priority}`;
 
@@ -200,7 +202,6 @@ function renderTasks(tasks) {
         const statusCell = document.createElement("td");
         const statusBadge = document.createElement("span");
 
-        // Each status receives a different CSS class.
         statusBadge.className =
             `task-badge status-${task.status}`;
 
@@ -215,7 +216,6 @@ function renderTasks(tasks) {
 
         const dateCell = document.createElement("td");
 
-        // Show a dash when no due date is provided.
         dateCell.textContent = task.dueDate || "—";
 
         /* ----------------------------------------
@@ -231,8 +231,6 @@ function renderTasks(tasks) {
         editButton.className =
             "task-action-button edit-button";
         editButton.textContent = "Edit";
-
-        // Associate the button with its task.
         editButton.dataset.taskId = task.id;
 
         // Create the Delete button.
@@ -242,8 +240,6 @@ function renderTasks(tasks) {
         deleteButton.className =
             "task-action-button delete-button";
         deleteButton.textContent = "Delete";
-
-        // Associate the button with its task.
         deleteButton.dataset.taskId = task.id;
 
         actionsCell.append(editButton, deleteButton);
@@ -263,7 +259,7 @@ function renderTasks(tasks) {
         fragment.appendChild(row);
     });
 
-    // Insert all completed rows into the table.
+    // Insert completed rows into the table.
     tableBody.appendChild(fragment);
 }
 
@@ -308,7 +304,6 @@ function initializeTasks() {
         "#task-due-date"
     );
 
-    // Select the table and accordion elements.
     const tableBody = document.querySelector(
         "#task-table-body"
     );
@@ -321,8 +316,24 @@ function initializeTasks() {
         ".accordion-title"
     );
 
+    const accordionDescription = document.querySelector(
+        "#create-task-accordion .section-description"
+    );
+
     const submitButton = form.querySelector(
         'button[type="submit"]'
+    );
+
+    /* ----------------------------------------
+       5.2 SELECT SEARCH ELEMENTS
+    ---------------------------------------- */
+
+    const searchInput = document.querySelector(
+        "#task-search"
+    );
+
+    const searchFeedback = document.querySelector(
+        "#task-search-feedback"
     );
 
     // Retrieve previously saved tasks.
@@ -331,12 +342,127 @@ function initializeTasks() {
     // null means Create mode; an ID means Edit mode.
     let editingTaskId = null;
 
+    // Store the debounce timer.
+    let searchTimer = null;
+
+    // Store the current search query.
+    let currentSearchQuery = "";
+
+    /**
+     * Display a search-related message.
+     */
+    function showSearchMessage(message) {
+        if (searchFeedback) {
+            searchFeedback.textContent = message;
+        }
+    }
+
+    /* ----------------------------------------
+       5.3 FILTER TASKS
+    ---------------------------------------- */
+
+    /**
+     * Return tasks matching the search query.
+     * Search is case-insensitive.
+     */
+    function filterTasks(query) {
+        if (!query) {
+            return tasks;
+        }
+
+        return tasks.filter((task) => {
+            const title = String(
+                task.title ?? ""
+            ).toLowerCase();
+
+            const description = String(
+                task.description ?? ""
+            ).toLowerCase();
+
+            return (
+                title.includes(query) ||
+                description.includes(query)
+            );
+        });
+    }
+
+    /**
+     * Refresh the task table using the
+     * currently active search query.
+     */
+    function refreshTaskTable() {
+        const filteredTasks = filterTasks(
+            currentSearchQuery
+        );
+
+        const emptyMessage = currentSearchQuery
+            ? "No tasks match your search."
+            : "No tasks have been created yet.";
+
+        renderTasks(filteredTasks, emptyMessage);
+
+        if (searchInput && currentSearchQuery) {
+            showSearchMessage(
+                `${filteredTasks.length} of ${tasks.length} task(s) found.`
+            );
+        } else {
+            showSearchMessage("");
+        }
+    }
+
     // Display saved tasks when the page loads.
-    renderTasks(tasks);
+    refreshTaskTable();
 
 
     /* ----------------------------------------
-       5.2 CREATE CANCEL EDITING BUTTON
+       5.4 HANDLE SEARCH INPUT
+    ---------------------------------------- */
+
+    /**
+     * Search after the user stops typing.
+     * Extremely long inputs are truncated
+     * before being processed.
+     */
+    if (searchInput) {
+        searchInput.maxLength = SEARCH_MAX_LENGTH;
+
+        searchInput.addEventListener("input", () => {
+            // Cancel any pending search.
+            clearTimeout(searchTimer);
+
+            let query = searchInput.value;
+
+            // Enforce the length limit in JavaScript.
+            if (query.length > SEARCH_MAX_LENGTH) {
+                query = query.slice(
+                    0,
+                    SEARCH_MAX_LENGTH
+                );
+
+                searchInput.value = query;
+            }
+
+            // Normalize the query once.
+            currentSearchQuery = query
+                .trim()
+                .toLowerCase();
+
+            // Provide immediate feedback for empty searches.
+            if (!currentSearchQuery) {
+                refreshTaskTable();
+                return;
+            }
+
+            // Delay filtering until typing stops.
+            searchTimer = setTimeout(() => {
+                refreshTaskTable();
+            }, SEARCH_DEBOUNCE_MS);
+        });
+    }
+
+
+    /* ----------------------------------------
+       5.5 CREATE CANCEL EDITING BUTTON
     ---------------------------------------- */
 
     /**
@@ -361,7 +487,7 @@ function initializeTasks() {
 
 
     /* ----------------------------------------
-       5.3 RESET FORM MODE
+       5.6 RESET FORM MODE
     ---------------------------------------- */
 
     /**
@@ -370,7 +496,6 @@ function initializeTasks() {
     function resetFormMode() {
         editingTaskId = null;
 
-        // Clear form fields and restore default values.
         form.reset();
 
         submitButton.textContent = "Create Task";
@@ -379,12 +504,17 @@ function initializeTasks() {
             accordionTitle.textContent = "Create a New Task";
         }
 
+        if (accordionDescription) {
+            accordionDescription.textContent =
+                "Complete the following fields to create a new Career Services task.";
+        }
+
         cancelEditButton.hidden = true;
     }
 
 
     /* ----------------------------------------
-       5.4 START EDITING A TASK
+       5.7 START EDITING A TASK
     ---------------------------------------- */
 
     /**
@@ -401,21 +531,23 @@ function initializeTasks() {
             return;
         }
 
-        // Switch from Create mode to Edit mode.
         editingTaskId = task.id;
 
-        // Populate the form with existing values.
         titleInput.value = task.title;
         descriptionInput.value = task.description || "";
         priorityInput.value = task.priority;
         statusInput.value = task.status;
         dueDateInput.value = task.dueDate || "";
 
-        // Update the form's labels.
         submitButton.textContent = "Save Changes";
 
         if (accordionTitle) {
             accordionTitle.textContent = "Edit Task";
+        }
+
+        if (accordionDescription) {
+            accordionDescription.textContent =
+                "Update the following fields to modify this Career Services task.";
         }
 
         cancelEditButton.hidden = false;
@@ -430,7 +562,6 @@ function initializeTasks() {
             });
         }
 
-        // Place the cursor in the title field.
         titleInput.focus({
             preventScroll: true
         });
@@ -440,13 +571,9 @@ function initializeTasks() {
 
 
     /* ----------------------------------------
-       5.5 CANCEL EDITING
+       5.8 CANCEL EDITING
     ---------------------------------------- */
 
-    /**
-     * Cancel editing without modifying
-     * the saved task.
-     */
     cancelEditButton.addEventListener("click", () => {
         resetFormMode();
 
@@ -459,15 +586,12 @@ function initializeTasks() {
 
 
     /* ----------------------------------------
-       5.6 HANDLE EDIT AND DELETE BUTTONS
+       5.9 HANDLE EDIT AND DELETE BUTTONS
     ---------------------------------------- */
 
     /**
-     * Use event delegation to handle clicks
-     * on dynamically generated task buttons.
-     *
-     * This avoids attaching separate event
-     * listeners to every table row.
+     * Use event delegation for dynamically
+     * generated task buttons.
      */
     if (tableBody) {
         tableBody.addEventListener("click", (event) => {
@@ -477,7 +601,7 @@ function initializeTasks() {
                 return;
             }
 
-            // Check whether the Edit button was clicked.
+            // Handle Edit.
             const editButton = target.closest(
                 ".edit-button"
             );
@@ -487,7 +611,7 @@ function initializeTasks() {
                 return;
             }
 
-            // Check whether the Delete button was clicked.
+            // Handle Delete.
             const deleteButton = target.closest(
                 ".delete-button"
             );
@@ -498,7 +622,6 @@ function initializeTasks() {
 
             const taskId = deleteButton.dataset.taskId;
 
-            // Locate the selected task.
             const task = tasks.find(
                 (item) => item.id === taskId
             );
@@ -507,40 +630,33 @@ function initializeTasks() {
                 return;
             }
 
-            // Ask the user to confirm deletion.
             const confirmed = window.confirm(
                 `Are you sure you want to delete "${task.title}"?`
             );
 
-            // Keep the task if deletion was cancelled.
             if (!confirmed) {
                 return;
             }
 
-            // Create an array without the deleted task.
             const updatedTasks = tasks.filter(
                 (item) => item.id !== taskId
             );
 
-            // Persist the deletion in localStorage.
             if (!saveTasks(updatedTasks)) {
                 showTaskMessage(
                     "Unable to delete task. Please try again."
                 );
-
                 return;
             }
 
-            // Update the in-memory task collection.
             tasks = updatedTasks;
 
-            // Exit Edit mode if the edited task was deleted.
             if (editingTaskId === taskId) {
                 resetFormMode();
             }
 
-            // Refresh the task table.
-            renderTasks(tasks);
+            // Preserve the active search filter.
+            refreshTaskTable();
 
             showTaskMessage(
                 `"${task.title}" was deleted successfully.`
@@ -550,20 +666,15 @@ function initializeTasks() {
 
 
     /* ----------------------------------------
-       5.7 CREATE OR UPDATE A TASK
+       5.10 CREATE OR UPDATE A TASK
     ---------------------------------------- */
 
-    /**
-     * Handle both task creation and editing
-     * using the same form.
-     */
     form.addEventListener("submit", (event) => {
-        // Prevent the browser from reloading the page.
         event.preventDefault();
 
         const title = titleInput.value.trim();
 
-        // Validate the required task title.
+        // Validate the required title.
         if (!title || title.length > 100) {
             showTaskMessage(
                 "Please enter a valid task title (1–100 characters)."
@@ -573,10 +684,22 @@ function initializeTasks() {
             return;
         }
 
-        // Collect values entered by the user.
+        const description = descriptionInput.value.trim();
+
+        // Validate description length.
+        if (description.length > 2000) {
+            showTaskMessage(
+                "Task descriptions cannot exceed 2,000 characters."
+            );
+
+            descriptionInput.focus();
+            return;
+        }
+
+        // Collect the task data.
         const taskData = {
             title: title,
-            description: descriptionInput.value.trim(),
+            description: description,
             priority: priorityInput.value,
             status: statusInput.value,
             dueDate: dueDateInput.value
@@ -601,8 +724,6 @@ function initializeTasks() {
                 return;
             }
 
-            // Preserve the task's original ID and
-            // creation timestamp while updating its data.
             updatedTasks = tasks.map((task) => {
                 if (task.id === editingTaskId) {
                     return {
@@ -626,7 +747,6 @@ function initializeTasks() {
                 createdAt: new Date().toISOString()
             };
 
-            // Add the new task to the existing collection.
             updatedTasks = [...tasks, newTask];
 
             successMessage = "Task created successfully.";
@@ -637,25 +757,21 @@ function initializeTasks() {
             showTaskMessage(
                 "Unable to save task. Please try again."
             );
-
             return;
         }
 
-        // Update the task collection in memory.
         tasks = updatedTasks;
 
-        // Display the updated task table.
-        renderTasks(tasks);
+        // Preserve the current search filter.
+        refreshTaskTable();
 
         // Return the form to Create mode.
         resetFormMode();
 
-        // Close the accordion after saving.
         if (accordion) {
             accordion.open = false;
         }
 
-        // Inform the user that the operation succeeded.
         showTaskMessage(
             `${successMessage} ${tasks.length} task(s) total.`
         );
