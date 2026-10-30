@@ -1,22 +1,33 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<link rel="icon" href="data:,">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-  <meta name="description"
-        content="Manage tasks for ACG Career Services.">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="description"
+    content="Manage tasks for ACG Career Services.">
+
+  <link rel="icon" href="data:,">
 
   <title>Tasks | TaskFlow</title>
 
   <link rel="stylesheet" href="assets/css/styles.css">
+
   <script type="module" src="assets/js/main.js"></script>
   <script type="module" src="assets/js/tasks.js"></script>
 </head>
 
 <body>
+
+  <!-- ========================================
+       HEADER AND NAVIGATION
+  ========================================= -->
 
   <header class="site-header">
     <div class="header-container">
@@ -24,6 +35,7 @@
       <div class="brand">
         <a href="index.html" class="brand-link">
           <span class="brand-name">TaskFlow</span>
+
           <span class="brand-subtitle">
             ACG Career Services
           </span>
@@ -45,9 +57,17 @@
         aria-label="Main navigation">
 
         <a href="index.html">Home</a>
-        <a href="tasks.html" aria-current="page">Tasks</a>
+
+        <a
+          href="tasks.html"
+          aria-current="page">
+          Tasks
+        </a>
+
         <a href="analytics.html">Analytics</a>
+
         <a href="about.html">About</a>
+
         <a href="contact.html">Contact</a>
 
       </nav>
@@ -63,14 +83,21 @@
     </div>
   </header>
 
+  <!-- ========================================
+       MAIN CONTENT
+  ========================================= -->
+
   <main class="main-content">
 
-    <!-- Page introduction -->
+    <!-- PAGE INTRODUCTION -->
+
     <section
       class="hero-section"
       aria-labelledby="page-heading">
 
-      <h1 id="page-heading">Task Management</h1>
+      <h1 id="page-heading">
+        Task Management
+      </h1>
 
       <p class="hero-subtitle">
         Organize, prioritize, and track your tasks.
@@ -83,22 +110,37 @@
 
     </section>
 
-    <!-- Tasks displayed first -->
+    <!-- ========================================
+         TASK LIST
+    ========================================= -->
+
     <section
       class="dashboard-section tasks-section"
       aria-labelledby="task-list-heading">
 
       <div class="section-heading">
         <div>
-          <h2 id="task-list-heading">Your Tasks</h2>
+
+          <h2 id="task-list-heading">
+            Your Tasks
+          </h2>
+
           <p class="section-description">
             View and manage your Career Services activities.
           </p>
+
         </div>
       </div>
 
+      <!-- ========================================
+           LIVE SEARCH
+      ========================================= -->
+
       <div class="task-search-container">
-        <label for="task-search">Search Tasks</label>
+
+        <label for="task-search">
+          Search Tasks
+        </label>
 
         <input
           type="search"
@@ -109,8 +151,13 @@
           placeholder="Search by title or description"
           aria-describedby="task-search-help">
 
-        <p id="task-search-help" class="section-description">
-          Search task titles and descriptions (maximum 200 characters).
+        <p
+          id="task-search-help"
+          class="section-description">
+
+          Search task titles and descriptions
+          (maximum 200 characters).
+
         </p>
 
         <p
@@ -118,29 +165,170 @@
           role="status"
           aria-live="polite">
         </p>
+
       </div>
 
+      <!-- ========================================
+           FILTERING AND SORTING
+      ========================================= -->
+
+      <div class="task-controls">
+
+        <!-- STATUS FILTER -->
+
+        <div class="form-group">
+
+          <label for="task-status-filter">
+            Filter by Status
+          </label>
+
+          <select
+            id="task-status-filter"
+            name="status-filter">
+
+            <option value="all">
+              All Statuses
+            </option>
+
+            <option value="pending">
+              Pending
+            </option>
+
+            <option value="progress">
+              In Progress
+            </option>
+
+            <option value="completed">
+              Completed
+            </option>
+
+          </select>
+
+        </div>
+
+        <!-- PRIORITY FILTER -->
+
+        <div class="form-group">
+
+          <label for="task-priority-filter">
+            Filter by Priority
+          </label>
+
+          <select
+            id="task-priority-filter"
+            name="priority-filter">
+
+            <option value="all">
+              All Priorities
+            </option>
+
+            <option value="high">
+              High
+            </option>
+
+            <option value="medium">
+              Medium
+            </option>
+
+            <option value="low">
+              Low
+            </option>
+
+          </select>
+
+        </div>
+
+        <!-- SORTING -->
+
+        <div class="form-group">
+
+          <label for="task-sort">
+            Sort Tasks
+          </label>
+
+          <select
+            id="task-sort"
+            name="task-sort">
+
+            <option value="default">
+              Default Order
+            </option>
+
+            <option value="name-asc">
+              Task Name (A-Z)
+            </option>
+
+            <option value="name-desc">
+              Task Name (Z-A)
+            </option>
+
+            <option value="date-asc">
+              Due Date (Earliest First)
+            </option>
+
+            <option value="date-desc">
+              Due Date (Latest First)
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================
+           TASK TABLE
+      ========================================= -->
+
       <div class="task-table-container">
+
         <table class="task-table">
+
           <thead>
             <tr>
-              <th scope="col">Task</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Status</th>
-              <th scope="col">Due Date</th>
-              <th scope="col">Actions</th>
+
+              <th scope="col">
+                Task
+              </th>
+
+              <th scope="col">
+                Priority
+              </th>
+
+              <th scope="col">
+                Status
+              </th>
+
+              <th scope="col">
+                Due Date
+              </th>
+
+              <th scope="col">
+                Actions
+              </th>
+
             </tr>
           </thead>
 
           <tbody id="task-table-body">
+
             <tr>
-              <td colspan="5" class="empty-state">
+              <td
+                colspan="5"
+                class="empty-state">
+
                 No tasks have been created yet.
+
               </td>
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
+
+      <!-- TASK OPERATION FEEDBACK -->
 
       <p
         id="task-list-status"
@@ -151,34 +339,55 @@
 
     </section>
 
-    <!-- Collapsible task creation form -->
+    <!-- ========================================
+         COLLAPSIBLE TASK CREATION FORM
+    ========================================= -->
+
     <section
       class="dashboard-section"
       aria-label="Task creation">
 
-      <details class="task-accordion" id="create-task-accordion">
+      <details
+        class="task-accordion"
+        id="create-task-accordion">
 
         <summary class="accordion-trigger">
+
           <span class="accordion-title">
-            <span class="accordion-symbol" aria-hidden="true">+</span>
+
+            <span
+              class="accordion-symbol"
+              aria-hidden="true">
+              +
+            </span>
+
             Create a New Task
+
           </span>
 
-          <span class="accordion-chevron" aria-hidden="true">
+          <span
+            class="accordion-chevron"
+            aria-hidden="true">
             ▾
           </span>
+
         </summary>
 
         <div class="accordion-content">
 
           <p class="section-description">
+
             Complete the following fields to create
             a new Career Services task.
+
           </p>
 
           <form id="task-form">
 
+            <!-- TASK TITLE -->
+
             <div class="form-group">
+
               <label for="task-title">
                 Task Title
               </label>
@@ -190,9 +399,13 @@
                 maxlength="100"
                 required
                 placeholder="Enter task title">
+
             </div>
 
+            <!-- TASK DESCRIPTION -->
+
             <div class="form-group">
+
               <label for="task-description">
                 Description
               </label>
@@ -203,33 +416,71 @@
                 maxlength="2000"
                 rows="4"
                 placeholder="Describe the task"></textarea>
+
             </div>
 
+            <!-- TASK PRIORITY -->
+
             <div class="form-group">
+
               <label for="task-priority">
                 Priority
               </label>
 
-              <select id="task-priority" name="priority">
-                <option value="low">Low</option>
-                <option value="medium" selected>Medium</option>
-                <option value="high">High</option>
+              <select
+                id="task-priority"
+                name="priority">
+
+                <option value="low">
+                  Low
+                </option>
+
+                <option
+                  value="medium"
+                  selected>
+                  Medium
+                </option>
+
+                <option value="high">
+                  High
+                </option>
+
               </select>
+
             </div>
 
+            <!-- TASK STATUS -->
+
             <div class="form-group">
+
               <label for="task-status">
                 Status
               </label>
 
-              <select id="task-status" name="status">
-                <option value="pending">Pending</option>
-                <option value="progress">In Progress</option>
-                <option value="completed">Completed</option>
+              <select
+                id="task-status"
+                name="status">
+
+                <option value="pending">
+                  Pending
+                </option>
+
+                <option value="progress">
+                  In Progress
+                </option>
+
+                <option value="completed">
+                  Completed
+                </option>
+
               </select>
+
             </div>
 
+            <!-- DUE DATE -->
+
             <div class="form-group">
+
               <label for="task-due-date">
                 Due Date
               </label>
@@ -238,7 +489,10 @@
                 type="date"
                 id="task-due-date"
                 name="dueDate">
+
             </div>
+
+            <!-- SUBMIT BUTTON -->
 
             <button
               type="submit"
@@ -249,17 +503,34 @@
           </form>
 
         </div>
+
       </details>
 
     </section>
 
-    <p id="app-status" role="status"></p>
+    <!-- APPLICATION STATUS -->
+
+    <p
+      id="app-status"
+      role="status">
+    </p>
 
   </main>
 
+  <!-- ========================================
+       FOOTER
+  ========================================= -->
+
   <footer class="site-footer">
-    <p>TaskFlow | ACG Career Services</p>
-    <p>ITC4214 Internet Programming - Student Project</p>
+
+    <p>
+      TaskFlow | ACG Career Services
+    </p>
+
+    <p>
+      ITC4214 Internet Programming - Student Project
+    </p>
+
   </footer>
 
 </body>
