@@ -365,25 +365,71 @@ function initializeTasks() {
      * Return tasks matching the search query.
      * Search is case-insensitive.
      */
+    
     function filterTasks(query) {
-        if (!query) {
-            return tasks;
-        }
+        const statusFilter = document.querySelector("#task-status-filter");
+        const priorityFilter = document.querySelector("#task-priority-filter");
+
+        const selectedStatus = statusFilter ? statusFilter.value : "all";
+        const selectedPriority = priorityFilter ? priorityFilter.value : "all";
+
+        const normalizedQuery = String(query ?? "").toLowerCase();
 
         return tasks.filter((task) => {
-            const title = String(
-                task.title ?? ""
-            ).toLowerCase();
+            const title = String(task.title ?? "").toLowerCase();
+            const description = String(task.description ?? "").toLowerCase();
 
-            const description = String(
-                task.description ?? ""
-            ).toLowerCase();
+            const matchesSearch =
+                !normalizedQuery ||
+                title.includes(normalizedQuery) ||
+                description.includes(normalizedQuery);
 
-            return (
-                title.includes(query) ||
-                description.includes(query)
-            );
+            const matchesStatus =
+                selectedStatus === "all" ||
+                task.status === selectedStatus;
+
+            const matchesPriority =
+                selectedPriority === "all" ||
+                task.priority === selectedPriority;
+
+            return matchesSearch && matchesStatus && matchesPriority;
         });
+    }
+    
+    /**
+     * Sort tasks without modifying the original array.
+     * Tasks without due dates appear last.
+     */
+    function sortTasks(taskList) {
+    const sortSelect = document.querySelector("#task-sort");
+    const sortOrder = sortSelect ? sortSelect.value : "default";
+
+    const sortedTasks = [...taskList];
+
+    if (sortOrder === "name-asc") {
+        sortedTasks.sort((a, b) =>
+        String(a.title ?? "").localeCompare(String(b.title ?? ""))
+        );
+    } else if (sortOrder === "name-desc") {
+        sortedTasks.sort((a, b) =>
+        String(b.title ?? "").localeCompare(String(a.title ?? ""))
+        );
+    } else if (sortOrder === "date-asc" || sortOrder === "date-desc") {
+        sortedTasks.sort((a, b) => {
+        const dateA = String(a.dueDate ?? "");
+        const dateB = String(b.dueDate ?? "");
+
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return 1;
+        if (!dateB) return -1;
+
+        return sortOrder === "date-asc"
+            ? dateA.localeCompare(dateB)
+            : dateB.localeCompare(dateA);
+        });
+    }
+
+    return sortedTasks;
     }
 
     /**
@@ -394,12 +440,12 @@ function initializeTasks() {
         const filteredTasks = filterTasks(
             currentSearchQuery
         );
-
+        const sortedTasks = sortTasks(filteredTasks);
         const emptyMessage = currentSearchQuery
             ? "No tasks match your search."
             : "No tasks have been created yet.";
 
-        renderTasks(filteredTasks, emptyMessage);
+        renderTasks(sortedTasks, emptyMessage);
 
         if (searchInput && currentSearchQuery) {
             showSearchMessage(
@@ -409,7 +455,24 @@ function initializeTasks() {
             showSearchMessage("");
         }
     }
+    
+    const statusFilter = document.querySelector("#task-status-filter");
+    const priorityFilter = document.querySelector("#task-priority-filter");
 
+    if (statusFilter) {
+        statusFilter.addEventListener("change", refreshTaskTable);
+    }
+
+    if (priorityFilter) {
+        priorityFilter.addEventListener("change", refreshTaskTable);
+    }
+
+    // Update the task table whenever the sorting option changes.
+    const sortSelect = document.querySelector("#task-sort");
+
+    if (sortSelect) {
+    sortSelect.addEventListener("change", refreshTaskTable);
+    }
     // Display saved tasks when the page loads.
     refreshTaskTable();
 
