@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Manage ACG Career Services tasks visually using the TaskFlow Kanban board."
+  >
+
+  <link rel="icon" href="data:,">
+
+  <title>Kanban Board | TaskFlow</title>
+
+  <!-- External CSS only -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+
+  <!-- Shared application functionality -->
+  <script
+    type="module"
+    src="assets/js/main.js"
+  ></script>
+
+  <!-- Kanban board functionality -->
+  <script
+    type="module"
+    src="assets/js/kanban.js"
+  ></script>
+</head>
+
+<body>
+
+  <!-- ========================================
+       HEADER AND NAVIGATION
+       ======================================== -->
+
+  <header class="site-header">
+    <div class="header-container">
+
+      <!-- Branding -->
+      <div class="brand">
+        <a href="index.html" class="brand-link">
+          <span class="brand-name">TaskFlow</span>
+          <span class="brand-subtitle">
+            ACG Career Services
+          </span>
+        </a>
+      </div>
+
+      <!-- Mobile navigation toggle -->
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="main-navigation"
+      >
+        <span aria-hidden="true">&#9776;</span>
+      </button>
+
+      <!-- Main navigation -->
+      <nav
+        class="main-navigation"
+        id="main-navigation"
+        aria-label="Main navigation"
+      >
+        <ul>
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+
+          <li>
+            <a href="tasks.html">Tasks</a>
+          </li>
+
+          <li>
+            <a href="analytics.html">Analytics</a>
+          </li>
+
+          <li>
+            <a
+              href="kanban.html"
+              aria-current="page"
+            >
+              Kanban
+            </a>
+          </li>
+
+          <li>
+            <a href="contact.html">Contact</a>
+          </li>
+
+          <li>
+            <a href="about.html">About</a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Theme toggle -->
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Toggle dark mode"
+        aria-pressed="false"
+      >
+        Dark Mode
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
+
+  <main id="main-content">
+
+    <!-- Page introduction -->
+    <section
+      class="page-hero"
+      aria-labelledby="kanban-page-title"
+    >
+      <div class="container">
+
+        <h1 id="kanban-page-title">
+          Kanban Board
+        </h1>
+
+        <p>
+          Organize and monitor your Career Services
+          activities visually.
+        </p>
+
+        <p>
+          Move tasks between Pending, In Progress,
+          and Completed to keep your workflow updated.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         KANBAN BOARD
+         ======================================== -->
+
+    <section
+      class="kanban-section"
+      aria-labelledby="kanban-heading"
+    >
+      <div class="container">
+
+        <div class="kanban-introduction">
+
+          <h2 id="kanban-heading">
+            Your Workflow
+          </h2>
+
+          <p>
+            Tasks are synchronized with your TaskFlow
+            task list and analytics.
+          </p>
+
+          <p>
+            Drag tasks between columns or use the
+            status selector on each task card.
+          </p>
+
+          <a
+            href="tasks.html"
+            class="button button-primary"
+          >
+            Manage Tasks
+          </a>
+
+        </div>
+
+        <!-- Accessible announcements -->
+        <p
+          id="kanban-feedback"
+          class="kanban-feedback"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+
+        <!-- Kanban columns -->
+        <div
+          class="kanban-board"
+          id="kanban-board"
+          aria-label="Task workflow board"
+        >
+
+          <!-- ============================
+               PENDING COLUMN
+               ============================ -->
+
+          <section
+            class="kanban-column"
+            data-status="pending"
+            aria-labelledby="pending-heading"
+          >
+
+            <div class="kanban-column-header">
+
+              <h3 id="pending-heading">
+                Pending
+              </h3>
+
+              <span
+                class="kanban-count"
+                id="pending-count"
+                aria-label="Pending task count"
+              >
+                0
+              </span>
+
+            </div>
+
+            <div
+              class="kanban-task-list"
+              id="pending-tasks"
+              data-status="pending"
+              aria-label="Pending tasks"
+            >
+              <p class="kanban-empty">
+                No pending tasks.
+              </p>
+            </div>
+
+          </section>
+
+          <!-- ============================
+               IN PROGRESS COLUMN
+               ============================ -->
+
+          <section
+            class="kanban-column"
+            data-status="progress"
+            aria-labelledby="progress-heading"
+          >
+
+            <div class="kanban-column-header">
+
+              <h3 id="progress-heading">
+                In Progress
+              </h3>
+
+              <span
+                class="kanban-count"
+                id="progress-count"
+                aria-label="In progress task count"
+              >
+                0
+              </span>
+
+            </div>
+
+            <div
+              class="kanban-task-list"
+              id="progress-tasks"
+              data-status="progress"
+              aria-label="In progress tasks"
+            >
+              <p class="kanban-empty">
+                No tasks in progress.
+              </p>
+            </div>
+
+          </section>
+
+          <!-- ============================
+               COMPLETED COLUMN
+               ============================ -->
+
+          <section
+            class="kanban-column"
+            data-status="completed"
+            aria-labelledby="completed-heading"
+          >
+
+            <div class="kanban-column-header">
+
+              <h3 id="completed-heading">
+                Completed
+              </h3>
+
+              <span
+                class="kanban-count"
+                id="completed-count"
+                aria-label="Completed task count"
+              >
+                0
+              </span>
+
+            </div>
+
+            <div
+              class="kanban-task-list"
+              id="completed-tasks"
+              data-status="completed"
+              aria-label="Completed tasks"
+            >
+              <p class="kanban-empty">
+                No completed tasks.
+              </p>
+            </div>
+
+          </section>
+
+        </div>
+
+        <!-- Board summary -->
+        <div
+          class="kanban-summary"
+          aria-labelledby="kanban-summary-heading"
+        >
+
+          <h3 id="kanban-summary-heading">
+            Workflow Summary
+          </h3>
+
+          <p>
+            Total Tasks:
+            <strong id="kanban-total">0</strong>
+          </p>
+
+          <p>
+            Completion Rate:
+            <strong id="kanban-completion-rate">0%</strong>
+          </p>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+
+  <footer class="site-footer">
+    <div class="container">
+
+      <p>
+        TaskFlow | ACG Career Services
+      </p>
+
+      <p>
+        ITC4214 Internet Programming - Student Project
+      </p>
+
+    </div>
+  </footer>
+
+  <!-- Application initialization status -->
+  <p
+    id="app-status"
+    class="app-status"
+    role="status"
+    aria-live="polite"
+  ></p>
+
+</body>
+</html>

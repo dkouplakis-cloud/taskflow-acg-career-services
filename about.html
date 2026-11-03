@@ -6,11 +6,11 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
   <meta name="description"
-        content="Learn about TaskFlow, a task management platform for ACG Career Services.">
+        content="Learn about TaskFlow, ACG Career Services, and the project team.">
 
   <title>About | TaskFlow</title>
 
-  <!-- External stylesheet -->
+  <!-- External stylesheet only -->
   <link rel="stylesheet" href="assets/css/styles.css">
 
   <!-- Shared application functionality -->
@@ -23,7 +23,6 @@
   <header class="site-header">
     <div class="header-container">
 
-      <!-- Website branding -->
       <div class="brand">
         <a href="index.html" class="brand-link">
           <span class="brand-name">TaskFlow</span>
@@ -33,7 +32,7 @@
         </a>
       </div>
 
-      <!-- Mobile navigation button -->
+      <!-- Mobile navigation -->
       <button
         class="menu-toggle"
         type="button"
@@ -52,12 +51,13 @@
         <a href="index.html">Home</a>
         <a href="tasks.html">Tasks</a>
         <a href="analytics.html">Analytics</a>
+        <a href="kanban.html">Kanban</a>
         <a href="about.html" aria-current="page">About</a>
         <a href="contact.html">Contact</a>
 
       </nav>
 
-      <!-- Theme switch -->
+      <!-- Theme toggle -->
       <button
         class="theme-toggle"
         type="button"
@@ -72,26 +72,35 @@
   <!-- Main page content -->
   <main class="main-content">
 
-    <!-- About page introduction -->
+    <!-- Introduction -->
     <section
       class="hero-section"
       aria-labelledby="about-heading">
 
+      <p class="about-eyebrow">
+        ABOUT OUR PLATFORM
+      </p>
+
       <h1 id="about-heading">About TaskFlow</h1>
 
       <p class="hero-subtitle">
-        Simplifying task management and improving organization.
+        Organize. Collaborate. Achieve.
       </p>
 
       <p>
-        TaskFlow is a web-based task management application
-        designed to support the organization of activities
-        and responsibilities within the ACG Career Services Office.
+        TaskFlow is a web-based task management platform
+        designed to support the ACG Career Services Office
+        in organizing activities, coordinating responsibilities,
+        and monitoring progress.
       </p>
+
+      <a href="tasks.html" class="primary-button">
+        Explore TaskFlow
+      </a>
 
     </section>
 
-    <!-- Project purpose -->
+    <!-- Our purpose -->
     <section
       class="dashboard-section"
       aria-labelledby="purpose-heading">
@@ -99,59 +108,79 @@
       <h2 id="purpose-heading">Our Purpose</h2>
 
       <p>
-        The purpose of TaskFlow is to provide a simple,
-        accessible, and organized environment for managing
-        everyday tasks. The platform helps users monitor
-        progress, prioritize responsibilities, and maintain
-        a clear overview of their workload.
+        TaskFlow provides a simple, accessible, and organized
+        environment for managing daily responsibilities.
+        It helps users prioritize activities, track progress,
+        and maintain a clear overview of their workload.
       </p>
 
       <p>
-        TaskFlow is designed around activities such as
-        career workshops, employer events, student
-        registrations, and administrative responsibilities.
+        The platform is designed around Career Services
+        activities such as career workshops, employer events,
+        student registrations, and administrative coordination.
       </p>
 
     </section>
 
-    <!-- Application features -->
+    <!-- Key features -->
     <section
       class="dashboard-section"
       aria-labelledby="features-heading">
 
-      <h2 id="features-heading">Key Features</h2>
+      <h2 id="features-heading">What TaskFlow Offers</h2>
+
+      <p>
+        Explore the features designed to make task
+        management more efficient and organized.
+      </p>
 
       <div class="dashboard-grid">
 
         <article class="dashboard-card">
           <h3>Task Management</h3>
           <p>
-            Create, edit, and delete tasks while keeping
-            responsibilities organized in one place.
+            Create, edit, search, and delete tasks
+            through an organized interface.
           </p>
         </article>
 
         <article class="dashboard-card">
           <h3>Priority Tracking</h3>
           <p>
-            Assign low, medium, or high priority levels
-            to identify important activities.
+            Assign low, medium, or high priorities
+            to identify important responsibilities.
           </p>
         </article>
 
         <article class="dashboard-card">
           <h3>Progress Monitoring</h3>
           <p>
-            Track tasks through pending, in-progress,
-            and completed stages.
+            Monitor tasks through Pending,
+            In Progress, and Completed stages.
           </p>
         </article>
 
         <article class="dashboard-card">
           <h3>Task Analytics</h3>
           <p>
-            View performance statistics, completion rates,
-            and visual breakdowns of tasks.
+            View completion rates, task statistics,
+            and visual performance breakdowns.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Kanban Board</h3>
+          <p>
+            Organize tasks visually and update their
+            status using drag-and-drop functionality.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Persistent Storage</h3>
+          <p>
+            Save tasks and appearance preferences
+            locally in the browser using localStorage.
           </p>
         </article>
 
@@ -159,44 +188,242 @@
 
     </section>
 
-    <!-- Technologies used -->
+    <!-- ACG Career Services -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="career-services-heading">
+
+      <div class="about-career-services">
+
+        <div class="about-career-services-content">
+
+          <p class="about-eyebrow">
+            OUR ORGANIZATIONAL CONTEXT
+          </p>
+
+          <h2 id="career-services-heading">
+            ACG Career Services
+          </h2>
+
+          <p>
+            The Career Services Office at
+            The American College of Greece
+            supports students and alumni in their
+            professional development and career planning.
+          </p>
+
+          <p>
+            Through career guidance, workshops,
+            employer engagement, and professional
+            development activities, the office helps
+            students prepare for future opportunities.
+          </p>
+
+          <p>
+            TaskFlow is an academic project designed
+            around the organizational needs and
+            activities of this office.
+          </p>
+
+          <a
+            href="https://www.acg.edu/current-students/student-services/career-services/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-button">
+            Visit ACG Career Services
+          </a>
+
+        </div>
+
+        <!-- Logo asset can be added here later -->
+        <div class="about-career-services-logo">
+          <div class="about-logo-placeholder">
+            <strong>ACG</strong>
+            <span>Career Services</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Meet our team -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="team-heading">
+
+      <div class="about-section-heading">
+        <p class="about-eyebrow">
+          THE PEOPLE BEHIND THE PROJECT
+        </p>
+
+        <h2 id="team-heading">Meet Our Team</h2>
+
+        <p>
+          Meet the five team members contributing
+          to the development of TaskFlow.
+        </p>
+      </div>
+
+      <div class="team-grid">
+
+        <!-- Team member 1 -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder"
+               aria-hidden="true">
+            <span>01</span>
+          </div>
+
+          <div class="team-card-content">
+            <h3>Team Member 1</h3>
+            <p class="team-role">Job Title</p>
+            <p class="team-description">
+              TaskFlow Project Team
+            </p>
+            <span class="team-link-placeholder">
+              LinkedIn profile to be added
+            </span>
+          </div>
+
+        </article>
+
+        <!-- Team member 2 -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder"
+               aria-hidden="true">
+            <span>02</span>
+          </div>
+
+          <div class="team-card-content">
+            <h3>Team Member 2</h3>
+            <p class="team-role">Job Title</p>
+            <p class="team-description">
+              TaskFlow Project Team
+            </p>
+            <span class="team-link-placeholder">
+              LinkedIn profile to be added
+            </span>
+          </div>
+
+        </article>
+
+        <!-- Team member 3 -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder"
+               aria-hidden="true">
+            <span>03</span>
+          </div>
+
+          <div class="team-card-content">
+            <h3>Team Member 3</h3>
+            <p class="team-role">Job Title</p>
+            <p class="team-description">
+              TaskFlow Project Team
+            </p>
+            <span class="team-link-placeholder">
+              LinkedIn profile to be added
+            </span>
+          </div>
+
+        </article>
+
+        <!-- Team member 4 -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder"
+               aria-hidden="true">
+            <span>04</span>
+          </div>
+
+          <div class="team-card-content">
+            <h3>Team Member 4</h3>
+            <p class="team-role">Job Title</p>
+            <p class="team-description">
+              TaskFlow Project Team
+            </p>
+            <span class="team-link-placeholder">
+              LinkedIn profile to be added
+            </span>
+          </div>
+
+        </article>
+
+        <!-- Team member 5 -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder"
+               aria-hidden="true">
+            <span>05</span>
+          </div>
+
+          <div class="team-card-content">
+            <h3>Team Member 5</h3>
+            <p class="team-role">Job Title</p>
+            <p class="team-description">
+              TaskFlow Project Team
+            </p>
+            <span class="team-link-placeholder">
+              LinkedIn profile to be added
+            </span>
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- Technologies -->
     <section
       class="dashboard-section"
       aria-labelledby="technologies-heading">
 
-      <h2 id="technologies-heading">Technologies Used</h2>
+      <h2 id="technologies-heading">
+        Technologies Used
+      </h2>
 
-      <p>
-        TaskFlow is developed using standard web
-        technologies:
-      </p>
+      <div class="dashboard-grid">
 
-      <ul>
-        <li>
-          <strong>HTML5:</strong>
-          Provides the structure and semantic content
-          of the website.
-        </li>
-        <li>
-          <strong>CSS3:</strong>
-          Controls the visual design, responsive layout,
-          and light and dark themes.
-        </li>
-        <li>
-          <strong>JavaScript:</strong>
-          Implements task management, dynamic content,
-          and analytics calculations.
-        </li>
-        <li>
-          <strong>localStorage:</strong>
-          Stores tasks and theme preferences within
-          the user's browser.
-        </li>
-      </ul>
+        <article class="dashboard-card">
+          <h3>HTML5</h3>
+          <p>
+            Semantic page structure and
+            accessible website content.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>CSS3</h3>
+          <p>
+            Responsive layouts, visual styling,
+            and light and dark themes.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>JavaScript</h3>
+          <p>
+            Interactive features, DOM manipulation,
+            event handling, and analytics.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>localStorage</h3>
+          <p>
+            Browser-based persistence of tasks
+            and appearance preferences.
+          </p>
+        </article>
+
+      </div>
 
     </section>
 
-    <!-- Academic project information -->
+    <!-- Academic project -->
     <section
       class="dashboard-section"
       aria-labelledby="project-heading">
@@ -204,21 +431,21 @@
       <h2 id="project-heading">Academic Project</h2>
 
       <p>
-        TaskFlow was developed as a student project
-        for ITC4214 Internet Programming at
-        the American College of Greece.
+        TaskFlow was developed for ITC4214 Internet
+        Programming at The American College of Greece.
       </p>
 
       <p>
-        The project demonstrates practical applications
-        of front-end web development, responsive design,
-        DOM manipulation, event handling, and
-        browser-based data storage.
+        The project demonstrates front-end web
+        development, responsive design, DOM manipulation,
+        JavaScript event handling, accessibility,
+        and browser-based data storage.
       </p>
 
-      <a href="tasks.html" class="primary-button">
-        Explore Task Management
-      </a>
+      <p>
+        TaskFlow is a student-developed demonstration
+        platform and is not an official ACG system.
+      </p>
 
     </section>
 
