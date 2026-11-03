@@ -2126,3 +2126,20 @@ a {
     padding: 1.25rem;
   }
 }
+
+/* ACG Career Services team portraits */
+.team-photo-placeholder:has(.team-photo) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.team-photo {
+  display: block;
+  width: 160px;
+  height: 160px;
+  max-width: 85%;
+  object-fit: contain;
+  border-radius: 50%;
+}
