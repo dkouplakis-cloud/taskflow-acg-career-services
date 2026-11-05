@@ -2143,3 +2143,157 @@ a {
   object-fit: contain;
   border-radius: 50%;
 }
+
+/* ==========================================
+   CENTER THE LAST TWO TEAM CARDS
+   ========================================== */
+
+/* Desktop: three cards on top, two centered below */
+@media (min-width: 901px) {
+
+  .team-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .team-grid > .team-card {
+    grid-column: span 2;
+  }
+
+  .team-grid > .team-card:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .team-grid > .team-card:nth-child(5) {
+    grid-column: 4 / span 2;
+  }
+
+}
+/* ==========================================
+   KANBAN PAGE - LAYOUT CONSISTENCY
+   ========================================== */
+
+/* Apply consistent spacing to the Kanban page */
+#main-content:has(.kanban-board) {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+/* Prevent nested containers from adding extra margins */
+#main-content:has(.kanban-board) .container {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Match the hero styling used throughout TaskFlow */
+#main-content:has(.kanban-board) .page-hero {
+  margin-bottom: 2rem;
+}
+
+/* Keep the introduction compact */
+#main-content:has(.kanban-board) .kanban-section {
+  padding: 0 0 2rem;
+}
+
+/* Consistent heading spacing */
+#main-content:has(.kanban-board) .kanban-introduction {
+  margin-bottom: 1.75rem;
+}
+
+#main-content:has(.kanban-board) .kanban-introduction h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+
+#main-content:has(.kanban-board) .kanban-introduction p {
+  max-width: 850px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* Improve workflow board alignment */
+#main-content:has(.kanban-board) .kanban-board {
+  width: 100%;
+  margin: 2rem 0;
+  gap: 1.25rem;
+}
+
+/* Match existing TaskFlow card appearance */
+#main-content:has(.kanban-board) .kanban-column {
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+/* Give task cards consistent internal spacing */
+#main-content:has(.kanban-board) .kanban-card,
+#main-content:has(.kanban-board) .kanban-task-card {
+  padding: 1.25rem;
+  border-radius: 12px;
+}
+
+/* Style the workflow summary */
+#main-content:has(.kanban-board) .kanban-summary {
+  margin-top: 2rem;
+  padding: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+#main-content:has(.kanban-board) .kanban-summary h3 {
+  margin: 0 0 1rem;
+  color: var(--text);
+}
+
+#main-content:has(.kanban-board) .kanban-summary p {
+  margin: 0.5rem 0;
+  color: var(--muted);
+}
+
+#main-content:has(.kanban-board) .kanban-summary strong {
+  color: var(--text);
+}
+
+/* Accessible status feedback */
+#main-content:has(.kanban-board) .kanban-feedback {
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+#main-content:has(.kanban-board) .kanban-feedback:empty {
+  display: none;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 700px) {
+
+  #main-content:has(.kanban-board) {
+    padding: 1.5rem 1rem;
+  }
+
+  #main-content:has(.kanban-board) .page-hero {
+    padding: 1.5rem;
+  }
+
+  #main-content:has(.kanban-board) .kanban-section {
+    padding-bottom: 1.5rem;
+  }
+
+  #main-content:has(.kanban-board) .kanban-board {
+    gap: 1rem;
+  }
+
+  #main-content:has(.kanban-board) .kanban-summary {
+    padding: 1.25rem;
+  }
+
+}

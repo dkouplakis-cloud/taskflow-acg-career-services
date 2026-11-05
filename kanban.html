@@ -120,11 +120,14 @@
        MAIN CONTENT
        ======================================== -->
 
-  <main id="main-content">
+  <main id="main-content" class="main-content">
 
-    <!-- Page introduction -->
+    <!-- ========================================
+         PAGE INTRODUCTION
+         ======================================== -->
+
     <section
-      class="page-hero"
+      class="hero-section page-hero"
       aria-labelledby="kanban-page-title"
     >
       <div class="container">
@@ -147,7 +150,7 @@
     </section>
 
     <!-- ========================================
-         KANBAN BOARD
+         KANBAN WORKFLOW SECTION
          ======================================== -->
 
     <section
@@ -156,6 +159,7 @@
     >
       <div class="container">
 
+        <!-- Workflow introduction -->
         <div class="kanban-introduction">
 
           <h2 id="kanban-heading">
@@ -174,14 +178,14 @@
 
           <a
             href="tasks.html"
-            class="button button-primary"
+            class="primary-button"
           >
             Manage Tasks
           </a>
 
         </div>
 
-        <!-- Accessible announcements -->
+        <!-- Accessible status announcements -->
         <p
           id="kanban-feedback"
           class="kanban-feedback"
@@ -190,16 +194,19 @@
           aria-atomic="true"
         ></p>
 
-        <!-- Kanban columns -->
+        <!-- ====================================
+             KANBAN BOARD
+             ==================================== -->
+
         <div
           class="kanban-board"
           id="kanban-board"
           aria-label="Task workflow board"
         >
 
-          <!-- ============================
+          <!-- ================================
                PENDING COLUMN
-               ============================ -->
+               ================================ -->
 
           <section
             class="kanban-column"
@@ -236,9 +243,9 @@
 
           </section>
 
-          <!-- ============================
+          <!-- ================================
                IN PROGRESS COLUMN
-               ============================ -->
+               ================================ -->
 
           <section
             class="kanban-column"
@@ -275,9 +282,9 @@
 
           </section>
 
-          <!-- ============================
+          <!-- ================================
                COMPLETED COLUMN
-               ============================ -->
+               ================================ -->
 
           <section
             class="kanban-column"
@@ -316,7 +323,10 @@
 
         </div>
 
-        <!-- Board summary -->
+        <!-- ====================================
+             WORKFLOW SUMMARY
+             ==================================== -->
+
         <div
           class="kanban-summary"
           aria-labelledby="kanban-summary-heading"

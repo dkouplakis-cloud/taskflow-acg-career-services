@@ -1,6 +1,8 @@
 
 "use strict";
 
+import { recordTaskActivity } from "./task-activity.js";
+
 /**
  * TaskFlow | ACG Career Services
  * Task Management Module
@@ -15,12 +17,13 @@
  * - Debounce searches to improve performance
  * - Safely handle extremely long search inputs
  * - Provide feedback after task operations
+ * - Record task activity
+ * - Mark tasks as completed
  */
 
 const TASK_STORAGE_KEY = "taskflow-tasks";
 const SEARCH_MAX_LENGTH = 200;
 const SEARCH_DEBOUNCE_MS = 300;
-
 
 /* ========================================
    1. LOCAL STORAGE
@@ -65,7 +68,6 @@ function saveTasks(tasks) {
     }
 }
 
-
 /* ========================================
    2. TASK IDENTIFIERS
 ======================================== */
@@ -84,7 +86,6 @@ function createTaskId() {
     return `${Date.now()}-${Math.random()}`;
 }
 
-
 /* ========================================
    3. USER FEEDBACK
 ======================================== */
@@ -102,7 +103,6 @@ function showTaskMessage(message) {
     }
 }
 
-
 /* ========================================
    4. DISPLAY TASKS
 ======================================== */
@@ -114,7 +114,10 @@ function showTaskMessage(message) {
  * textContent instead of innerHTML to
  * prevent HTML injection.
  */
-function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
+function renderTasks(
+    tasks,
+    emptyMessage = "No tasks have been created yet."
+) {
     const tableBody = document.querySelector(
         "#task-table-body"
     );
@@ -219,7 +222,7 @@ function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
         dateCell.textContent = task.dueDate || "—";
 
         /* ----------------------------------------
-           4.5 EDIT AND DELETE BUTTONS
+           4.5 TASK ACTION BUTTONS
         ---------------------------------------- */
 
         const actionsCell = document.createElement("td");
@@ -233,8 +236,25 @@ function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
         editButton.textContent = "Edit";
         editButton.dataset.taskId = task.id;
 
+        // Create the Mark Completed button.
+        const completeButton = document.createElement(
+            "button"
+        );
+
+        completeButton.type = "button";
+        completeButton.className =
+            "task-action-button complete-button";
+        completeButton.textContent = "Mark Completed";
+        completeButton.dataset.taskId = task.id;
+
+        // A completed task cannot be completed again.
+        completeButton.disabled =
+            task.status === "completed";
+
         // Create the Delete button.
-        const deleteButton = document.createElement("button");
+        const deleteButton = document.createElement(
+            "button"
+        );
 
         deleteButton.type = "button";
         deleteButton.className =
@@ -242,7 +262,11 @@ function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
         deleteButton.textContent = "Delete";
         deleteButton.dataset.taskId = task.id;
 
-        actionsCell.append(editButton, deleteButton);
+        actionsCell.append(
+            editButton,
+            completeButton,
+            deleteButton
+        );
 
         /* ----------------------------------------
            4.6 COMPLETE THE TABLE ROW
@@ -262,7 +286,6 @@ function renderTasks(tasks, emptyMessage = "No tasks have been created yet.") {
     // Insert completed rows into the table.
     tableBody.appendChild(fragment);
 }
-
 
 /* ========================================
    5. INITIALIZE TASK MANAGEMENT
@@ -365,19 +388,35 @@ function initializeTasks() {
      * Return tasks matching the search query.
      * Search is case-insensitive.
      */
-    
     function filterTasks(query) {
-        const statusFilter = document.querySelector("#task-status-filter");
-        const priorityFilter = document.querySelector("#task-priority-filter");
+        const statusFilter = document.querySelector(
+            "#task-status-filter"
+        );
 
-        const selectedStatus = statusFilter ? statusFilter.value : "all";
-        const selectedPriority = priorityFilter ? priorityFilter.value : "all";
+        const priorityFilter = document.querySelector(
+            "#task-priority-filter"
+        );
 
-        const normalizedQuery = String(query ?? "").toLowerCase();
+        const selectedStatus = statusFilter
+            ? statusFilter.value
+            : "all";
+
+        const selectedPriority = priorityFilter
+            ? priorityFilter.value
+            : "all";
+
+        const normalizedQuery = String(
+            query ?? ""
+        ).toLowerCase();
 
         return tasks.filter((task) => {
-            const title = String(task.title ?? "").toLowerCase();
-            const description = String(task.description ?? "").toLowerCase();
+            const title = String(
+                task.title ?? ""
+            ).toLowerCase();
+
+            const description = String(
+                task.description ?? ""
+            ).toLowerCase();
 
             const matchesSearch =
                 !normalizedQuery ||
@@ -392,44 +431,68 @@ function initializeTasks() {
                 selectedPriority === "all" ||
                 task.priority === selectedPriority;
 
-            return matchesSearch && matchesStatus && matchesPriority;
+            return (
+                matchesSearch &&
+                matchesStatus &&
+                matchesPriority
+            );
         });
     }
-    
+
     /**
      * Sort tasks without modifying the original array.
      * Tasks without due dates appear last.
      */
     function sortTasks(taskList) {
-    const sortSelect = document.querySelector("#task-sort");
-    const sortOrder = sortSelect ? sortSelect.value : "default";
-
-    const sortedTasks = [...taskList];
-
-    if (sortOrder === "name-asc") {
-        sortedTasks.sort((a, b) =>
-        String(a.title ?? "").localeCompare(String(b.title ?? ""))
+        const sortSelect = document.querySelector(
+            "#task-sort"
         );
-    } else if (sortOrder === "name-desc") {
-        sortedTasks.sort((a, b) =>
-        String(b.title ?? "").localeCompare(String(a.title ?? ""))
-        );
-    } else if (sortOrder === "date-asc" || sortOrder === "date-desc") {
-        sortedTasks.sort((a, b) => {
-        const dateA = String(a.dueDate ?? "");
-        const dateB = String(b.dueDate ?? "");
 
-        if (!dateA && !dateB) return 0;
-        if (!dateA) return 1;
-        if (!dateB) return -1;
+        const sortOrder = sortSelect
+            ? sortSelect.value
+            : "default";
 
-        return sortOrder === "date-asc"
-            ? dateA.localeCompare(dateB)
-            : dateB.localeCompare(dateA);
-        });
-    }
+        const sortedTasks = [...taskList];
 
-    return sortedTasks;
+        if (sortOrder === "name-asc") {
+            sortedTasks.sort((a, b) =>
+                String(a.title ?? "").localeCompare(
+                    String(b.title ?? "")
+                )
+            );
+        } else if (sortOrder === "name-desc") {
+            sortedTasks.sort((a, b) =>
+                String(b.title ?? "").localeCompare(
+                    String(a.title ?? "")
+                )
+            );
+        } else if (
+            sortOrder === "date-asc" ||
+            sortOrder === "date-desc"
+        ) {
+            sortedTasks.sort((a, b) => {
+                const dateA = String(a.dueDate ?? "");
+                const dateB = String(b.dueDate ?? "");
+
+                if (!dateA && !dateB) {
+                    return 0;
+                }
+
+                if (!dateA) {
+                    return 1;
+                }
+
+                if (!dateB) {
+                    return -1;
+                }
+
+                return sortOrder === "date-asc"
+                    ? dateA.localeCompare(dateB)
+                    : dateB.localeCompare(dateA);
+            });
+        }
+
+        return sortedTasks;
     }
 
     /**
@@ -440,12 +503,19 @@ function initializeTasks() {
         const filteredTasks = filterTasks(
             currentSearchQuery
         );
-        const sortedTasks = sortTasks(filteredTasks);
+
+        const sortedTasks = sortTasks(
+            filteredTasks
+        );
+
         const emptyMessage = currentSearchQuery
             ? "No tasks match your search."
             : "No tasks have been created yet.";
 
-        renderTasks(sortedTasks, emptyMessage);
+        renderTasks(
+            sortedTasks,
+            emptyMessage
+        );
 
         if (searchInput && currentSearchQuery) {
             showSearchMessage(
@@ -455,27 +525,43 @@ function initializeTasks() {
             showSearchMessage("");
         }
     }
-    
-    const statusFilter = document.querySelector("#task-status-filter");
-    const priorityFilter = document.querySelector("#task-priority-filter");
+
+    const statusFilter = document.querySelector(
+        "#task-status-filter"
+    );
+
+    const priorityFilter = document.querySelector(
+        "#task-priority-filter"
+    );
 
     if (statusFilter) {
-        statusFilter.addEventListener("change", refreshTaskTable);
+        statusFilter.addEventListener(
+            "change",
+            refreshTaskTable
+        );
     }
 
     if (priorityFilter) {
-        priorityFilter.addEventListener("change", refreshTaskTable);
+        priorityFilter.addEventListener(
+            "change",
+            refreshTaskTable
+        );
     }
 
-    // Update the task table whenever the sorting option changes.
-    const sortSelect = document.querySelector("#task-sort");
+    // Update the task table whenever sorting changes.
+    const sortSelect = document.querySelector(
+        "#task-sort"
+    );
 
     if (sortSelect) {
-    sortSelect.addEventListener("change", refreshTaskTable);
+        sortSelect.addEventListener(
+            "change",
+            refreshTaskTable
+        );
     }
+
     // Display saved tasks when the page loads.
     refreshTaskTable();
-
 
     /* ----------------------------------------
        5.4 HANDLE SEARCH INPUT
@@ -523,7 +609,6 @@ function initializeTasks() {
         });
     }
 
-
     /* ----------------------------------------
        5.5 CREATE CANCEL EDITING BUTTON
     ---------------------------------------- */
@@ -548,7 +633,6 @@ function initializeTasks() {
         cancelEditButton
     );
 
-
     /* ----------------------------------------
        5.6 RESET FORM MODE
     ---------------------------------------- */
@@ -564,7 +648,8 @@ function initializeTasks() {
         submitButton.textContent = "Create Task";
 
         if (accordionTitle) {
-            accordionTitle.textContent = "Create a New Task";
+            accordionTitle.textContent =
+                "Create a New Task";
         }
 
         if (accordionDescription) {
@@ -574,7 +659,6 @@ function initializeTasks() {
 
         cancelEditButton.hidden = true;
     }
-
 
     /* ----------------------------------------
        5.7 START EDITING A TASK
@@ -586,18 +670,22 @@ function initializeTasks() {
      */
     function startEditing(taskId) {
         const task = tasks.find(
-            (item) => item.id === taskId
+            (item) => String(item.id) === String(taskId)
         );
 
         if (!task) {
-            showTaskMessage("Selected task was not found.");
+            showTaskMessage(
+                "Selected task was not found."
+            );
             return;
         }
 
         editingTaskId = task.id;
 
         titleInput.value = task.title;
-        descriptionInput.value = task.description || "";
+        descriptionInput.value =
+            task.description || "";
+
         priorityInput.value = task.priority;
         statusInput.value = task.status;
         dueDateInput.value = task.dueDate || "";
@@ -629,27 +717,32 @@ function initializeTasks() {
             preventScroll: true
         });
 
-        showTaskMessage(`Editing "${task.title}".`);
+        showTaskMessage(
+            `Editing "${task.title}".`
+        );
     }
-
 
     /* ----------------------------------------
        5.8 CANCEL EDITING
     ---------------------------------------- */
 
-    cancelEditButton.addEventListener("click", () => {
-        resetFormMode();
+    cancelEditButton.addEventListener(
+        "click",
+        () => {
+            resetFormMode();
 
-        if (accordion) {
-            accordion.open = false;
+            if (accordion) {
+                accordion.open = false;
+            }
+
+            showTaskMessage(
+                "Editing cancelled."
+            );
         }
-
-        showTaskMessage("Editing cancelled.");
-    });
-
+    );
 
     /* ----------------------------------------
-       5.9 HANDLE EDIT AND DELETE BUTTONS
+       5.9 HANDLE EDIT, COMPLETE AND DELETE
     ---------------------------------------- */
 
     /**
@@ -670,7 +763,79 @@ function initializeTasks() {
             );
 
             if (editButton) {
-                startEditing(editButton.dataset.taskId);
+                startEditing(
+                    editButton.dataset.taskId
+                );
+                return;
+            }
+
+            // Handle Mark Completed.
+            const completeButton = target.closest(
+                ".complete-button"
+            );
+
+            if (completeButton) {
+                const taskId =
+                    completeButton.dataset.taskId;
+
+                const task = tasks.find(
+                    (item) =>
+                        String(item.id) === String(taskId)
+                );
+
+                if (!task) {
+                    showTaskMessage(
+                        "Selected task was not found."
+                    );
+                    return;
+                }
+
+                if (task.status === "completed") {
+                    showTaskMessage(
+                        "This task is already completed."
+                    );
+                    return;
+                }
+
+                const updatedTasks = tasks.map(
+                    (item) => {
+                        if (
+                            String(item.id) ===
+                            String(taskId)
+                        ) {
+                            return {
+                                ...item,
+                                status: "completed",
+                                updatedAt:
+                                    new Date().toISOString()
+                            };
+                        }
+
+                        return item;
+                    }
+                );
+
+                if (!saveTasks(updatedTasks)) {
+                    showTaskMessage(
+                        "Unable to complete task. Please try again."
+                    );
+                    return;
+                }
+
+                tasks = updatedTasks;
+
+                // Record only after successful saving.
+                recordTaskActivity(
+                    "completed",
+                    task.title
+                );
+
+                refreshTaskTable();
+
+                showTaskMessage(
+                    `"${task.title}" marked as completed successfully.`
+                );
+
                 return;
             }
 
@@ -686,7 +851,8 @@ function initializeTasks() {
             const taskId = deleteButton.dataset.taskId;
 
             const task = tasks.find(
-                (item) => item.id === taskId
+                (item) =>
+                    String(item.id) === String(taskId)
             );
 
             if (!task) {
@@ -702,7 +868,8 @@ function initializeTasks() {
             }
 
             const updatedTasks = tasks.filter(
-                (item) => item.id !== taskId
+                (item) =>
+                    String(item.id) !== String(taskId)
             );
 
             if (!saveTasks(updatedTasks)) {
@@ -713,6 +880,12 @@ function initializeTasks() {
             }
 
             tasks = updatedTasks;
+
+            // Record successful task deletion.
+            recordTaskActivity(
+                "deleted",
+                task.title
+            );
 
             if (editingTaskId === taskId) {
                 resetFormMode();
@@ -726,7 +899,6 @@ function initializeTasks() {
             );
         });
     }
-
 
     /* ----------------------------------------
        5.10 CREATE OR UPDATE A TASK
@@ -747,7 +919,8 @@ function initializeTasks() {
             return;
         }
 
-        const description = descriptionInput.value.trim();
+        const description =
+            descriptionInput.value.trim();
 
         // Validate description length.
         if (description.length > 2000) {
@@ -770,12 +943,15 @@ function initializeTasks() {
 
         let updatedTasks;
         let successMessage;
+        let activityAction;
 
         if (editingTaskId !== null) {
             /* UPDATE AN EXISTING TASK */
 
             const existingTask = tasks.find(
-                (item) => item.id === editingTaskId
+                (item) =>
+                    String(item.id) ===
+                    String(editingTaskId)
             );
 
             if (!existingTask) {
@@ -788,18 +964,31 @@ function initializeTasks() {
             }
 
             updatedTasks = tasks.map((task) => {
-                if (task.id === editingTaskId) {
+                if (
+                    String(task.id) ===
+                    String(editingTaskId)
+                ) {
                     return {
                         ...task,
                         ...taskData,
-                        updatedAt: new Date().toISOString()
+                        updatedAt:
+                            new Date().toISOString()
                     };
                 }
 
                 return task;
             });
 
-            successMessage = "Task updated successfully.";
+            successMessage =
+                "Task updated successfully.";
+
+            // Record completion when editing changes
+            // the task's status to Completed.
+            activityAction =
+                existingTask.status !== "completed" &&
+                taskData.status === "completed"
+                    ? "completed"
+                    : "updated";
 
         } else {
             /* CREATE A NEW TASK */
@@ -810,9 +999,15 @@ function initializeTasks() {
                 createdAt: new Date().toISOString()
             };
 
-            updatedTasks = [...tasks, newTask];
+            updatedTasks = [
+                ...tasks,
+                newTask
+            ];
 
-            successMessage = "Task created successfully.";
+            successMessage =
+                "Task created successfully.";
+
+            activityAction = "created";
         }
 
         // Save changes before updating the interface.
@@ -824,6 +1019,12 @@ function initializeTasks() {
         }
 
         tasks = updatedTasks;
+
+        // Record activity only after successful saving.
+        recordTaskActivity(
+            activityAction,
+            title
+        );
 
         // Preserve the current search filter.
         refreshTaskTable();
@@ -839,8 +1040,38 @@ function initializeTasks() {
             `${successMessage} ${tasks.length} task(s) total.`
         );
     });
-}
 
+    /* ----------------------------------------
+       5.11 SYNCHRONIZE OTHER BROWSER TABS
+    ---------------------------------------- */
+
+    window.addEventListener("storage", (event) => {
+        if (event.key !== TASK_STORAGE_KEY) {
+            return;
+        }
+
+        tasks = loadTasks();
+
+        // If a task being edited was deleted
+        // in another tab, reset the form.
+        if (
+            editingTaskId !== null &&
+            !tasks.some(
+                (task) =>
+                    String(task.id) ===
+                    String(editingTaskId)
+            )
+        ) {
+            resetFormMode();
+        }
+
+        refreshTaskTable();
+
+        showTaskMessage(
+            "Tasks were updated from another browser tab."
+        );
+    });
+}
 
 /* ========================================
    6. START TASK MANAGEMENT

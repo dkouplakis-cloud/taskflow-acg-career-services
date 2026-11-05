@@ -1,13 +1,21 @@
 
 "use strict";
 
-/*
+import { recordTaskActivity } from "./task-activity.js";
+
+/**
  * TaskFlow | ACG Career Services
- * Kanban Board
+ * Kanban Board Module
  *
- * Displays tasks in three workflow columns.
- * Supports drag-and-drop and accessible status changes.
- * Synchronizes changes using localStorage.
+ * Features:
+ * - Three workflow columns
+ * - Drag-and-drop task movement
+ * - Accessible status dropdowns
+ * - Persistent localStorage synchronization
+ * - Task activity logging
+ * - Task modification timestamps
+ * - Safe DOM rendering
+ * - Cross-tab synchronization
  */
 
 function initializeKanban() {
@@ -45,8 +53,8 @@ function initializeKanban() {
   let tasks = [];
   let draggedTaskId = null;
 
-  /*
-   * Display a message without injecting HTML.
+  /**
+   * Display feedback safely.
    */
   function showFeedback(message) {
     if (feedback) {
@@ -54,8 +62,8 @@ function initializeKanban() {
     }
   }
 
-  /*
-   * Read stored tasks safely.
+  /**
+   * Retrieve tasks from localStorage.
    */
   function loadTasks() {
     try {
@@ -88,16 +96,15 @@ function initializeKanban() {
       console.error("Unable to load Kanban tasks:", error);
 
       showFeedback(
-        "Unable to read saved tasks. Your stored data was not changed."
+        "Unable to read saved tasks. Stored data was not changed."
       );
 
       return [];
     }
   }
 
-  /*
-   * Save task updates.
-   * A failed write must not silently appear successful.
+  /**
+   * Save updated tasks.
    */
   function saveTasks(updatedTasks) {
     try {
@@ -119,8 +126,8 @@ function initializeKanban() {
     }
   }
 
-  /*
-   * Create a text element safely.
+  /**
+   * Create an HTML element with safe text content.
    */
   function createTextElement(tagName, className, value) {
     const element = document.createElement(tagName);
@@ -131,12 +138,16 @@ function initializeKanban() {
     return element;
   }
 
-  /*
-   * Update a task's status and persist the change.
+  /**
+   * Update a task's status.
+   *
+   * Saves the change before updating the interface
+   * or recording activity.
    */
   function updateTaskStatus(taskId, newStatus) {
     if (!VALID_STATUSES.includes(newStatus)) {
       showFeedback("Invalid task status.");
+      renderBoard();
       return;
     }
 
@@ -146,6 +157,7 @@ function initializeKanban() {
 
     if (!task) {
       showFeedback("The selected task could not be found.");
+      renderBoard();
       return;
     }
 
@@ -153,29 +165,17 @@ function initializeKanban() {
       return;
     }
 
-    const updatedTasks = tasks.map((item) => {
-      if (String(item.id) === String(taskId)) {
-        return {
-          ...item,
-          status: newStatus
-        };
-      }
-
-      return item;
-    });
-
-    /*
-     * Preserve other stored task records, including
-     * records that this board cannot display.
-     */
     try {
+      // Read the latest stored data before updating.
       const storedValue = localStorage.getItem(STORAGE_KEY);
+
       const originalTasks = storedValue
         ? JSON.parse(storedValue)
         : [];
 
       if (!Array.isArray(originalTasks)) {
-        showFeedback("Unable to update invalid stored task data.");
+        showFeedback("Invalid stored task data.");
+        renderBoard();
         return;
       }
 
@@ -189,12 +189,36 @@ function initializeKanban() {
 
       if (matchingTasks.length !== 1) {
         showFeedback(
-          "Task data has changed or contains duplicate IDs. No changes saved."
+          "Task data has changed or contains duplicate IDs."
         );
+
+        tasks = loadTasks();
+        renderBoard();
         return;
       }
 
-      const mergedTasks = originalTasks.map((item) => {
+      const storedTask = matchingTasks[0];
+
+      if (!VALID_STATUSES.includes(storedTask.status)) {
+        showFeedback("The stored task has an invalid status.");
+        tasks = loadTasks();
+        renderBoard();
+        return;
+      }
+
+      if (storedTask.status !== task.status) {
+        showFeedback(
+          "Task status changed elsewhere. Board refreshed."
+        );
+
+        tasks = loadTasks();
+        renderBoard();
+        return;
+      }
+
+      const timestamp = new Date().toISOString();
+
+      const updatedTasks = originalTasks.map((item) => {
         if (
           item !== null &&
           typeof item === "object" &&
@@ -202,36 +226,54 @@ function initializeKanban() {
         ) {
           return {
             ...item,
-            status: newStatus
+            status: newStatus,
+            updatedAt: timestamp
           };
         }
 
         return item;
       });
 
-      if (!saveTasks(mergedTasks)) {
+      // Never update the interface if saving fails.
+      if (!saveTasks(updatedTasks)) {
+        renderBoard();
         return;
       }
 
-      tasks = updatedTasks;
+      // Reload the successfully saved task records.
+      tasks = loadTasks();
+
+      // Record activity after successful persistence.
+      const activityAction =
+        newStatus === "completed"
+          ? "completed"
+          : "status-changed";
+
+      recordTaskActivity(
+        activityAction,
+        storedTask.title
+      );
 
       renderBoard();
 
       showFeedback(
-        `Task "${task.title.slice(0, 100)}" moved to ${STATUS_LABELS[newStatus]}.`
+        `Task "${storedTask.title.slice(0, 100)}" moved to ${STATUS_LABELS[newStatus]}.`
       );
 
     } catch (error) {
       console.error("Unable to update task:", error);
 
       showFeedback(
-        "Task update failed. Existing saved data was preserved."
+        "Task update failed. Existing data was preserved."
       );
+
+      tasks = loadTasks();
+      renderBoard();
     }
   }
 
-  /*
-   * Create a task card.
+  /**
+   * Create a Kanban task card.
    */
   function createTaskCard(task) {
     const card = document.createElement("article");
@@ -240,6 +282,7 @@ function initializeKanban() {
     card.draggable = true;
     card.dataset.taskId = String(task.id);
 
+    // Task title.
     const title = createTextElement(
       "h4",
       "kanban-card-title",
@@ -248,6 +291,7 @@ function initializeKanban() {
 
     card.appendChild(title);
 
+    // Task description.
     if (typeof task.description === "string") {
       const description = createTextElement(
         "p",
@@ -258,54 +302,61 @@ function initializeKanban() {
       card.appendChild(description);
     }
 
+    // Task metadata.
     const metadata = document.createElement("div");
     metadata.className = "kanban-card-meta";
 
-    // Format and display priority.
     const priorityValue = String(
-    task.priority ?? "medium"
+      task.priority ?? "medium"
     ).slice(0, 20);
 
     const formattedPriority =
-    priorityValue.charAt(0).toUpperCase() +
-    priorityValue.slice(1).toLowerCase();
+      priorityValue.charAt(0).toUpperCase() +
+      priorityValue.slice(1).toLowerCase();
 
     const priority = createTextElement(
-    "span",
-    "kanban-card-priority",
-    `Priority: ${formattedPriority}`
+      "span",
+      "kanban-card-priority",
+      `Priority: ${formattedPriority}`
     );
 
     metadata.appendChild(priority);
 
-    // Format and display the due date.
+    // Format the due date safely.
     if (
-    typeof task.dueDate === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)
+      typeof task.dueDate === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)
     ) {
-    const dateParts = task.dueDate.split("-");
-    const year = Number(dateParts[0]);
-    const month = Number(dateParts[1]);
-    const day = Number(dateParts[2]);
+      const dateParts = task.dueDate.split("-");
 
-    const date = new Date(Date.UTC(year, month - 1, day));
+      const year = Number(dateParts[0]);
+      const month = Number(dateParts[1]);
+      const day = Number(dateParts[2]);
 
-    if (
+      const date = new Date(
+        Date.UTC(year, month - 1, day)
+      );
+
+      const validDate =
         date.getUTCFullYear() === year &&
         date.getUTCMonth() === month - 1 &&
-        date.getUTCDate() === day
-    ) {
-        const formattedDate = date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        timeZone: "UTC"
-        });
+        date.getUTCDate() === day;
+
+      if (validDate) {
+        const formattedDate = date.toLocaleDateString(
+          "en-GB",
+          {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC"
+          }
+        );
 
         const dueDate = createTextElement(
-        "span",
-        "kanban-card-date",
-        `Due: ${formattedDate}`
+          "span",
+          "kanban-card-date",
+          `Due: ${formattedDate}`
         );
 
         metadata.appendChild(dueDate);
@@ -314,14 +365,12 @@ function initializeKanban() {
 
     card.appendChild(metadata);
 
-    
-    /*
-     * Accessible alternative to drag-and-drop.
+    /**
+     * Accessible status selector.
      */
     const label = document.createElement("label");
 
     label.className = "kanban-status-label";
-
     label.textContent = "Change status";
 
     const selector = document.createElement("select");
@@ -351,8 +400,8 @@ function initializeKanban() {
     label.appendChild(selector);
     card.appendChild(label);
 
-    /*
-     * Drag-and-drop event handlers.
+    /**
+     * Drag-and-drop events.
      */
     card.addEventListener("dragstart", (event) => {
       draggedTaskId = String(task.id);
@@ -371,15 +420,14 @@ function initializeKanban() {
 
     card.addEventListener("dragend", () => {
       draggedTaskId = null;
-
       card.classList.remove("is-dragging");
     });
 
     return card;
   }
 
-  /*
-   * Render all three Kanban columns.
+  /**
+   * Render the Kanban board.
    */
   function renderBoard() {
     VALID_STATUSES.forEach((status) => {
@@ -415,13 +463,19 @@ function initializeKanban() {
         );
 
         taskList.appendChild(emptyMessage);
+
       } else {
+        const fragment = document.createDocumentFragment();
+
         columnTasks.forEach((task) => {
-          taskList.appendChild(createTaskCard(task));
+          fragment.appendChild(createTaskCard(task));
         });
+
+        taskList.appendChild(fragment);
       }
     });
 
+    // Update board statistics.
     const totalTasks = tasks.length;
 
     const completedTasks = tasks.filter((task) => {
@@ -442,8 +496,8 @@ function initializeKanban() {
     }
   }
 
-  /*
-   * Configure drag-and-drop targets.
+  /**
+   * Configure drag-and-drop zones.
    */
   function initializeDropZones() {
     const dropZones = board.querySelectorAll(
@@ -489,9 +543,8 @@ function initializeKanban() {
     });
   }
 
-  /*
-   * Synchronize when another browser tab updates
-   * the shared localStorage key.
+  /**
+   * Refresh when another tab changes saved tasks.
    */
   window.addEventListener("storage", (event) => {
     if (event.key !== STORAGE_KEY) {
@@ -507,14 +560,12 @@ function initializeKanban() {
     );
   });
 
-  /*
-   * Initial setup.
-   */
+  // Initial setup.
   tasks = loadTasks();
 
   initializeDropZones();
-
   renderBoard();
 }
 
+// Initialize Kanban.
 initializeKanban();
