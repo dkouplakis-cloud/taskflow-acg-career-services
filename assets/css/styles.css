@@ -2297,3 +2297,523 @@ a {
   }
 
 }
+
+
+/* ==========================================
+   HOME PAGE - PROFESSIONAL REDESIGN
+   Scoped to .home-page
+   ========================================== */
+
+.home-page {
+  max-width: 1200px;
+}
+
+/* Small section labels */
+
+.home-page .home-eyebrow {
+  margin: 0 0 0.5rem;
+  color: #4169a1;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+/* ==========================================
+   WELCOME SECTION
+   ========================================== */
+
+.home-page .home-hero {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.55fr) minmax(260px, 0.85fr);
+  align-items: center;
+  gap: 2.5rem;
+  padding: 3.5rem;
+}
+
+.home-page .home-hero h1 {
+  max-width: 650px;
+  font-size: clamp(2.2rem, 4vw, 3.35rem);
+}
+
+.home-page .home-hero-description {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.home-page .home-hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.home-page .home-hero-actions .primary-button {
+  margin-top: 0;
+}
+
+.home-page .home-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-weight: 700;
+  background: var(--background);
+}
+
+.home-page .home-secondary-button:hover {
+  border-color: #4169a1;
+}
+
+/* Decorative workflow preview */
+
+.home-page .home-hero-visual {
+  min-width: 0;
+  padding: 1.5rem;
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    #14213d,
+    #294c7b
+  );
+  color: #ffffff;
+  box-shadow: 0 16px 30px rgba(20, 33, 61, 0.16);
+}
+
+.home-page .home-visual-label {
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #cbd5e1;
+  margin-bottom: 1.3rem;
+}
+
+.home-page .home-visual-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+  padding: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.home-page .home-visual-dot {
+  flex: 0 0 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.home-page .home-visual-dot.pending {
+  background: #fbbf24;
+}
+
+.home-page .home-visual-dot.progress {
+  background: #60a5fa;
+}
+
+.home-page .home-visual-dot.completed {
+  background: #34d399;
+}
+
+.home-page .home-visual-line {
+  margin-left: auto;
+  width: 30px;
+  height: 5px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.home-page .home-visual-footer {
+  margin-top: 1.25rem;
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+/* ==========================================
+   SECTION HEADINGS
+   ========================================== */
+
+.home-page .home-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.home-page .home-section-heading h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: -0.025em;
+}
+
+.home-page .home-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #315c99;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.home-page .home-text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ==========================================
+   DASHBOARD STATISTICS
+   ========================================== */
+
+.home-page .home-dashboard {
+  margin-bottom: 2.5rem;
+}
+
+.home-page .dashboard-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+.home-page .dashboard-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #4169a1;
+}
+
+.home-page .home-stat-pending::before {
+  background: #e9ad42;
+}
+
+.home-page .home-stat-progress::before {
+  background: #3b82f6;
+}
+
+.home-page .home-stat-completed::before {
+  background: #10b981;
+}
+
+.home-page .dashboard-number {
+  font-size: 2.6rem;
+}
+
+.home-page .home-stat-caption {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* ==========================================
+   ACTIVITY AND QUICK ACCESS LAYOUT
+   ========================================== */
+
+.home-page .home-content-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-bottom: 2.75rem;
+}
+
+.home-page .home-panel {
+  min-width: 0;
+  padding: 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.home-page .home-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.home-page .home-panel-heading h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.home-page .home-panel-icon {
+  color: #4169a1;
+  font-size: 1.5rem;
+}
+
+.home-page .home-panel-description {
+  margin: 0.65rem 0 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ==========================================
+   RECENT TASK ACTIVITY
+   ========================================== */
+
+.home-page .activity-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+}
+
+.home-page .activity-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.home-page .activity-content {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: 0.92rem;
+}
+
+.home-page .activity-action {
+  color: var(--text);
+}
+
+.home-page .activity-title {
+  color: var(--muted);
+}
+
+.home-page .activity-date {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.home-page .activity-empty {
+  padding: 1.25rem 0;
+  color: var(--muted);
+}
+
+.home-page .activity-feedback {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* ==========================================
+   QUICK ACCESS LINKS
+   ========================================== */
+
+.home-page .home-shortcuts {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.home-page .home-shortcut {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  background: var(--background);
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+
+.home-page .home-shortcut:hover {
+  transform: translateY(-2px);
+  border-color: #4169a1;
+}
+
+.home-page .home-shortcut-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #294c7b;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.home-page .home-shortcut strong,
+.home-page .home-shortcut small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.home-page .home-shortcut small {
+  color: var(--muted);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+
+/* ==========================================
+   PLATFORM FEATURES
+   ========================================== */
+
+.home-page .home-features {
+  margin-bottom: 2rem;
+}
+
+.home-page .features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.home-page .feature-card {
+  min-width: 0;
+  padding: 1.65rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.home-page .home-feature-number {
+  color: #4169a1;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.home-page .feature-card h3 {
+  margin: 0.7rem 0;
+  font-size: 1.1rem;
+}
+
+.home-page .feature-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+[data-theme="dark"] .home-page .home-eyebrow,
+[data-theme="dark"] .home-page .home-feature-number,
+[data-theme="dark"] .home-page .home-text-link,
+[data-theme="dark"] .home-page .home-panel-icon {
+  color: #93c5fd;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 950px) {
+
+  .home-page .home-hero {
+    grid-template-columns: 1fr;
+    padding: 2.5rem;
+  }
+
+  .home-page .home-hero-visual {
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .home-page .home-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .home-page .home-hero {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .home-page .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-page .home-panel {
+    padding: 1.25rem;
+  }
+
+  .home-page .home-hero-actions > a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .home-page .home-section-heading {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 950px) {
+
+  .home-page .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .home-page .dashboard-card,
+  .home-page .home-shortcut {
+    transition: none;
+  }
+}
+
+
+/* ==========================================
+   HOME PAGE - SIMPLIFIED DASHBOARD
+   ========================================== */
+
+/* Recent activity now occupies full width */
+.home-page .home-content-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Limit the width of activity text for readability */
+.home-page .activity-content {
+  max-width: 850px;
+}
+
+/* Improve spacing around the activity section */
+.home-page .activity-section {
+  padding: 2rem;
+}
+
+/* Keep activity timestamps aligned */
+.home-page .activity-item {
+  align-items: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 700px) {
+  .home-page .activity-section {
+    padding: 1.25rem;
+  }
+
+  .home-page .activity-item {
+    align-items: flex-start;
+  }
+}

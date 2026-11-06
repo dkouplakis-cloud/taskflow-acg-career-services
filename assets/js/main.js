@@ -205,6 +205,7 @@ function updateDashboardStatistics() {
   completedElement.textContent = String(completedTasks);
 }
 
+<script type="module" src="assets/js/about.js"></script>
 /**
  * Start the application.
  */
