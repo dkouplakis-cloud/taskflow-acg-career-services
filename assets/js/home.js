@@ -208,6 +208,41 @@ function renderJobs(jobs) {
     const card = document.createElement("article");
     card.className = "job-card";
 
+    
+    // Company logo supplied by the Remotive API.
+    const logo = document.createElement("img");
+    logo.className = "job-company-logo";
+    logo.alt =
+      typeof job.company_name === "string"
+        ? `${job.company_name.slice(0, 150)} logo`
+        : "Company logo";
+
+    logo.loading = "lazy";
+    logo.referrerPolicy = "no-referrer";
+
+    let hasValidLogo = false;
+
+    if (typeof job.company_logo === "string") {
+      try {
+        const logoUrl = new URL(job.company_logo);
+
+        if (
+          logoUrl.protocol === "https:" ||
+          logoUrl.protocol === "http:"
+        ) {
+          logo.src = logoUrl.href;
+          hasValidLogo = true;
+        }
+      } catch (error) {
+        console.warn("Invalid company logo URL:", error);
+      }
+    }
+
+    // Hide missing or broken images.
+    logo.addEventListener("error", () => {
+      logo.remove();
+    });
+
     const title = document.createElement("h4");
     title.className = "job-title";
 
@@ -231,6 +266,10 @@ function renderJobs(jobs) {
       typeof job.candidate_required_location === "string"
         ? `Location: ${job.candidate_required_location.slice(0, 150)}`
         : "Location: Remote";
+
+    if (hasValidLogo) {
+      card.appendChild(logo);
+    }
 
     card.append(title, company, location);
 

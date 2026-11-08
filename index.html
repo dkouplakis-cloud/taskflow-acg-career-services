@@ -4,39 +4,74 @@
 
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
+
   <meta
     name="description"
     content="TaskFlow helps ACG Career Services organize tasks, track progress and coordinate activities."
   >
+
   <link rel="icon" href="data:,">
 
   <title>TaskFlow | ACG Career Services</title>
 
-  <!-- External CSS and JavaScript -->
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script type="module" src="assets/js/main.js"></script>
-  <script type="module" src="assets/js/home.js"></script>
+  <!-- Bootstrap CSS Framework -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  >
+
+  <!-- Custom External CSS -->
+  <link
+    rel="stylesheet"
+    href="assets/css/styles.css"
+  >
+
+  <!-- JavaScript Modules -->
+  <script
+    type="module"
+    src="assets/js/main.js"
+  ></script>
+
+  <script
+    type="module"
+    src="assets/js/home.js"
+  ></script>
+
 </head>
 
 <body>
 
-  <!-- HEADER -->
+  <!-- ========================================
+       HEADER AND NAVIGATION
+       ======================================== -->
+
   <header class="site-header">
+
     <div class="header-container">
 
+      <!-- Branding -->
       <div class="brand">
+
         <a href="index.html" class="brand-link">
-          <span class="brand-name">TaskFlow</span>
+
+          <span class="brand-name">
+            TaskFlow
+          </span>
+
           <span class="brand-subtitle">
             ACG Career Services
           </span>
+
         </a>
+
       </div>
 
+      <!-- Mobile Navigation Button -->
       <button
         class="menu-toggle"
         type="button"
@@ -44,22 +79,48 @@
         aria-expanded="false"
         aria-controls="main-navigation"
       >
-        <span aria-hidden="true">&#9776;</span>
+        <span aria-hidden="true">
+          &#9776;
+        </span>
       </button>
 
+      <!-- Main Navigation -->
       <nav
         id="main-navigation"
         class="main-navigation"
         aria-label="Main navigation"
       >
-        <a href="index.html" aria-current="page">Home</a>
-        <a href="tasks.html">Tasks</a>
-        <a href="analytics.html">Analytics</a>
-        <a href="kanban.html">Kanban</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
+
+        <a
+          href="index.html"
+          aria-current="page"
+        >
+          Home
+        </a>
+
+        <a href="tasks.html">
+          Tasks
+        </a>
+
+        <a href="analytics.html">
+          Analytics
+        </a>
+
+        <a href="kanban.html">
+          Kanban
+        </a>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <a href="contact.html">
+          Contact
+        </a>
+
       </nav>
 
+      <!-- Dark Mode -->
       <button
         class="theme-toggle"
         type="button"
@@ -70,12 +131,22 @@
       </button>
 
     </div>
+
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main id="main-content" class="main-content home-page">
+  <!-- ========================================
+       MAIN CONTENT
+       ======================================== -->
 
-    <!-- WELCOME SECTION -->
+  <main
+    id="main-content"
+    class="main-content home-page"
+  >
+
+    <!-- ========================================
+         HERO SECTION
+         ======================================== -->
+
     <section
       class="hero-section home-hero"
       aria-labelledby="welcome-heading"
@@ -96,48 +167,85 @@
         </p>
 
         <p class="home-hero-description">
-          Plan Career Services activities, coordinate
-          responsibilities, and monitor every task
-          from one organized workspace.
+          Plan Career Services activities,
+          coordinate responsibilities,
+          and monitor every task from one
+          organized workspace.
         </p>
 
         <div class="home-hero-actions">
 
-          <a href="tasks.html" class="primary-button">
+          <a
+            href="tasks.html"
+            class="primary-button"
+          >
             Manage Tasks
-            <span aria-hidden="true">&rarr;</span>
+            <span aria-hidden="true">
+              &rarr;
+            </span>
           </a>
 
-          <a href="kanban.html" class="home-secondary-button">
+          <a
+            href="kanban.html"
+            class="home-secondary-button"
+          >
             View Kanban Board
           </a>
 
         </div>
+
       </div>
 
-      <!-- Decorative workflow preview -->
-      <div class="home-hero-visual" aria-hidden="true">
+      <!-- Decorative Workflow Preview -->
+      <div
+        class="home-hero-visual"
+        aria-hidden="true"
+      >
 
         <div class="home-visual-label">
           YOUR WORKFLOW
         </div>
 
         <div class="home-visual-row">
-          <span class="home-visual-dot pending"></span>
+
+          <span
+            class="home-visual-dot pending"
+          ></span>
+
           <span>Pending</span>
-          <span class="home-visual-line"></span>
+
+          <span
+            class="home-visual-line"
+          ></span>
+
         </div>
 
         <div class="home-visual-row">
-          <span class="home-visual-dot progress"></span>
+
+          <span
+            class="home-visual-dot progress"
+          ></span>
+
           <span>In Progress</span>
-          <span class="home-visual-line"></span>
+
+          <span
+            class="home-visual-line"
+          ></span>
+
         </div>
 
         <div class="home-visual-row">
-          <span class="home-visual-dot completed"></span>
+
+          <span
+            class="home-visual-dot completed"
+          ></span>
+
           <span>Completed</span>
-          <span class="home-visual-line"></span>
+
+          <span
+            class="home-visual-line"
+          ></span>
+
         </div>
 
         <div class="home-visual-footer">
@@ -148,7 +256,10 @@
 
     </section>
 
-    <!-- DASHBOARD OVERVIEW -->
+    <!-- ========================================
+         DASHBOARD OVERVIEW
+         ======================================== -->
+
     <section
       class="dashboard-section home-dashboard"
       aria-labelledby="dashboard-heading"
@@ -157,65 +268,128 @@
       <div class="home-section-heading">
 
         <div>
-          <p class="home-eyebrow">AT A GLANCE</p>
+
+          <p class="home-eyebrow">
+            AT A GLANCE
+          </p>
+
           <h2 id="dashboard-heading">
             Dashboard Overview
           </h2>
+
         </div>
 
-        <a class="home-text-link" href="analytics.html">
+        <a
+          class="home-text-link"
+          href="analytics.html"
+        >
           View analytics
-          <span aria-hidden="true">&rarr;</span>
+
+          <span aria-hidden="true">
+            &rarr;
+          </span>
+
         </a>
 
       </div>
 
       <div class="dashboard-grid">
 
-        <article class="dashboard-card home-stat-total">
+        <!-- Total Tasks -->
+        <article
+          class="dashboard-card home-stat-total"
+        >
+
           <h3>Total Tasks</h3>
-          <p class="dashboard-number" data-stat="total">0</p>
+
+          <p
+            class="dashboard-number"
+            data-stat="total"
+          >
+            0
+          </p>
+
           <p class="home-stat-caption">
             Across all stages
           </p>
+
         </article>
 
-        <article class="dashboard-card home-stat-pending">
+        <!-- Pending Tasks -->
+        <article
+          class="dashboard-card home-stat-pending"
+        >
+
           <h3>Pending Tasks</h3>
-          <p class="dashboard-number" data-stat="pending">0</p>
+
+          <p
+            class="dashboard-number"
+            data-stat="pending"
+          >
+            0
+          </p>
+
           <p class="home-stat-caption">
             Waiting to begin
           </p>
+
         </article>
 
-        <article class="dashboard-card home-stat-progress">
+        <!-- In Progress -->
+        <article
+          class="dashboard-card home-stat-progress"
+        >
+
           <h3>In Progress</h3>
-          <p class="dashboard-number" data-stat="progress">0</p>
+
+          <p
+            class="dashboard-number"
+            data-stat="progress"
+          >
+            0
+          </p>
+
           <p class="home-stat-caption">
             Currently underway
           </p>
+
         </article>
 
-        <article class="dashboard-card home-stat-completed">
+        <!-- Completed Tasks -->
+        <article
+          class="dashboard-card home-stat-completed"
+        >
+
           <h3>Completed Tasks</h3>
-          <p class="dashboard-number" data-stat="completed">0</p>
+
+          <p
+            class="dashboard-number"
+            data-stat="completed"
+          >
+            0
+          </p>
+
           <p class="home-stat-caption">
             Successfully finished
           </p>
+
         </article>
 
       </div>
 
       <p class="dashboard-note">
-        Statistics update automatically from your saved tasks.
+        Statistics update automatically
+        from your saved tasks.
       </p>
 
     </section>
 
-    <!-- ACTIVITY AND QUICK ACCESS -->
+    <!-- ========================================
+         RECENT TASK ACTIVITY
+         ======================================== -->
+
     <div class="home-content-grid">
 
-      <!-- Recent task activity -->
       <section
         class="activity-section home-panel"
         aria-labelledby="activity-heading"
@@ -224,13 +398,21 @@
         <div class="home-panel-heading">
 
           <div>
-            <p class="home-eyebrow">LATEST UPDATES</p>
+
+            <p class="home-eyebrow">
+              LATEST UPDATES
+            </p>
+
             <h2 id="activity-heading">
               Recent Task Activity
             </h2>
+
           </div>
 
-          <span class="home-panel-icon" aria-hidden="true">
+          <span
+            class="home-panel-icon"
+            aria-hidden="true"
+          >
             &#8599;
           </span>
 
@@ -245,7 +427,9 @@
           class="activity-list"
           aria-label="Recent task activity"
         >
-          <li>Loading recent activity...</li>
+          <li>
+            Loading recent activity...
+          </li>
         </ul>
 
         <p
@@ -255,16 +439,98 @@
           aria-live="polite"
         ></p>
 
-        <a href="tasks.html" class="home-text-link">
+        <a
+          href="tasks.html"
+          class="home-text-link"
+        >
           View all tasks
-          <span aria-hidden="true">&rarr;</span>
+
+          <span aria-hidden="true">
+            &rarr;
+          </span>
+
         </a>
 
       </section>
 
     </div>
 
-    <!-- PLATFORM FEATURES -->
+    <!-- ========================================
+         LIVE CAREER OPPORTUNITIES
+         ======================================== -->
+
+    <section
+      class="career-insights-section home-panel"
+      aria-labelledby="career-insights-heading"
+    >
+
+      <div class="home-section-heading">
+
+        <div>
+
+          <p class="home-eyebrow">
+            LIVE CAREER OPPORTUNITIES
+          </p>
+
+          <h2 id="career-insights-heading">
+            Remote Job Opportunities
+          </h2>
+
+        </div>
+
+        <button
+          id="refresh-insights"
+          class="primary-button"
+          type="button"
+        >
+          Refresh Insights
+        </button>
+
+      </div>
+
+      <p class="home-panel-description">
+        Explore remote job opportunities
+        retrieved from the public Remotive API.
+        Opportunities are provided by an external
+        service and may change over time.
+      </p>
+
+      <!-- API Status -->
+      <p
+        id="api-status"
+        role="status"
+        aria-live="polite"
+      >
+        Loading career insights...
+      </p>
+
+      <!-- Dynamic API Results -->
+      <div
+        id="api-results"
+        class="career-insights-grid"
+        aria-label="Remote job opportunities"
+      ></div>
+
+      <p class="dashboard-note">
+
+        Source:
+
+        <a
+          href="https://remotive.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Remotive
+        </a>
+
+      </p>
+
+    </section>
+
+    <!-- ========================================
+         PLATFORM FEATURES
+         ======================================== -->
+
     <section
       class="features-section home-features"
       aria-labelledby="features-heading"
@@ -273,6 +539,7 @@
       <div class="home-section-heading">
 
         <div>
+
           <p class="home-eyebrow">
             BUILT FOR COORDINATION
           </p>
@@ -280,44 +547,82 @@
           <h2 id="features-heading">
             Everything in one place
           </h2>
+
         </div>
 
       </div>
 
+      <!-- Custom CSS Grid: no conflicting
+           Bootstrap row/column classes -->
+
       <div class="features-grid">
 
+        <!-- Feature 1 -->
         <article class="feature-card">
-          <span class="home-feature-number">01</span>
-          <h3>Stay Organized</h3>
+
+          <span class="home-feature-number">
+            01
+          </span>
+
+          <h3>
+            Stay Organized
+          </h3>
+
           <p>
-            Keep event preparations, employer outreach,
-            and daily responsibilities in a single task list.
+            Keep event preparations,
+            employer outreach,
+            and daily responsibilities
+            in a single task list.
           </p>
+
         </article>
 
+        <!-- Feature 2 -->
         <article class="feature-card">
-          <span class="home-feature-number">02</span>
-          <h3>Track Progress</h3>
+
+          <span class="home-feature-number">
+            02
+          </span>
+
+          <h3>
+            Track Progress
+          </h3>
+
           <p>
-            Understand what is pending, in progress,
-            or completed through live task statistics.
+            Understand what is pending,
+            in progress, or completed
+            through live task statistics.
           </p>
+
         </article>
 
+        <!-- Feature 3 -->
         <article class="feature-card">
-          <span class="home-feature-number">03</span>
-          <h3>Work Visually</h3>
+
+          <span class="home-feature-number">
+            03
+          </span>
+
+          <h3>
+            Work Visually
+          </h3>
+
           <p>
-            Move tasks through workflow stages
-            with the interactive Kanban board.
+            Move tasks through workflow
+            stages with the interactive
+            Kanban board.
           </p>
+
         </article>
 
       </div>
 
     </section>
 
-    <!-- APPLICATION STATUS -->
+    <!-- ========================================
+         APPLICATION STATUS
+         ======================================== -->
+
     <p
       id="app-status"
       class="app-status"
@@ -327,15 +632,55 @@
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+
   <footer class="site-footer">
 
     <p>
       TaskFlow | ACG Career Services
     </p>
 
+    <nav
+      class="footer-links"
+      aria-label="Footer navigation"
+    >
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="tasks.html">
+        Tasks
+      </a>
+
+      <a href="about.html">
+        About
+      </a>
+
+      <a href="contact.html">
+        Contact
+      </a>
+
+      <a href="mailto:career@acg.edu">
+        Email Career Services
+      </a>
+
+      <a
+        href="https://www.instagram.com/acg_career_services/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="ACG Career Services Instagram (opens in a new tab)"
+      >
+        Instagram
+      </a>
+
+    </nav>
+
     <p>
-      ITC4214 Internet Programming - Student Project
+      ITC4214 Internet Programming -
+      Student Project
     </p>
 
   </footer>

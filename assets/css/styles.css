@@ -2817,3 +2817,644 @@ a {
     align-items: flex-start;
   }
 }
+
+/* ==========================================
+   ABOUT PAGE - TASKFLOW CAROUSEL
+   ========================================== */
+
+.about-carousel-section {
+  width: 100%;
+  max-width: 1100px;
+  margin: 3rem auto;
+  padding: 2rem;
+}
+
+.about-carousel-section .about-section-heading {
+  margin-bottom: 1.75rem;
+}
+
+.about-carousel-section .about-eyebrow {
+  color: #4169a1;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.about-carousel-section .about-section-heading h2 {
+  margin: 0.5rem 0;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+}
+
+.about-carousel-section .about-section-heading > p:last-child {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.about-carousel {
+  overflow: hidden;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.about-carousel-slide {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.about-carousel-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #e8eef6;
+  border: 1px solid var(--border);
+}
+
+.about-carousel-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.about-carousel-content {
+  min-width: 0;
+  padding: 1rem 0;
+}
+
+.about-carousel-content h3 {
+  margin: 0.75rem 0 1rem;
+  color: var(--text);
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+}
+
+.about-carousel-content > p:last-child {
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 0.98rem;
+}
+
+/* Carousel navigation */
+
+.about-carousel-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.about-carousel-button {
+  min-height: 44px;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.about-carousel-button:hover {
+  border-color: #4169a1;
+  background: var(--background);
+}
+
+.about-carousel-button:focus-visible,
+.about-carousel-indicator:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 3px;
+}
+
+/* Slide indicators */
+
+.about-carousel-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.about-carousel-indicator {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #a6b4c8;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.about-carousel-indicator.is-active {
+  background: #2563a6;
+  transform: scale(1.2);
+}
+
+.about-carousel-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Dark mode */
+
+[data-theme="dark"] .about-carousel-section .about-eyebrow {
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .about-carousel-image {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .about-carousel-indicator.is-active {
+  background: #93c5fd;
+}
+
+/* Responsive layout */
+
+@media (max-width: 750px) {
+
+  .about-carousel-section {
+    padding: 1rem;
+  }
+
+  .about-carousel {
+    padding: 1rem;
+  }
+
+  .about-carousel-slide {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .about-carousel-content {
+    padding: 0.5rem 0;
+  }
+
+  .about-carousel-controls {
+    gap: 0.5rem;
+  }
+
+  .about-carousel-button {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .about-carousel-button,
+  .about-carousel-indicator {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   TASKFLOW - CONTACT CONFIRMATION POPUP
+   ========================================== */
+
+.contact-confirmation-dialog {
+  width: min(92vw, 540px);
+  max-height: 85vh;
+  overflow-y: auto;
+  margin: auto;
+  padding: 30px;
+  box-sizing: border-box;
+
+  border: 1px solid #dbe3ef;
+  border-radius: 16px;
+
+  background-color: #ffffff;
+  color: #17243d;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Dark overlay behind the popup */
+.contact-confirmation-dialog::backdrop {
+  background-color: rgba(10, 20, 40, 0.65);
+}
+
+/* Popup heading */
+.contact-confirmation-dialog h2 {
+  margin: 0 0 16px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Confirmation message */
+.contact-confirmation-dialog p {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Submitted information */
+.contact-confirmation-details {
+  margin: 22px 0;
+}
+
+/* Field labels */
+.contact-confirmation-details dt {
+  margin-top: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* Submitted values */
+.contact-confirmation-details dd {
+  margin: 5px 0 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* Close button */
+.contact-confirmation-close {
+  display: block;
+  width: 100%;
+
+  margin-top: 24px;
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 8px;
+
+  background-color: #205a9c;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+/* Close button hover */
+.contact-confirmation-close:hover {
+  background-color: #17467a;
+}
+
+/* Keyboard accessibility */
+.contact-confirmation-close:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+[data-theme="dark"] .contact-confirmation-dialog {
+  background-color: #17243d;
+  color: #f5f7fb;
+  border-color: #3c4c68;
+}
+
+[data-theme="dark"] .contact-confirmation-close {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .contact-confirmation-close:hover {
+  background-color: #2563eb;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVENESS
+   ========================================== */
+
+@media (max-width: 600px) {
+  .contact-confirmation-dialog {
+    width: 94vw;
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .contact-confirmation-dialog h2 {
+    font-size: 1.3rem;
+  }
+
+  .contact-confirmation-details dt {
+    font-size: 0.9rem;
+  }
+
+  .contact-confirmation-details dd {
+    font-size: 0.9rem;
+  }
+
+  .contact-confirmation-close {
+    padding: 12px 16px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .contact-confirmation-close {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   TASKFLOW - FINAL HOME PAGE IMPROVEMENTS
+   ========================================== */
+
+/* Sticky navigation */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ==========================================
+   LIVE CAREER OPPORTUNITIES
+   ========================================== */
+
+.home-page .career-insights-section {
+  margin-bottom: 2.75rem;
+}
+
+.home-page .career-insights-section
+.home-section-heading {
+  align-items: center;
+}
+
+.home-page #refresh-insights {
+  margin-top: 0;
+  border: none;
+  min-height: 44px;
+}
+
+.home-page #refresh-insights:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+.home-page #api-status {
+  margin: 1rem 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.home-page .career-insights-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+/* Individual API job cards */
+.home-page .job-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.home-page .job-card:hover {
+  transform: translateY(-3px);
+  border-color: #4169a1;
+}
+
+.home-page .job-title {
+  margin: 0 0 0.9rem;
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.home-page .job-company,
+.home-page .job-location {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Job links generated by home.js */
+.home-page .job-card .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 42px;
+  margin-top: auto;
+  padding: 0.7rem 1.1rem;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.home-page .job-card .button:hover {
+  background: #34527f;
+}
+
+.home-page .job-card .button:not([href]) {
+  background: var(--border);
+  color: var(--muted);
+  cursor: default;
+}
+
+/* ==========================================
+   FOOTER IMPROVEMENTS
+   ========================================== */
+
+.site-footer {
+  padding: 1.75rem 1rem;
+}
+
+.site-footer .footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin: 1rem 0;
+}
+
+.site-footer .footer-links a {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.site-footer .footer-links a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.site-footer .footer-links a:focus-visible {
+  outline: 3px solid #e9ad42;
+  outline-offset: 4px;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 700px) {
+  .home-page .career-insights-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-page .career-insights-section
+  .home-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .home-page #refresh-insights {
+    width: 100%;
+  }
+
+  .home-page .job-card {
+    padding: 1.2rem;
+  }
+
+  .site-footer .footer-links {
+    gap: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .job-card {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   REMOTE JOB OPPORTUNITIES - COMPANY LOGOS
+   ========================================== */
+
+.home-page .job-company-logo {
+  display: block;
+  width: 64px;
+  height: 64px;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  padding: 6px;
+  object-fit: contain;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+/* ==========================================
+   BOOTSTRAP COMPATIBILITY
+   Preserve TaskFlow's existing design
+   ========================================== */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+}
+
+.site-header a {
+  text-decoration: none;
+}
+
+.home-page .feature-card {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+.home-page .feature-card h3 {
+  color: var(--text);
+}
+
+.home-page .feature-card p {
+  color: var(--muted);
+}
+
+/* Ensure dark mode uses TaskFlow colors */
+[data-theme="dark"] body {
+  background-color: var(--background);
+  color: var(--text);
+}
+
+/* ==========================================
+   BOOTSTRAP COMPATIBILITY
+   Preserve TaskFlow's existing design
+   ========================================== */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+}
+
+.site-header a {
+  text-decoration: none;
+}
+
+.home-page .feature-card {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+.home-page .feature-card h3 {
+  color: var(--text);
+}
+
+.home-page .feature-card p {
+  color: var(--muted);
+}
+
+/* Ensure dark mode uses TaskFlow colors */
+[data-theme="dark"] body {
+  background-color: var(--background);
+  color: var(--text);
+}

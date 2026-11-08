@@ -236,20 +236,18 @@ function renderTasks(
         editButton.textContent = "Edit";
         editButton.dataset.taskId = task.id;
 
-        // Create the Mark Completed button.
-        const completeButton = document.createElement(
-            "button"
-        );
+        // Only create the Mark Completed button for unfinished tasks.
+        let completeButton = null;
+
+        if (task.status !== "completed") {
+        completeButton = document.createElement("button");
 
         completeButton.type = "button";
         completeButton.className =
             "task-action-button complete-button";
         completeButton.textContent = "Mark Completed";
         completeButton.dataset.taskId = task.id;
-
-        // A completed task cannot be completed again.
-        completeButton.disabled =
-            task.status === "completed";
+        }
 
         // Create the Delete button.
         const deleteButton = document.createElement(
@@ -262,11 +260,13 @@ function renderTasks(
         deleteButton.textContent = "Delete";
         deleteButton.dataset.taskId = task.id;
 
-        actionsCell.append(
-            editButton,
-            completeButton,
-            deleteButton
-        );
+        actionsCell.appendChild(editButton);
+
+        if (task.status !== "completed") {
+        actionsCell.appendChild(completeButton);
+        }
+
+        actionsCell.appendChild(deleteButton);
 
         /* ----------------------------------------
            4.6 COMPLETE THE TABLE ROW

@@ -3,154 +3,262 @@
 
 /**
  * TaskFlow | ACG Career Services
- * Main application JavaScript
+ * Main Application JavaScript
  *
  * Features:
  * - Application initialization
  * - Persistent dark/light mode
  * - Responsive mobile navigation
  * - Dynamic dashboard statistics
+ * - Cross-tab synchronization
+ * - Safe localStorage access
  */
+
+// ========================================
+// CONFIGURATION
+// ========================================
+
+const TASKS_STORAGE_KEY = "taskflow-tasks";
+const THEME_STORAGE_KEY = "taskflow-theme";
+
+// ========================================
+// SAFE STORAGE HELPERS
+// ========================================
 
 /**
- * Initialize the application and its features.
+ * Safely retrieve a value from localStorage.
  */
-function initializeApp() {
-  const statusElement = document.querySelector("#app-status");
+function getStoredValue(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.warn(
+      `Unable to read localStorage key: ${key}`,
+      error
+    );
 
-  if (statusElement) {
-    statusElement.textContent =
-      "Application initialized successfully.";
+    return null;
   }
-
-  initializeTheme();
-  initializeMobileNavigation();
-  updateDashboardStatistics();
-
-  console.info("TaskFlow initialized successfully.");
 }
 
 /**
- * Initialize the dark/light theme.
- * The selected theme is stored in localStorage.
+ * Safely save a value to localStorage.
+ */
+function setStoredValue(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (error) {
+    console.warn(
+      `Unable to save localStorage key: ${key}`,
+      error
+    );
+
+    return false;
+  }
+}
+
+// ========================================
+// DARK MODE
+// ========================================
+
+/**
+ * Update the theme button's text and
+ * accessibility state.
+ */
+function updateThemeButton(button) {
+  const isDark =
+    document.documentElement.getAttribute(
+      "data-theme"
+    ) === "dark";
+
+  button.textContent =
+    isDark ? "Light Mode" : "Dark Mode";
+
+  button.setAttribute(
+    "aria-pressed",
+    String(isDark)
+  );
+}
+
+/**
+ * Initialize persistent dark/light mode.
  */
 function initializeTheme() {
-  const themeButton = document.querySelector(".theme-toggle");
+  const themeButton = document.querySelector(
+    ".theme-toggle"
+  );
 
-  if (!themeButton) {
-    return;
-  }
-
-  // Retrieve the previously selected theme.
-  const savedTheme = localStorage.getItem("taskflow-theme");
+  const savedTheme = getStoredValue(
+    THEME_STORAGE_KEY
+  );
 
   if (savedTheme === "dark") {
     document.documentElement.setAttribute(
       "data-theme",
       "dark"
     );
+  } else {
+    document.documentElement.setAttribute(
+      "data-theme",
+      "light"
+    );
+  }
+
+  if (!themeButton) {
+    return;
   }
 
   updateThemeButton(themeButton);
 
-  // Switch between light and dark mode.
   themeButton.addEventListener("click", () => {
     const currentTheme =
-      document.documentElement.getAttribute("data-theme");
+      document.documentElement.getAttribute(
+        "data-theme"
+      );
 
     const newTheme =
-      currentTheme === "dark" ? "light" : "dark";
+      currentTheme === "dark"
+        ? "light"
+        : "dark";
 
     document.documentElement.setAttribute(
       "data-theme",
       newTheme
     );
 
-    // Save the selected theme for future visits.
-    localStorage.setItem("taskflow-theme", newTheme);
+    setStoredValue(
+      THEME_STORAGE_KEY,
+      newTheme
+    );
 
     updateThemeButton(themeButton);
   });
 }
 
-/**
- * Update the theme button's label and accessibility state.
- *
- * @param {HTMLButtonElement} button - Theme toggle button.
- */
-function updateThemeButton(button) {
-  const isDark =
-    document.documentElement.getAttribute("data-theme") ===
-    "dark";
-
-  button.textContent = isDark ? "Light Mode" : "Dark Mode";
-
-  button.setAttribute("aria-pressed", String(isDark));
-}
+// ========================================
+// MOBILE NAVIGATION
+// ========================================
 
 /**
- * Initialize responsive mobile navigation.
+ * Initialize responsive navigation.
  */
 function initializeMobileNavigation() {
-  const menuButton = document.querySelector(".menu-toggle");
-  const navigation = document.querySelector(".main-navigation");
+  const menuButton = document.querySelector(
+    ".menu-toggle"
+  );
+
+  const navigation = document.querySelector(
+    ".main-navigation"
+  );
 
   if (!menuButton || !navigation) {
     return;
   }
 
-  // Open or close the navigation menu.
-  menuButton.addEventListener("click", () => {
-    const isOpen = navigation.classList.toggle("is-open");
+  /**
+   * Open or close the mobile menu.
+   */
+  function setMenuState(isOpen) {
+    navigation.classList.toggle(
+      "is-open",
+      isOpen
+    );
 
     menuButton.setAttribute(
       "aria-expanded",
       String(isOpen)
     );
+  }
+
+  menuButton.addEventListener("click", () => {
+    const isOpen = navigation.classList.contains(
+      "is-open"
+    );
+
+    setMenuState(!isOpen);
   });
 
-  // Close the menu when a navigation link is selected.
-  navigation.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      navigation.classList.remove("is-open");
+  /**
+   * Close navigation when a link is selected.
+   */
+  navigation.querySelectorAll("a").forEach(
+    (link) => {
+      link.addEventListener("click", () => {
+        setMenuState(false);
+      });
+    }
+  );
 
-      menuButton.setAttribute(
-        "aria-expanded",
-        "false"
-      );
-    });
+  /**
+   * Close navigation using Escape.
+   */
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      navigation.classList.contains("is-open")
+    ) {
+      setMenuState(false);
+      menuButton.focus();
+    }
+  });
+
+  /**
+   * Close the mobile menu when returning
+   * to desktop screen width.
+   */
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 700) {
+      setMenuState(false);
+    }
   });
 }
 
+// ========================================
+// TASK STORAGE
+// ========================================
+
 /**
  * Retrieve saved tasks from localStorage.
- *
- * @returns {Array} An array of saved tasks.
  */
 function getSavedTasks() {
-  try {
-    // Use the same storage key as the task management module.
-    const storedTasks = localStorage.getItem("taskflow-tasks");
+  const storedTasks = getStoredValue(
+    TASKS_STORAGE_KEY
+  );
 
-    if (!storedTasks) {
+  if (!storedTasks) {
+    return [];
+  }
+
+  try {
+    const tasks = JSON.parse(storedTasks);
+
+    if (!Array.isArray(tasks)) {
       return [];
     }
 
-    const tasks = JSON.parse(storedTasks);
-
-    // Ensure the retrieved value is an array.
-    return Array.isArray(tasks) ? tasks : [];
+    return tasks.filter(
+      (task) =>
+        task !== null &&
+        typeof task === "object" &&
+        !Array.isArray(task)
+    );
   } catch (error) {
-    console.error("Unable to load saved tasks:", error);
+    console.error(
+      "Unable to parse saved tasks:",
+      error
+    );
 
     return [];
   }
 }
 
+// ========================================
+// DASHBOARD STATISTICS
+// ========================================
+
 /**
- * Calculate and display dashboard statistics.
- *
- * Statistics are based on the tasks saved in localStorage.
+ * Calculate and display task statistics.
  */
 function updateDashboardStatistics() {
   const totalElement = document.querySelector(
@@ -169,7 +277,7 @@ function updateDashboardStatistics() {
     '[data-stat="completed"]'
   );
 
-  // Dashboard statistics are only displayed on the homepage.
+  // Only update pages containing dashboard cards.
   if (
     !totalElement ||
     !pendingElement ||
@@ -179,13 +287,10 @@ function updateDashboardStatistics() {
     return;
   }
 
-  // Retrieve all saved tasks.
   const tasks = getSavedTasks();
 
-  // Calculate the total number of tasks.
   const totalTasks = tasks.length;
 
-  // Count tasks according to their current status.
   const pendingTasks = tasks.filter(
     (task) => task.status === "pending"
   ).length;
@@ -198,15 +303,96 @@ function updateDashboardStatistics() {
     (task) => task.status === "completed"
   ).length;
 
-  // Update the dashboard elements.
-  totalElement.textContent = String(totalTasks);
-  pendingElement.textContent = String(pendingTasks);
-  progressElement.textContent = String(progressTasks);
-  completedElement.textContent = String(completedTasks);
+  totalElement.textContent = String(
+    totalTasks
+  );
+
+  pendingElement.textContent = String(
+    pendingTasks
+  );
+
+  progressElement.textContent = String(
+    progressTasks
+  );
+
+  completedElement.textContent = String(
+    completedTasks
+  );
 }
 
-<script type="module" src="assets/js/about.js"></script>
+// ========================================
+// CROSS-TAB SYNCHRONIZATION
+// ========================================
+
 /**
- * Start the application.
+ * Refresh statistics when tasks are changed
+ * in another browser tab.
  */
+function initializeStorageSynchronization() {
+  window.addEventListener("storage", (event) => {
+    if (event.key === TASKS_STORAGE_KEY) {
+      updateDashboardStatistics();
+    }
+
+    if (event.key === THEME_STORAGE_KEY) {
+      const newTheme =
+        event.newValue === "dark"
+          ? "dark"
+          : "light";
+
+      document.documentElement.setAttribute(
+        "data-theme",
+        newTheme
+      );
+
+      const themeButton = document.querySelector(
+        ".theme-toggle"
+      );
+
+      if (themeButton) {
+        updateThemeButton(themeButton);
+      }
+    }
+  });
+
+  /**
+   * Refresh statistics when the user
+   * returns to the page.
+   */
+  window.addEventListener("pageshow", () => {
+    updateDashboardStatistics();
+  });
+}
+
+// ========================================
+// APPLICATION INITIALIZATION
+// ========================================
+
+/**
+ * Initialize TaskFlow.
+ */
+function initializeApp() {
+  initializeTheme();
+
+  initializeMobileNavigation();
+
+  updateDashboardStatistics();
+
+  initializeStorageSynchronization();
+
+  const statusElement = document.querySelector(
+    "#app-status"
+  );
+
+  if (statusElement) {
+    statusElement.textContent =
+      "Application initialized successfully.";
+  }
+
+  console.info(
+    "TaskFlow initialized successfully."
+  );
+}
+
+// Start the application.
 initializeApp();

@@ -3,18 +3,11 @@
 
 /**
  * TaskFlow | ACG Career Services
- * Contact form validation and submission handling.
+ * Contact form validation and confirmation popup.
  *
- * This is a demonstration form.
- * No messages are sent to a server.
+ * Demonstration only: no email is sent.
  */
 
-/**
- * Validate an email address.
- *
- * @param {string} email
- * @returns {boolean}
- */
 function isValidEmail(email) {
   if (email.length === 0 || email.length > 150) {
     return false;
@@ -24,7 +17,6 @@ function isValidEmail(email) {
     return false;
   }
 
-  // Require a valid local part and a domain with a suffix.
   const emailPattern =
     /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+$/;
 
@@ -32,7 +24,61 @@ function isValidEmail(email) {
 }
 
 /**
- * Initialize the contact form.
+ * Create an accessible confirmation dialog.
+ * Uses safe DOM methods instead of innerHTML.
+ */
+function createConfirmationDialog() {
+  const dialog = document.createElement("dialog");
+  dialog.className = "contact-confirmation-dialog";
+  dialog.setAttribute(
+    "aria-labelledby",
+    "contact-confirmation-title"
+  );
+
+  const heading = document.createElement("h2");
+  heading.id = "contact-confirmation-title";
+  heading.textContent = "Message Confirmation";
+
+  const notice = document.createElement("p");
+  notice.textContent =
+    "Your message passed validation. " +
+    "This is a demonstration form; no email was sent.";
+
+  const details = document.createElement("dl");
+  details.className = "contact-confirmation-details";
+
+  function addDetail(label, value) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+
+    const description = document.createElement("dd");
+    description.textContent = value;
+
+    details.append(term, description);
+  }
+
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.className = "contact-confirmation-close";
+  closeButton.textContent = "Close";
+
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+  });
+
+  dialog.append(heading, notice, details, closeButton);
+  document.body.appendChild(dialog);
+
+  return {
+    dialog,
+    details,
+    addDetail,
+    closeButton
+  };
+}
+
+/**
+ * Initialize contact form.
  */
 function initializeContactForm() {
   const form = document.querySelector("#contact-form");
@@ -71,11 +117,10 @@ function initializeContactForm() {
     "other"
   ];
 
+  const confirmation = createConfirmationDialog();
+
   /**
-   * Display a feedback message.
-   *
-   * @param {string} message
-   * @param {string} type
+   * Display feedback beneath the form.
    */
   function showFeedback(message, type = "error") {
     feedback.textContent = message;
@@ -85,18 +130,15 @@ function initializeContactForm() {
       "contact-feedback-success"
     );
 
-    if (type === "success") {
-      feedback.classList.add("contact-feedback-success");
-    } else {
-      feedback.classList.add("contact-feedback-error");
-    }
+    feedback.classList.add(
+      type === "success"
+        ? "contact-feedback-success"
+        : "contact-feedback-error"
+    );
   }
 
   /**
-   * Mark a field as invalid.
-   *
-   * @param {HTMLElement} field
-   * @param {string} message
+   * Mark an invalid field and focus it.
    */
   function showFieldError(field, message) {
     fields.forEach((input) => {
@@ -112,7 +154,7 @@ function initializeContactForm() {
   }
 
   /**
-   * Remove previous validation feedback.
+   * Clear previous feedback.
    */
   function clearFeedback() {
     feedback.textContent = "";
@@ -124,7 +166,7 @@ function initializeContactForm() {
   }
 
   /**
-   * Clear a field's error state when edited.
+   * Remove error indicators when fields are edited.
    */
   fields.forEach((field) => {
     const eventType =
@@ -133,25 +175,21 @@ function initializeContactForm() {
     field.addEventListener(eventType, () => {
       field.classList.remove("contact-input-error");
       field.removeAttribute("aria-invalid");
-
-      // Remove old feedback when the user edits the form.
       clearFeedback();
     });
   });
 
   /**
-   * Handle form submission.
+   * Validate and process form submission.
    */
   form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    // Read and normalize the form values.
     const nameValue = nameInput.value.trim();
     const emailValue = emailInput.value.trim();
     const subjectValue = subjectInput.value;
     const messageValue = messageInput.value.trim();
 
-    // Clear previous error indicators.
     fields.forEach((field) => {
       field.classList.remove("contact-input-error");
       field.removeAttribute("aria-invalid");
@@ -159,7 +197,7 @@ function initializeContactForm() {
 
     clearFeedback();
 
-    // 1. Validate full name.
+    // 1. Validate name.
     if (nameValue.length === 0) {
       showFieldError(
         nameInput,
@@ -176,7 +214,7 @@ function initializeContactForm() {
       return;
     }
 
-    // 2. Validate email address.
+    // 2. Validate email.
     if (emailValue.length === 0) {
       showFieldError(
         emailInput,
@@ -236,20 +274,46 @@ function initializeContactForm() {
     }
 
     // 5. All validation checks passed.
+    const selectedSubject =
+      subjectInput.selectedOptions[0]?.textContent?.trim()
+      || subjectValue;
+
+    // Remove details from any previous submission.
+    confirmation.details.replaceChildren();
+
+    confirmation.addDetail("Full Name", nameValue);
+    confirmation.addDetail("Email Address", emailValue);
+    confirmation.addDetail("Subject", selectedSubject);
+    confirmation.addDetail("Message", messageValue);
+
     showFeedback(
       "Your message passed validation. " +
       "This is a demonstration form; no email was sent.",
       "success"
     );
 
-    // Reset the form after successful validation.
+    // Display the confirmation popup.
+    if (typeof confirmation.dialog.showModal === "function") {
+      confirmation.dialog.showModal();
+    } else {
+      // Fallback for browsers without dialog support.
+      window.alert(
+        "Message Confirmation\n\n" +
+        `Full Name: ${nameValue}\n` +
+        `Email: ${emailValue}\n` +
+        `Subject: ${selectedSubject}\n` +
+        `Message: ${messageValue}\n\n` +
+        "Demonstration only: no email was sent."
+      );
+    }
+
+    // Reset the form only after validation succeeds.
     form.reset();
 
     console.info(
-      "Contact form validated successfully. No message was sent."
+      "Contact form validated successfully. No email was sent."
     );
   });
 }
 
-// Initialize contact form functionality.
 initializeContactForm();
