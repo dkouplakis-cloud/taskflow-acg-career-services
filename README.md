@@ -7,7 +7,7 @@ The application provides a centralized workspace for organizing responsibilities
 ## 1. Project Information
 
 - **Course:** ITC4214 – Internet Programming
-- **Project:** Midterm Group Coursework
+- **Project:** Midterm Individual Coursework
 - **Application:** TaskFlow
 - **Organization:** ACG Career Services Office
 - **Project Type:** Front-End Web Application
