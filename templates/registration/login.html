@@ -1,0 +1,100 @@
+
+{% extends 'layout.html' %}
+
+{% block title %}Sign In | TaskFlow{% endblock %}
+
+{% block content %}
+
+<!-- Authentication page using Django's built-in login system. -->
+<section class="auth-page" aria-labelledby="login-heading">
+
+    <div class="auth-container">
+
+        <!-- Welcome message and page introduction. -->
+        <header class="auth-header">
+            <p class="page-eyebrow">Welcome back</p>
+
+            <h1 id="login-heading">Sign In</h1>
+
+            <p class="page-description">
+                Sign in to manage your projects, organize
+                tasks, and keep your work on track.
+            </p>
+        </header>
+
+        <!-- Display authentication errors without exposing credentials. -->
+        {% if form.non_field_errors %}
+            <div class="form-errors" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Submit credentials to Django's authentication view. -->
+        <form method="post"
+              action="{% url 'login' %}"
+              class="auth-form">
+
+            {% csrf_token %}
+
+            <!-- Preserve the requested destination after login. -->
+            {% if next %}
+                <input type="hidden"
+                       name="next"
+                       value="{{ next }}">
+            {% endif %}
+
+            <!-- Username field. -->
+            <div class="form-group">
+
+                <label for="{{ form.username.id_for_label }}">
+                    Username
+                </label>
+
+                {{ form.username }}
+
+                {% if form.username.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.username.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Password field. -->
+            <div class="form-group">
+
+                <label for="{{ form.password.id_for_label }}">
+                    Password
+                </label>
+
+                {{ form.password }}
+
+                {% if form.password.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Primary authentication action. -->
+            <div class="form-actions">
+                <button type="submit"
+                        class="btn btn-primary">
+                    Sign In
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Account registration will be added in a later step. -->
+        <p class="auth-help">
+            New to TaskFlow?
+            Account registration will be available soon.
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="TaskFlow helps ACG Career Services organize projects, manage tasks, and track progress."
+    >
+
+    <!-- Preserve the original TaskFlow favicon behavior. -->
+    <link rel="icon" href="data:,">
+
+    <title>
+        {% block title %}
+            TaskFlow | ACG Career Services
+        {% endblock %}
+    </title>
+
+    <!--
+        Preserve the Bootstrap framework used by the
+        original TaskFlow midterm application.
+    -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    >
+
+    <!--
+        Reuse the existing TaskFlow stylesheet.
+
+        This maintains the original visual identity,
+        responsive styling, and theme definitions.
+    -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/styles.css' %}"
+    >
+
+    <!-- Allow individual pages to load additional resources. -->
+    {% block extra_head %}{% endblock %}
+
+</head>
+
+<body>
+
+    <!-- ==========================================
+         ACCESSIBILITY: SKIP NAVIGATION
+         ========================================== -->
+
+    <a href="#main-content" class="skip-link">
+        Skip to main content
+    </a>
+
+
+    <!-- ==========================================
+         ORIGINAL TASKFLOW HEADER
+         ========================================== -->
+
+    <header class="site-header">
+
+        <div class="header-container">
+
+            <!--
+                Preserve the original TaskFlow branding.
+
+                The Projects workspace is currently the
+                main destination until the Django homepage
+                has been integrated.
+            -->
+            <div class="brand">
+
+                <a
+                    href="{% url 'core:home' %}"
+                    class="brand-link"
+                    aria-label="TaskFlow - My Projects"
+                >
+
+                    <span class="brand-name">
+                        TaskFlow
+                    </span>
+
+                    <span class="brand-subtitle">
+                        ACG Career Services
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- ==================================
+                 MOBILE NAVIGATION CONTROL
+                 ================================== -->
+
+            <!--
+                Preserve the original menu-toggle class
+                and navigation ID used by TaskFlow.
+
+                JavaScript integration will be verified
+                separately to ensure the menu works.
+            -->
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-label="Toggle navigation"
+                aria-expanded="false"
+                aria-controls="main-navigation"
+            >
+
+                <span aria-hidden="true">
+                    &#9776;
+                </span>
+
+            </button>
+
+
+            <!-- ==================================
+                 MAIN NAVIGATION
+                 ================================== -->
+
+            <nav
+                id="main-navigation"
+                class="main-navigation"
+                aria-label="Main navigation"
+            >
+
+            <!--
+                Home navigation.
+
+                Available to both guests and authenticated users.
+                Uses Django's named URL instead of the original
+                midterm index.html address.
+            -->
+            <a
+                href="{% url 'core:home' %}"
+                {% if request.resolver_match.view_name == 'core:home' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Home
+            </a>
+
+                {% if user.is_authenticated %}
+
+                    <!--
+                        Authenticated users can access
+                        their private project workspace.
+                    -->
+                    <a
+                        href="{% url 'projects:project_list' %}"
+                        {% if request.resolver_match.view_name == 'projects:project_list' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        My Projects
+                    </a>
+
+                    <!--
+                        New Project remains accessible
+                        within the authenticated workspace.
+                    -->
+                    <a
+                        href="{% url 'projects:project_create' %}"
+                    >
+                        New Project
+                    </a>
+
+                    <!--
+                        Django requires POST for logout.
+
+                        CSRF protection ensures that logout
+                        cannot be triggered through a simple
+                        cross-site GET request.
+                    -->
+                    <form
+                        method="post"
+                        action="{% url 'logout' %}"
+                        class="navigation-logout-form"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="navigation-logout-button"
+                        >
+                            Sign Out
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <!--
+                        Visitors who are not authenticated
+                        can access the sign-in page.
+                    -->
+                    <a
+                        href="{% url 'login' %}"
+                        {% if request.resolver_match.view_name == 'login' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Sign In
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+
+            <!-- ==================================
+                 ORIGINAL DARK MODE CONTROL
+                 ================================== -->
+
+            <!--
+                Preserve the original theme-toggle class.
+
+                The existing TaskFlow JavaScript manages
+                theme preferences; its compatibility with
+                Django pages must be checked next.
+            -->
+            <button
+                class="theme-toggle"
+                type="button"
+                aria-label="Toggle dark mode"
+                aria-pressed="false"
+            >
+                Dark Mode
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================================
+         DJANGO FEEDBACK MESSAGES
+         ========================================== -->
+
+    <!--
+        Provide user-friendly feedback after actions
+        such as creating or updating projects.
+
+        Messages originate from Django's backend.
+    -->
+    {% if messages %}
+
+        <div
+            class="flash-messages"
+            role="status"
+            aria-live="polite"
+        >
+
+            {% for message in messages %}
+
+                <p class="message{% if message.tags %} message-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+    <!-- ==========================================
+        MAIN APPLICATION CONTENT
+        ========================================== -->
+
+    <!--
+        Shared content container for all Django pages.
+
+        The page_class block preserves page-specific CSS
+        classes from the original TaskFlow midterm project.
+
+        The content block allows Django child templates
+        to insert their own content into this shared layout.
+    -->
+    <main
+        id="main-content"
+        class="main-content site-main {% block page_class %}{% endblock %}"
+    >
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- ==========================================
+         ORIGINAL TASKFLOW FOOTER
+         ========================================== -->
+
+    <footer class="site-footer">
+
+        <p>
+            TaskFlow | ACG Career Services
+        </p>
+
+        <!--
+            Preserve the existing footer structure.
+
+            Additional page links will return as their
+            corresponding Django views become available.
+        -->
+        <nav
+            class="footer-links"
+            aria-label="Footer navigation"
+        >
+
+            <a href="{% url 'projects:project_list' %}">
+                My Projects
+            </a>
+
+            <a href="mailto:career@acg.edu">
+                Email Career Services
+            </a>
+
+            <a
+                href="https://www.instagram.com/acg_career_services/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="ACG Career Services Instagram (opens in a new tab)"
+            >
+                Instagram
+            </a>
+
+        </nav>
+
+        <p>
+            ITC4214 Internet Programming -
+            Student Project
+        </p>
+
+    </footer>
+
+
+    <!-- ==========================================
+         JAVASCRIPT INTEGRATION
+         ========================================== -->
+
+    <!--
+        Reuse TaskFlow's existing shared JavaScript.
+
+        Its mobile navigation, theme controls, and any
+        legacy page assumptions must be tested against
+        the new Django templates.
+    -->
+    <script
+        type="module"
+        src="{% static 'js/main.js' %}"
+    ></script>
+
+    <!-- Page-specific JavaScript modules. -->
+    {% block extra_scripts %}
+    {% endblock %}
+
+</body>
+</html>

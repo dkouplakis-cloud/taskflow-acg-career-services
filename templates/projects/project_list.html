@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+
+{% block title %}My Projects | TaskFlow{% endblock %}
+
+{% block content %}
+
+<!-- Main workspace for the authenticated user's projects. -->
+<section class="projects-page" aria-labelledby="projects-heading">
+
+    <!-- Page introduction and primary creation action. -->
+    <div class="page-header">
+        <div>
+            <p class="page-eyebrow">Your workspace</p>
+
+            <h1 id="projects-heading">My Projects</h1>
+
+            <p class="page-description">
+                Keep your projects organized and manage
+                everything in one place.
+            </p>
+        </div>
+
+        <a href="{% url 'projects:project_create' %}"
+           class="btn btn-primary">
+            + New Project
+        </a>
+    </div>
+
+    {% if projects %}
+
+        <!-- Display only projects supplied by the ownership-filtered view. -->
+        <div class="projects-grid">
+
+            {% for project in projects %}
+
+                <article class="project-card">
+
+                    <div class="project-card-header">
+                        <h2>{{ project.name }}</h2>
+
+                        <span class="project-status">
+                            {{ project.get_status_display }}
+                        </span>
+                    </div>
+
+                    <p class="project-description">
+                        {{ project.description|default:"No description added yet."|truncatechars:160 }}
+                    </p>
+
+                    <!-- Display project information stored in Django. -->
+                    <div class="project-meta">
+
+                        <p>
+                            <strong>Tasks:</strong>
+                            {{ project.tasks.count }}
+                        </p>
+
+                        <p>
+                            <strong>Deadline:</strong>
+
+                            {% if project.deadline %}
+                                {{ project.deadline|date:"M d, Y" }}
+                            {% else %}
+                                No deadline
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <!-- Help first-time users understand what to do next. -->
+        <div class="empty-state">
+
+            <h2>No projects yet</h2>
+
+            <p>
+                Start by creating your first project.
+                You can then add tasks, organize your work,
+                and track your progress.
+            </p>
+
+            <a href="{% url 'projects:project_create' %}"
+               class="btn btn-primary">
+                Create Your First Project
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ page_title }} | TaskFlow{% endblock %}
+
+{% block content %}
+
+<!--
+    Reusable project form.
+
+    This template supports both project creation and editing.
+    Validation and database operations are handled by Django.
+-->
+<section class="project-form-page"
+         aria-labelledby="project-form-heading">
+
+    <div class="form-container">
+
+        <!-- Page heading and explanation. -->
+        <header class="page-header">
+
+            <div>
+                <p class="page-eyebrow">Project Management</p>
+
+                <h1 id="project-form-heading">
+                    {{ page_title }}
+                </h1>
+
+                <p class="page-description">
+                    Organize your work by creating a project.
+                    You can add and manage tasks inside it later.
+                </p>
+            </div>
+
+        </header>
+
+        <!--
+            POST submits project information securely.
+            CSRF protection prevents unauthorized form submissions.
+        -->
+        <form method="post" class="project-form">
+
+            {% csrf_token %}
+
+            <!-- Display general form validation errors. -->
+            {% if form.non_field_errors %}
+
+                <div class="form-errors" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+            <!-- Project name. -->
+            <div class="form-group">
+
+                <label for="{{ form.name.id_for_label }}">
+                    Project Name
+                </label>
+
+                {{ form.name }}
+
+                {% if form.name.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.name.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Optional project description. -->
+            <div class="form-group">
+
+                <label for="{{ form.description.id_for_label }}">
+                    Description
+                </label>
+
+                {{ form.description }}
+
+                <p class="form-help">
+                    Describe the purpose of this project.
+                </p>
+
+                {% if form.description.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Project status. -->
+            <div class="form-group">
+
+                <label for="{{ form.status.id_for_label }}">
+                    Project Status
+                </label>
+
+                {{ form.status }}
+
+                {% if form.status.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.status.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!--
+                Project deadline.
+
+                The ProjectForm handles date restrictions
+                using both browser attributes and
+                server-side validation.
+            -->
+            <div class="form-group">
+
+                <label for="{{ form.deadline.id_for_label }}">
+                    Deadline
+                </label>
+
+                {{ form.deadline }}
+
+                <p class="form-help">
+                    Select today or a future date.
+                    You may also leave this field empty.
+                </p>
+
+                {% if form.deadline.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.deadline.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!--
+                Form actions.
+
+                Users can submit their changes or return
+                safely to their projects without saving.
+            -->
+            <div class="form-actions">
+
+                <a href="{% url 'projects:project_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    {{ submit_label }}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

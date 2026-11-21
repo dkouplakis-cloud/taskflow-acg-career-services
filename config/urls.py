@@ -1,22 +1,31 @@
-"""
-URL configuration for config project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+Main URL configuration for TaskFlow.
+
+This file connects the application's components:
+- Core: original TaskFlow homepage and shared pages.
+- Projects: project management functionality.
+- Authentication: login, logout, and account management.
+- Admin: Django's built-in administration interface.
+
+Named URL patterns help maintain clean, reusable navigation.
+"""
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Django's built-in administration interface.
+    path("admin/", admin.site.urls),
+
+    # Authentication: login, logout, and password management.
+    path("accounts/", include("django.contrib.auth.urls")),
+
+    # Project management: listing and creating projects.
+    path("projects/", include("projects.urls")),
+
+    # Original TaskFlow homepage and future shared pages.
+    # The empty prefix connects core's home view to "/".
+    path("", include("core.urls")),
 ]
