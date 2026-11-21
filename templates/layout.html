@@ -148,6 +148,26 @@
                 Home
             </a>
 
+            <!-- About: original Career Services page. -->
+            <a
+                href="{% url 'core:about' %}"
+                {% if request.resolver_match.view_name == 'core:about' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                About
+            </a>
+
+            <!-- Contact: Career Services information and feedback. -->
+            <a
+                href="{% url 'core:contact' %}"
+                {% if request.resolver_match.view_name == 'core:contact' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Contact
+            </a>
+
                 {% if user.is_authenticated %}
 
                     <!--

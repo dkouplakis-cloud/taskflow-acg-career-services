@@ -1,0 +1,608 @@
+﻿{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}About | TaskFlow{% endblock %}
+
+{% block page_class %}about-page{% endblock %}
+
+{% block content %}
+
+
+
+    <!-- Introduction -->
+    <section
+      class="hero-section"
+      aria-labelledby="about-heading">
+
+      <p class="about-eyebrow">
+        ABOUT OUR PLATFORM
+      </p>
+
+      <h1 id="about-heading">About TaskFlow</h1>
+
+      <p class="hero-subtitle">
+        Organize. Collaborate. Achieve.
+      </p>
+
+      <p>
+        TaskFlow is a web-based task management platform
+        designed to support the ACG Career Services Office
+        in organizing activities, coordinating responsibilities,
+        and monitoring progress.
+      </p>
+
+      <a href="tasks.html" class="primary-button">
+        Explore TaskFlow
+      </a>
+
+    </section>
+
+    <!-- Our purpose -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="purpose-heading">
+
+      <h2 id="purpose-heading">Our Purpose</h2>
+
+      <p>
+        TaskFlow provides a simple, accessible, and organized
+        environment for managing daily responsibilities.
+        It helps users prioritize activities, track progress,
+        and maintain a clear overview of their workload.
+      </p>
+
+      <p>
+        The platform is designed around Career Services
+        activities such as career workshops, employer events,
+        student registrations, and administrative coordination.
+      </p>
+
+    </section>
+
+    <!-- Key features -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="features-heading">
+
+      <h2 id="features-heading">What TaskFlow Offers</h2>
+
+      <p>
+        Explore the features designed to make task
+        management more efficient and organized.
+      </p>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card">
+          <h3>Task Management</h3>
+          <p>
+            Create, edit, search, and delete tasks
+            through an organized interface.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Priority Tracking</h3>
+          <p>
+            Assign low, medium, or high priorities
+            to identify important responsibilities.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Progress Monitoring</h3>
+          <p>
+            Monitor tasks through Pending,
+            In Progress, and Completed stages.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Task Analytics</h3>
+          <p>
+            View completion rates, task statistics,
+            and visual performance breakdowns.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Kanban Board</h3>
+          <p>
+            Organize tasks visually and update their
+            status using drag-and-drop functionality.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>Persistent Storage</h3>
+          <p>
+            Save tasks and appearance preferences
+            locally in the browser using localStorage.
+          </p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- ACG Career Services -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="career-services-heading">
+
+      <div class="about-career-services">
+
+        <div class="about-career-services-content">
+
+          <p class="about-eyebrow">
+            OUR ORGANIZATIONAL CONTEXT
+          </p>
+
+          <h2 id="career-services-heading">
+            ACG Career Services
+          </h2>
+
+          <p>
+            The Career Services Office at
+            The American College of Greece
+            supports students and alumni in their
+            professional development and career planning.
+          </p>
+
+          <p>
+            Through career guidance, workshops,
+            employer engagement, and professional
+            development activities, the office helps
+            students prepare for future opportunities.
+          </p>
+
+          <p>
+            TaskFlow is an academic project designed
+            around the organizational needs and
+            activities of this office.
+          </p>
+
+          <a
+            href="https://www.acg.edu/current-students/student-services/career-services/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="primary-button">
+            Visit ACG Career Services
+          </a>
+
+        </div>
+
+        <!-- Logo placeholder -->
+        <div class="about-career-services-logo">
+          <div class="about-logo-placeholder">
+            <strong>ACG</strong>
+            <span>Career Services</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Meet the ACG Career Services Team -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="team-heading">
+
+      <div class="about-section-heading">
+
+        <p class="about-eyebrow">
+          THE PEOPLE BEHIND ACG CAREER SERVICES
+        </p>
+
+        <h2 id="team-heading">Meet Our Team</h2>
+
+        <p>
+          Meet the five professionals who make up the
+          ACG Career Services Team, supporting students
+          and alumni in their professional development.
+        </p>
+
+      </div>
+
+      <div class="team-grid">
+
+        <!-- Team member 1: Dimitris Megremis -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder">
+            <img
+              src="{% static 'images/team/dimitris-megremis.png' %}"
+              alt="Dimitris Megremis, Senior Director"
+              class="team-photo"
+              width="480"
+              height="480"
+              loading="lazy">
+          </div>
+
+          <div class="team-card-content">
+
+            <h3>Dimitris Megremis</h3>
+
+            <p class="team-role">
+              Senior Director
+            </p>
+
+            <p class="team-description">
+              ACG Career Services Team
+            </p>
+
+            <a
+              href="https://www.linkedin.com/in/dimitrismegremis"
+              target="_blank"
+              rel="noopener noreferrer">
+              View LinkedIn Profile
+            </a>
+
+          </div>
+
+        </article>
+
+        <!-- Team member 2: Marina Perantonaki -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder">
+            <img
+              src="{% static 'images/team/marina-perantonaki.png' %}"
+              alt="Marina Perantonaki, Senior Manager"
+              class="team-photo"
+              width="480"
+              height="480"
+              loading="lazy">
+          </div>
+
+          <div class="team-card-content">
+
+            <h3>Marina Perantonaki</h3>
+
+            <p class="team-role">
+              Senior Manager
+            </p>
+
+            <p class="team-description">
+              ACG Career Services Team
+            </p>
+
+            <a
+              href="https://www.linkedin.com/in/marinaperantonaki"
+              target="_blank"
+              rel="noopener noreferrer">
+              View LinkedIn Profile
+            </a>
+
+          </div>
+
+        </article>
+
+        <!-- Team member 3: Alexandra Prindezi -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder">
+            <img
+              src="{% static 'images/team/alexandra-prindezi.png' %}"
+              alt="Alexandra Prindezi, Manager"
+              class="team-photo"
+              width="480"
+              height="480"
+              loading="lazy">
+          </div>
+
+          <div class="team-card-content">
+
+            <h3>Alexandra Prindezi</h3>
+
+            <p class="team-role">
+              Manager
+            </p>
+
+            <p class="team-description">
+              ACG Career Services Team
+            </p>
+
+            <a
+              href="https://www.linkedin.com/in/alexandra-prindezi"
+              target="_blank"
+              rel="noopener noreferrer">
+              View LinkedIn Profile
+            </a>
+
+          </div>
+
+        </article>
+
+        <!-- Team member 4: Efthimis Charokopos -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder">
+            <img
+              src="{% static 'images/team/efthimis-charokopos.png' %}"
+              alt="Efthimis Charokopos, Senior Counsellor"
+              class="team-photo"
+              width="480"
+              height="480"
+              loading="lazy">
+          </div>
+
+          <div class="team-card-content">
+
+            <h3>Efthimis Charokopos</h3>
+
+            <p class="team-role">
+              Senior Counsellor
+            </p>
+
+            <p class="team-description">
+              ACG Career Services Team
+            </p>
+
+            <a
+              href="https://www.linkedin.com/in/themischarokopos"
+              target="_blank"
+              rel="noopener noreferrer">
+              View LinkedIn Profile
+            </a>
+
+          </div>
+
+        </article>
+
+        <!-- Team member 5: Elina Krithari -->
+        <article class="team-card">
+
+          <div class="team-photo-placeholder">
+            <img
+              src="{% static 'images/team/elina-krithari.png' %}"
+              alt="Elina Krithari, Special Projects Coordinator"
+              class="team-photo"
+              width="480"
+              height="480"
+              loading="lazy">
+          </div>
+
+          <div class="team-card-content">
+
+            <h3>Elina Krithari</h3>
+
+            <p class="team-role">
+              Special Projects Coordinator
+            </p>
+
+            <p class="team-description">
+              ACG Career Services Team
+            </p>
+
+            <a
+              href="https://www.linkedin.com/in/elina-krithari"
+              target="_blank"
+              rel="noopener noreferrer">
+              View LinkedIn Profile
+            </a>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================
+        TASKFLOW FEATURE CAROUSEL
+        ======================================== -->
+
+    <section
+      class="dashboard-section about-carousel-section"
+      aria-labelledby="carousel-heading"
+    >
+      <div class="about-section-heading">
+        <p class="about-eyebrow">
+          EXPLORE THE PLATFORM
+        </p>
+
+        <h2 id="carousel-heading">
+          TaskFlow in Action
+        </h2>
+
+        <p>
+          Discover how TaskFlow helps organize,
+          visualize, and monitor Career Services tasks.
+        </p>
+      </div>
+
+      <div
+        class="about-carousel"
+        aria-roledescription="carousel"
+        aria-label="TaskFlow application features"
+      >
+
+        <div
+          class="about-carousel-slide"
+          id="about-carousel-slide"
+          role="group"
+          aria-roledescription="slide"
+          aria-label="Slide 1 of 3"
+        >
+          <div class="about-carousel-image">
+            <img
+              id="about-carousel-img"
+              src="{% static 'images/team/carousel/tasks.png' %}"
+              alt="TaskFlow task management page"
+              width="1000"
+              height="600"
+            >
+          </div>
+
+          <div class="about-carousel-content">
+            <p class="about-eyebrow" id="about-carousel-feature">
+              FEATURE 01
+            </p>
+
+            <h3 id="about-carousel-title">
+              Organize Tasks
+            </h3>
+
+            <p id="about-carousel-description">
+              Create tasks, assign priorities,
+              and manage deadlines efficiently.
+            </p>
+          </div>
+        </div>
+
+        <div class="about-carousel-controls">
+
+          <button
+            type="button"
+            id="carousel-previous"
+            class="about-carousel-button"
+            aria-label="Previous slide"
+          >
+            &#8592; Previous
+          </button>
+
+          <div
+            class="about-carousel-indicators"
+            id="carousel-indicators"
+            aria-label="Choose carousel slide"
+          >
+            <button
+              type="button"
+              class="about-carousel-indicator"
+              data-slide="0"
+              aria-label="Show slide 1"
+              aria-current="true"
+            ></button>
+
+            <button
+              type="button"
+              class="about-carousel-indicator"
+              data-slide="1"
+              aria-label="Show slide 2"
+            ></button>
+
+            <button
+              type="button"
+              class="about-carousel-indicator"
+              data-slide="2"
+              aria-label="Show slide 3"
+            ></button>
+          </div>
+
+          <button
+            type="button"
+            id="carousel-next"
+            class="about-carousel-button"
+            aria-label="Next slide"
+          >
+            Next &#8594;
+          </button>
+
+        </div>
+
+        <p
+          id="carousel-status"
+          class="about-carousel-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+
+      </div>
+    </section>
+
+
+    <!-- Technologies -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="technologies-heading">
+
+      <h2 id="technologies-heading">
+        Technologies Used
+      </h2>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card">
+          <h3>HTML5</h3>
+          <p>
+            Semantic page structure and
+            accessible website content.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>CSS3</h3>
+          <p>
+            Responsive layouts, visual styling,
+            and light and dark themes.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>JavaScript</h3>
+          <p>
+            Interactive features, DOM manipulation,
+            event handling, and analytics.
+          </p>
+        </article>
+
+        <article class="dashboard-card">
+          <h3>localStorage</h3>
+          <p>
+            Browser-based persistence of tasks
+            and appearance preferences.
+          </p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- Academic project -->
+    <section
+      class="dashboard-section"
+      aria-labelledby="project-heading">
+
+      <h2 id="project-heading">Academic Project</h2>
+
+      <p>
+        TaskFlow was developed for ITC4214 Internet
+        Programming at The American College of Greece.
+      </p>
+
+      <p>
+        The project demonstrates front-end web
+        development, responsive design, DOM manipulation,
+        JavaScript event handling, accessibility,
+        and browser-based data storage.
+      </p>
+
+      <p>
+        TaskFlow is a student-developed demonstration
+        platform and is not an official ACG system.
+      </p>
+
+    </section>
+
+    <!-- Application status -->
+    <p id="app-status" role="status"></p>
+
+{% endblock %}
+
+{% block extra_scripts %}
+    <!--
+        Restore the original About page carousel.
+
+        The script is loaded only on the About page,
+        preserving the shared Django layout and
+        the original midterm JavaScript functionality.
+    -->
+    <script
+        type="module"
+        src="{% static 'js/about.js' %}">
+    </script>
+{% endblock %}

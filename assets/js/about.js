@@ -114,8 +114,15 @@ function initializeAboutCarousel() {
 
     const selected = carouselSlides[currentSlide];
 
-    // Update the screenshot.
-    image.src = selected.image;
+    // Extract the selected carousel image's filename.
+    const imageFileName = selected.image.split("/").pop();
+
+    // Use the directory of the currently displayed image.
+    // This supports both the original midterm and Django.
+    const imageDirectory = new URL(".", image.src);
+
+    // Update the screenshot using the correct image directory.
+    image.src = new URL(imageFileName, imageDirectory).href;
     image.alt = selected.alt;
 
     // Update the slide content.
