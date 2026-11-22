@@ -77,6 +77,18 @@
   color: #e05252;
 }
 
+/* Healthy status — no overdue work */
+.home-page .tf-deadlines-label--clear {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+/* Maintain readable contrast in Dark Mode */
+[data-theme="dark"] .home-page .tf-deadlines-label--clear {
+  background: rgba(52, 211, 153, 0.15);
+  color: #6ee7b7;
+}
+
 /* Deadline entries */
 
 .home-page .tf-deadlines-list {
@@ -164,6 +176,46 @@
   font-size: 1rem;
 }
 
+/* ==========================================
+   COMPACT DEADLINE EMPTY STATES
+   ========================================== */
+
+/* Reduce space only when a panel has no deadlines. */
+.home-page .tf-deadlines-panel.tf-deadlines-panel--empty {
+  padding: 1rem 1.25rem;
+}
+
+/* Keep the heading close to its empty-state message. */
+.home-page .tf-deadlines-panel--empty
+.tf-deadlines-panel-heading {
+  margin-bottom: 0.65rem;
+}
+
+/* Avoid placing a second box inside the panel. */
+.home-page .tf-deadlines-panel--empty
+.tf-deadlines-empty {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Make the empty-state text less visually dominant. */
+.home-page .tf-deadlines-panel--empty
+.tf-deadlines-empty strong {
+  font-size: 0.9rem;
+}
+
+.home-page .tf-deadlines-panel--empty
+.tf-deadlines-empty p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.home-page .tf-deadlines-panel--empty
+.tf-deadlines-empty p + p {
+  margin-top: 0.2rem;
+}
 
 /* ==========================================
    NEXT SCHEDULED DEADLINE

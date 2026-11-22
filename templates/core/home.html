@@ -349,11 +349,6 @@
 
       </div>
 
-      <p class="dashboard-note">
-        Statistics update automatically
-        from your saved tasks.
-      </p>
-
     </section>
 
 
@@ -444,13 +439,18 @@
   <div class="tf-deadlines-grid">
 
     <!-- UPCOMING -->
-    <div class="home-panel tf-deadlines-panel">
+    <div class="home-panel tf-deadlines-panel{% if not upcoming_task_deadlines and not upcoming_project_deadlines %} tf-deadlines-panel--empty{% endif %}">
 
       <div class="tf-deadlines-panel-heading">
-        <h3>Next 7 Days</h3>
+     <h3>Next 7 Days</h3>
         <span class="tf-deadlines-label">
-          Upcoming
+          {% if upcoming_task_deadlines or upcoming_project_deadlines %}
+            Upcoming
+          {% else %}
+            None Due
+          {% endif %}
         </span>
+
       </div>
 
       {% if upcoming_task_deadlines or upcoming_project_deadlines %}
@@ -536,13 +536,18 @@
     </div>
 
     <!-- OVERDUE -->
-    <div class="home-panel tf-deadlines-panel">
+    <div class="home-panel tf-deadlines-panel{% if not overdue_tasks and not overdue_projects %} tf-deadlines-panel--empty{% endif %}">
 
       <div class="tf-deadlines-panel-heading">
         <h3>Needs Attention</h3>
-        <span class="tf-deadlines-label tf-deadlines-label--overdue">
-          Overdue
+        <span class="tf-deadlines-label{% if overdue_tasks or overdue_projects %} tf-deadlines-label--overdue{% else %} tf-deadlines-label--clear{% endif %}">
+          {% if overdue_tasks or overdue_projects %}
+            Overdue
+          {% else %}
+            All Clear
+          {% endif %}
         </span>
+
       </div>
 
       {% if overdue_tasks or overdue_projects %}
@@ -809,109 +814,6 @@
       </p>
 
     </section>
-
-    <!-- ========================================
-         PLATFORM FEATURES
-         ======================================== -->
-
-    <section
-      class="features-section home-features"
-      aria-labelledby="features-heading"
-    >
-
-      <div class="home-section-heading">
-
-        <div>
-
-          <p class="home-eyebrow">
-            BUILT FOR COORDINATION
-          </p>
-
-          <h2 id="features-heading">
-            Everything in one place
-          </h2>
-
-        </div>
-
-      </div>
-
-      <!-- Custom CSS Grid: no conflicting
-           Bootstrap row/column classes -->
-
-      <div class="features-grid">
-
-        <!-- Feature 1 -->
-        <article class="feature-card">
-
-          <span class="home-feature-number">
-            01
-          </span>
-
-          <h3>
-            Stay Organized
-          </h3>
-
-          <p>
-            Keep event preparations,
-            employer outreach,
-            and daily responsibilities
-            in a single task list.
-          </p>
-
-        </article>
-
-        <!-- Feature 2 -->
-        <article class="feature-card">
-
-          <span class="home-feature-number">
-            02
-          </span>
-
-          <h3>
-            Track Progress
-          </h3>
-
-          <p>
-            Understand what is pending,
-            in progress, or completed
-            through live task statistics.
-          </p>
-
-        </article>
-
-        <!-- Feature 3 -->
-        <article class="feature-card">
-
-          <span class="home-feature-number">
-            03
-          </span>
-
-          <h3>
-            Work Visually
-          </h3>
-
-          <p>
-            Move tasks through workflow
-            stages with the interactive
-            Kanban board.
-          </p>
-
-        </article>
-
-      </div>
-
-    </section>
-
-    <!-- ========================================
-         APPLICATION STATUS
-         ======================================== -->
-
-    <p
-      id="app-status"
-      class="app-status"
-      role="status"
-      aria-live="polite"
-    ></p>
 
 {% endblock %}
 
