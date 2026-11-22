@@ -1,0 +1,9 @@
+
+/* ==========================================
+   TASKFLOW — AUTHENTICATION THEME REFINEMENTS
+   ========================================== */
+
+/* Improve eyebrow contrast in Dark Mode. */
+[data-theme="dark"] .auth-page .page-eyebrow {
+  color: #93c5fd;
+}

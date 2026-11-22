@@ -1,7 +1,15 @@
-
 {% extends 'layout.html' %}
 
+{% load static %}
+
 {% block title %}Sign In | TaskFlow{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/login-theme.css' %}"
+>
+{% endblock %}
 
 {% block content %}
 

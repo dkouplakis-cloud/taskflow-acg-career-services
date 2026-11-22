@@ -1,0 +1,263 @@
+
+/* ==========================================
+   TASKFLOW — GLOBAL HEADER NAVIGATION
+   ========================================== */
+
+/* Desktop header alignment */
+.site-header .header-container {
+  gap: 0.75rem;
+}
+
+.site-header .main-navigation {
+  flex-wrap: nowrap;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.site-header .main-navigation a {
+  padding: 0.65rem 0.75rem;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   ACCOUNT MENU
+   ========================================== */
+
+.site-header .account-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.site-header .account-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 12px;
+  list-style: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.site-header .account-menu-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.site-header .account-menu-toggle:hover,
+.site-header .account-menu[open] .account-menu-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.site-header .account-menu-toggle:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* User initial */
+.site-header .account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #174a83;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.site-header .account-chevron {
+  color: #dce5f2;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.site-header .account-menu[open] .account-chevron {
+  transform: rotate(180deg);
+}
+
+/* Floating account dropdown */
+.site-header .account-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  z-index: 1100;
+  width: 250px;
+  max-width: calc(100vw - 2rem);
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+.site-header .account-menu-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.8rem;
+}
+
+.site-header .account-menu-caption {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.site-header .account-menu-username {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.site-header .account-menu-divider {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--border);
+}
+
+/* Secure Django POST logout action */
+.site-header .navigation-logout-form {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.site-header .navigation-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.site-header .navigation-logout-button:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--text);
+}
+
+.site-header .navigation-logout-button:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   TABLET AND COMPACT DESKTOP
+   ========================================== */
+
+@media (max-width: 1150px) {
+  .site-header .header-container {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .site-header .menu-toggle {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .site-header .theme-toggle {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .site-header .account-menu {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .site-header .main-navigation {
+    display: none;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.25rem;
+  }
+
+  .site-header .main-navigation.is-open {
+    display: flex;
+  }
+
+  .site-header .main-navigation a {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    white-space: normal;
+  }
+}
+
+/* ==========================================
+   SMALL MOBILE SCREENS
+   ========================================== */
+
+@media (max-width: 520px) {
+  .site-header .header-container {
+    gap: 0.35rem;
+  }
+
+  .site-header .brand-name {
+    font-size: 1.2rem;
+  }
+
+  .site-header .brand-subtitle {
+    font-size: 0.65rem;
+  }
+
+  .site-header .menu-toggle {
+    padding: 0.45rem 0.55rem;
+  }
+
+  .site-header .theme-toggle {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .site-header .account-menu-toggle {
+    padding: 0.2rem;
+  }
+
+  .site-header .account-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+  }
+
+  .site-header .account-chevron {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header .account-menu-toggle,
+  .site-header .account-chevron,
+  .site-header .navigation-logout-button {
+    transition: none;
+  }
+}
