@@ -40,7 +40,11 @@ def home(request):
         "upcoming_project_deadlines": [],
         "overdue_projects": [],
         "next_deadline": None,
-
+        "featured_project": None,
+        "featured_project_task_count": 0,
+        "featured_project_completed_count": 0,
+        "featured_project_progress": 0,
+        "featured_project_next_task": None,
     }
 
     if request.user.is_authenticated:
@@ -54,6 +58,75 @@ def home(request):
         tasks = Task.objects.filter(
             project__owner=request.user
         )
+
+
+        # ----------------------------------------
+        # FEATURED PROJECT FOR HOME HERO
+        # ----------------------------------------
+
+        # Prefer the most recently updated active
+        # project. Otherwise, select the latest
+        # unfinished project or most recent project.
+        featured_project = (
+            projects
+            .filter(status=Project.Status.ACTIVE)
+            .order_by("-updated_at", "-pk")
+            .first()
+        )
+
+        if featured_project is None:
+            featured_project = (
+                projects
+                .exclude(status=Project.Status.COMPLETED)
+                .order_by("-updated_at", "-pk")
+                .first()
+            )
+
+        if featured_project is None:
+            featured_project = (
+                projects
+                .order_by("-updated_at", "-pk")
+                .first()
+            )
+
+        if featured_project is not None:
+            featured_tasks = tasks.filter(
+                project=featured_project
+            )
+
+            summary = featured_tasks.aggregate(
+                total=Count("pk"),
+                completed=Count(
+                    "pk",
+                    filter=Q(
+                        status=Task.Status.COMPLETED
+                    )
+                ),
+            )
+
+            total = summary["total"]
+            completed = summary["completed"]
+
+            progress = (
+                round((completed / total) * 100)
+                if total > 0
+                else 0
+            )
+
+            next_task = (
+                featured_tasks
+                .exclude(status=Task.Status.COMPLETED)
+                .order_by("due_date", "pk")
+                .first()
+            )
+
+            context.update({
+                "featured_project": featured_project,
+                "featured_project_task_count": total,
+                "featured_project_completed_count": completed,
+                "featured_project_progress": progress,
+                "featured_project_next_task": next_task,
+            })
 
         # Retrieve the five most recently updated tasks
         # belonging to this user's projects.

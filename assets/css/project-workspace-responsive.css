@@ -1,0 +1,295 @@
+
+/* ==========================================
+   TASKFLOW — PROJECT WORKSPACE
+   Responsive task management
+   ========================================== */
+
+/*
+ * DESKTOP TASK TABLE
+ *
+ * Remove the inherited 1100px minimum width.
+ * Allow task actions to wrap inside their cell
+ * instead of forcing horizontal scrolling.
+ */
+
+.project-detail-page .tf-tasklist-table {
+    width: 100%;
+    min-width: 0;
+}
+
+.project-detail-page .tf-tasklist-table th,
+.project-detail-page .tf-tasklist-table td {
+    padding-left: clamp(8px, 0.8vw, 14px);
+    padding-right: clamp(8px, 0.8vw, 14px);
+}
+
+/* Keep long task names inside their column. */
+
+.project-detail-page .tf-tasklist-task-name,
+.project-detail-page .tf-tasklist-description {
+    overflow-wrap: anywhere;
+}
+
+/* Allow the action buttons to use multiple rows. */
+
+.project-detail-page .tf-tasklist-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    gap: 7px;
+}
+
+/* Preserve the original controls and their behavior. */
+
+.project-detail-page .tf-tasklist-actions > a,
+.project-detail-page .tf-tasklist-actions > button,
+.project-detail-page .tf-tasklist-actions > form {
+    flex: 0 1 auto;
+    max-width: 100%;
+}
+
+/* Prevent action labels from overflowing. */
+
+.project-detail-page .tf-tasklist-edit,
+.project-detail-page .tf-tasklist-complete,
+.project-detail-page .tf-tasklist-delete-trigger {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+}
+
+/* ==========================================
+   DESKTOP TASK ACTION REFINEMENTS
+   ========================================== */
+
+/* Reduce unnecessary spacing between actions. */
+.project-detail-page .tf-tasklist-actions {
+    gap: 4px;
+}
+
+/* Keep buttons compact without reducing
+   their minimum height or readability. */
+.project-detail-page .tf-tasklist-edit,
+.project-detail-page .tf-tasklist-complete,
+.project-detail-page .tf-tasklist-delete-trigger {
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+/* Keep each action intact when wrapping
+   is necessary on smaller screens. */
+.project-detail-page .tf-tasklist-actions > a,
+.project-detail-page .tf-tasklist-actions > button,
+.project-detail-page .tf-tasklist-actions > form {
+    flex: 0 0 auto;
+}
+
+/* ==========================================
+   DESKTOP ACTIONS COLUMN
+   ========================================== */
+
+@media (min-width: 1200px) {
+
+    /* Give task actions sufficient column width. */
+    .project-detail-page .tf-tasklist-table th:last-child,
+    .project-detail-page .tf-tasklist-table td:last-child {
+        width: 310px;
+        min-width: 310px;
+    }
+
+    /* Display all three actions on one row. */
+    .project-detail-page .tf-tasklist-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+}
+
+/* ==========================================
+   RESPONSIVE TASK CARDS
+   Tablet and smaller desktop screens
+   ========================================== */
+
+@media (max-width: 1199px) {
+
+    /* Remove the horizontal-scrolling container. */
+    .project-detail-page .tf-tasklist-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow: visible;
+        border: none;
+        border-radius: 0;
+    }
+
+    /* Convert the table into a card collection. */
+    .project-detail-page .tf-tasklist-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        border-collapse: separate;
+    }
+
+    /* Keep column headings available to assistive
+       technology while hiding them visually. */
+    .project-detail-page .tf-tasklist-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .project-detail-page .tf-tasklist-table tbody {
+        display: grid;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    /* Each task becomes its own card. */
+    .project-detail-page .tf-tasklist-table tbody tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+        width: 100%;
+        min-width: 0;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+    }
+
+    /* Individual fields inside the card. */
+    .project-detail-page .tf-tasklist-table td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 0.55rem;
+
+        min-width: 0;
+        padding: 0;
+        border: none;
+        vertical-align: initial;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    /* Display the labels from data-label. */
+    .project-detail-page .tf-tasklist-table td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        line-height: 1.4;
+        text-transform: uppercase;
+    }
+
+    /* Task name and description span the card. */
+    .project-detail-page .tf-tasklist-table td:first-child {
+        grid-column: 1 / -1;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .project-detail-page .tf-tasklist-task-name {
+        max-width: 100%;
+        font-size: 1.05rem;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .project-detail-page .tf-tasklist-description {
+        max-width: 100%;
+        margin: 0;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    /* Keep assignee information readable. */
+    .project-detail-page .tf-tasklist-assignee {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .project-detail-page .tf-tasklist-assignee-name {
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    /* Actions become a distinct card footer. */
+    .project-detail-page .tf-tasklist-table td:last-child {
+        grid-column: 1 / -1;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .project-detail-page .tf-tasklist-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.65rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .project-detail-page .tf-tasklist-actions > a,
+    .project-detail-page .tf-tasklist-actions > button,
+    .project-detail-page .tf-tasklist-actions > form {
+        flex: 0 0 auto;
+        max-width: 100%;
+    }
+
+    .project-detail-page .tf-tasklist-edit,
+    .project-detail-page .tf-tasklist-complete,
+    .project-detail-page .tf-tasklist-delete-trigger {
+        min-height: 40px;
+        padding: 9px 13px;
+    }
+}
+
+/* ==========================================
+   PHONE LAYOUT
+   ========================================== */
+
+@media (max-width: 600px) {
+
+    .project-detail-page .tf-tasklist-table tbody tr {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.1rem;
+        padding: 1.15rem;
+    }
+
+    .project-detail-page .tf-tasklist-table td:first-child,
+    .project-detail-page .tf-tasklist-table td:last-child {
+        grid-column: 1;
+    }
+
+    .project-detail-page .tf-tasklist-actions {
+        gap: 0.5rem;
+    }
+
+    .project-detail-page .tf-tasklist-actions > a,
+    .project-detail-page .tf-tasklist-actions > form,
+    .project-detail-page .tf-tasklist-actions > button {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .project-detail-page .tf-tasklist-complete {
+        width: 100%;
+    }
+}

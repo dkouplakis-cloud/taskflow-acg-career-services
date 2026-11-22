@@ -6,6 +6,13 @@
 
 {% block page_class %}project-detail-page{% endblock %}
 
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/project-workspace-responsive.css' %}"
+>
+{% endblock %}
+
 {% block content %}
 
 <!-- ==========================================
@@ -550,7 +557,7 @@
 
                                         <!-- Task name -->
 
-                                        <td>
+                                        <td data-label="Task">
 
                                             <div class="tf-tasklist-task-name">
                                                 {{ task.name }}
@@ -569,7 +576,7 @@
 
                                         <!-- Task assignee -->
 
-                                        <td>
+                                        <td data-label="Assignee">
 
                                             {% if task.assignee %}
 
@@ -601,7 +608,7 @@
 
                                         <!-- Priority -->
 
-                                        <td>
+                                        <td data-label="Priority">
 
                                             <span
                                                 class="tf-tasklist-priority tf-tasklist-priority--{{ task.priority }}"
@@ -614,7 +621,7 @@
 
                                         <!-- Status -->
 
-                                        <td>
+                                        <td data-label="Status">
 
                                             <span
                                                 class="tf-tasklist-status tf-tasklist-status--{{ task.status }}"
@@ -634,7 +641,7 @@
 
                                         <!-- Due date -->
 
-                                        <td>
+                                        <td data-label="Due Date">
 
                                             {% if task.due_date %}
 
@@ -660,7 +667,7 @@
                                              TASK ACTIONS
                                              ================================== -->
 
-                                        <td>
+                                        <td data-label="Actions">
 
                                             <div class="tf-tasklist-actions">
 
@@ -694,7 +701,7 @@
                                                             aria-label="Mark {{ task.name }} as completed"
                                                         >
                                                             <span aria-hidden="true">✓</span>
-                                                            Mark Completed
+                                                            Complete
                                                         </button>
 
                                                     </form>

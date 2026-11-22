@@ -69,63 +69,166 @@
 
       </div>
 
-      <!-- Decorative Workflow Preview -->
-      <div
-        class="home-hero-visual"
-        aria-hidden="true"
+    <!-- ========================================
+        FEATURED PROJECT — DJANGO DATA
+        ======================================== -->
+
+    {% if featured_project %}
+
+      <a
+        href="{% url 'projects:project_detail' featured_project.pk %}"
+        class="tf-hero-focus"
+        data-status="{{ featured_project.status }}"
+        aria-label="Open project: {{ featured_project.name }}"
       >
 
-        <div class="home-visual-label">
-          YOUR WORKFLOW
-        </div>
+        <div class="tf-hero-focus-header">
 
-        <div class="home-visual-row">
+          <span class="tf-hero-focus-label">
+            CURRENT FOCUS
+          </span>
 
-          <span
-            class="home-visual-dot pending"
-          ></span>
-
-          <span>Pending</span>
-
-          <span
-            class="home-visual-line"
-          ></span>
+          <span class="tf-hero-focus-status">
+            {{ featured_project.get_status_display }}
+          </span>
 
         </div>
 
-        <div class="home-visual-row">
+        <h2 class="tf-hero-focus-title">
+          {{ featured_project.name }}
+        </h2>
 
-          <span
-            class="home-visual-dot progress"
-          ></span>
+        <div class="tf-hero-focus-progress">
 
-          <span>In Progress</span>
+          <div class="tf-hero-focus-progress-heading">
+            <span>Task completion</span>
 
-          <span
-            class="home-visual-line"
-          ></span>
+            <strong>
+              {{ featured_project_progress }}%
+            </strong>
+          </div>
+
+          <progress
+            class="tf-hero-focus-bar"
+            value="{{ featured_project_progress }}"
+            max="100"
+            aria-label="Task completion for {{ featured_project.name }}"
+          >
+            {{ featured_project_progress }}%
+          </progress>
+
+          <p class="tf-hero-focus-summary">
+            {{ featured_project_completed_count }}
+            of {{ featured_project_task_count }}
+            tasks completed
+          </p>
 
         </div>
 
-        <div class="home-visual-row">
+        <div class="tf-hero-focus-next">
 
-          <span
-            class="home-visual-dot completed"
-          ></span>
+          {% if featured_project_next_task %}
 
-          <span>Completed</span>
+            <span class="tf-hero-focus-next-label">
+              NEXT OUTSTANDING TASK
+            </span>
 
-          <span
-            class="home-visual-line"
-          ></span>
+            <strong class="tf-hero-focus-next-title">
+              {{ featured_project_next_task.name }}
+            </strong>
+
+            <span class="tf-hero-focus-next-date">
+              Due {{ featured_project_next_task.due_date|date:"j M Y" }}
+            </span>
+
+          {% elif featured_project_task_count == 0 %}
+
+            <span class="tf-hero-focus-next-label">
+              GET STARTED
+            </span>
+
+            <strong class="tf-hero-focus-next-title">
+              No tasks added yet
+            </strong>
+
+            <span class="tf-hero-focus-next-date">
+              Open this project to create its first task.
+            </span>
+
+          {% else %}
+
+            <span class="tf-hero-focus-next-label">
+              PROJECT PROGRESS
+            </span>
+
+            <strong class="tf-hero-focus-next-title">
+              All tasks completed
+            </strong>
+
+            <span class="tf-hero-focus-next-date">
+              There are no outstanding tasks.
+            </span>
+
+          {% endif %}
 
         </div>
 
-        <div class="home-visual-footer">
-          Plan · Track · Deliver
+        <div class="tf-hero-focus-footer">
+
+          <span>Open project workspace</span>
+
+          <span
+            class="tf-hero-focus-arrow"
+            aria-hidden="true"
+          >
+            &rarr;
+          </span>
+
         </div>
 
-      </div>
+      </a>
+
+    {% else %}
+
+      <!-- Empty state for users without projects -->
+
+      <a
+        href="{% url 'projects:project_create' %}"
+        class="tf-hero-focus"
+      >
+
+        <div class="tf-hero-focus-header">
+          <span class="tf-hero-focus-label">
+            YOUR WORKSPACE
+          </span>
+        </div>
+
+        <h2 class="tf-hero-focus-title">
+          Your next project starts here.
+        </h2>
+
+        <p class="tf-hero-focus-summary">
+          Create your first project to organize tasks,
+          assign responsibilities and track progress.
+        </p>
+
+        <div class="tf-hero-focus-footer">
+
+          <span>Create a project</span>
+
+          <span
+            class="tf-hero-focus-arrow"
+            aria-hidden="true"
+          >
+            &rarr;
+          </span>
+
+        </div>
+
+      </a>
+
+    {% endif %}
+
 
     </section>
 

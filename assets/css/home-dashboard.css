@@ -453,3 +453,230 @@
     transition: none;
   }
 }
+
+/* ==========================================
+   HOME HERO — FEATURED PROJECT
+   ========================================== */
+
+.home-page .tf-hero-focus {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  padding: clamp(1.35rem, 2.5vw, 2rem);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.home-page .tf-hero-focus::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    #2563eb,
+    #38bdf8,
+    #14b8a6
+  );
+}
+
+.home-page .tf-hero-focus:hover {
+  color: var(--text);
+  border-color: #6698d6;
+  transform: translateY(-3px);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
+}
+
+.home-page .tf-hero-focus:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.home-page .tf-hero-focus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-page .tf-hero-focus-label {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-page .tf-hero-focus-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.home-page .tf-hero-focus[data-status="active"]
+.tf-hero-focus-status {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.home-page .tf-hero-focus-title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+
+.home-page .tf-hero-focus-progress {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.home-page .tf-hero-focus-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.home-page .tf-hero-focus-progress-heading strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.home-page .tf-hero-focus-bar {
+  display: block;
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.home-page .tf-hero-focus-bar::-webkit-progress-bar {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.home-page .tf-hero-focus-bar::-webkit-progress-value {
+  background: linear-gradient(90deg, #2563eb, #14b8a6);
+  border-radius: 999px;
+}
+
+.home-page .tf-hero-focus-bar::-moz-progress-bar {
+  background: linear-gradient(90deg, #2563eb, #14b8a6);
+  border-radius: 999px;
+}
+
+.home-page .tf-hero-focus-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.home-page .tf-hero-focus-next {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+}
+
+.home-page .tf-hero-focus-next-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-page .tf-hero-focus-next-title {
+  display: block;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.home-page .tf-hero-focus-next-date {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.home-page .tf-hero-focus-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.home-page .tf-hero-focus-arrow {
+  font-size: 1.15rem;
+  transition: transform 180ms ease;
+}
+
+.home-page .tf-hero-focus:hover .tf-hero-focus-arrow {
+  transform: translateX(4px);
+}
+
+[data-theme="dark"] .home-page .tf-hero-focus-status {
+  color: #93c5fd;
+}
+
+[data-theme="dark"]
+.home-page .tf-hero-focus[data-status="active"]
+.tf-hero-focus-status {
+  color: #6ee7b7;
+}
+
+@media (max-width: 950px) {
+  .home-page .tf-hero-focus {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .tf-hero-focus,
+  .home-page .tf-hero-focus-arrow {
+    transition: none;
+  }
+
+  .home-page .tf-hero-focus:hover {
+    transform: none;
+  }
+}
