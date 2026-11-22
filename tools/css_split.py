@@ -570,18 +570,29 @@ def verify() -> None:
         if current != previous:
             changed.append(filename)
 
-    # Only our reviewed header improvement
-    # should differ at this checkpoint.
-    if changed != ["09-project-forms.css"]:
+    # Read the list of approved modified modules.
+    # The default preserves compatibility with
+    # our existing verified CSS checkpoint.
+
+    approved_modules = info.get(
+        "approved_modified_modules",
+        ["09-project-forms.css"]
+    )
+
+    # Reject modifications to any modules that
+    # have not been explicitly approved.
+
+    if changed != approved_modules:
         raise SystemExit(
             "FAIL: Unexpected CSS module changes: "
             + str(changed)
         )
 
     print(
-        "PASS: Only the approved project "
-        "form module differs."
+        "PASS: Only approved CSS modules differ "
+        "from the original backup."
     )
+
 
     # Verify the currently approved CSS.
     assembled = assembled_css(info)
