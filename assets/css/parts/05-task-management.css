@@ -1,0 +1,546 @@
+/* ==========================================
+   TASKFLOW - PROJECT TASK MANAGEMENT
+   ========================================== */
+
+.tf-pw-tasks {
+    --tf-list-bg: #ffffff;
+    --tf-list-soft: #f8fafc;
+    --tf-list-hover: #f3f7ff;
+    --tf-list-border: #e2e8f0;
+    --tf-list-text: #14233b;
+    --tf-list-muted: #64748b;
+
+    background: var(--tf-list-bg);
+    color: var(--tf-list-text);
+}
+
+/* Dark mode */
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-pw-tasks {
+    --tf-list-bg: #172337;
+    --tf-list-soft: #1c2c43;
+    --tf-list-hover: #223550;
+    --tf-list-border: #33445c;
+    --tf-list-text: #f1f5fb;
+    --tf-list-muted: #afbdd0;
+}
+
+/* Header */
+
+.tf-tasklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 26px;
+}
+
+.tf-tasklist-eyebrow {
+    margin: 0 0 10px;
+    color: #3b82f6;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.tf-tasklist-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tf-tasklist-title-row h2 {
+    margin: 0;
+    color: var(--tf-list-text);
+    font-size: 1.45rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.tf-tasklist-count {
+    padding: 5px 10px;
+    border: 1px solid var(--tf-list-border);
+    border-radius: 999px;
+
+    background: var(--tf-list-soft);
+    color: var(--tf-list-muted);
+
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+
+.tf-tasklist-subtitle {
+    margin: 9px 0 0;
+    color: var(--tf-list-muted);
+    font-size: 0.86rem;
+    line-height: 1.6;
+}
+
+/* New Task button */
+
+.tf-tasklist-create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-shrink: 0;
+
+    min-height: 42px;
+    padding: 10px 16px;
+
+    border: 1px solid #2563eb;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.tf-tasklist-create:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Table container */
+
+.tf-tasklist-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--tf-list-border);
+    border-radius: 12px;
+}
+
+.tf-tasklist-table {
+    width: 100%;
+    min-width: 930px;
+    border-collapse: collapse;
+    color: var(--tf-list-text);
+}
+
+.tf-tasklist-table thead {
+    background: var(--tf-list-soft);
+}
+
+.tf-tasklist-table th {
+    padding: 15px 16px;
+    color: var(--tf-list-muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tf-tasklist-table td {
+    padding: 19px 16px;
+    border-top: 1px solid var(--tf-list-border);
+    vertical-align: middle;
+    font-size: 0.83rem;
+}
+
+.tf-tasklist-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.tf-tasklist-table tbody tr:hover {
+    background: var(--tf-list-hover);
+}
+
+/* Task name and description */
+
+.tf-tasklist-task-name {
+    max-width: 300px;
+    color: var(--tf-list-text);
+    font-size: 0.86rem;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.tf-tasklist-description {
+    max-width: 290px;
+    margin: 6px 0 0;
+    color: var(--tf-list-muted);
+    font-size: 0.74rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+/* Assignee */
+
+.tf-tasklist-assignee {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.tf-tasklist-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+
+    background: var(--tf-member-avatar-bg, #e2e8f0);
+    color: var(--tf-member-avatar-fg, #334155);
+
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.tf-tasklist-assignee-name {
+    max-width: 165px;
+    font-size: 0.79rem;
+    font-weight: 650;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.tf-tasklist-muted {
+    color: var(--tf-list-muted);
+    font-size: 0.8rem;
+}
+
+/* Shared priority and status badges */
+
+.tf-tasklist-priority,
+.tf-tasklist-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 11px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+
+    font-size: 0.74rem;
+    font-weight: 750;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.tf-tasklist-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Light mode priority colors */
+
+.tf-tasklist-priority--high {
+    color: #b42318;
+    background: #fef0ef;
+    border-color: #fecaca;
+}
+
+.tf-tasklist-priority--medium {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.tf-tasklist-priority--low {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+/* Light mode status colors */
+
+.tf-tasklist-status--pending {
+    color: #92400e;
+    background: #fff7e6;
+    border-color: #fde68a;
+}
+
+.tf-tasklist-status--in_progress {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.tf-tasklist-status--completed {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+/* Dark mode badge colors */
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-pw-tasks {
+
+    .tf-tasklist-priority--high {
+        color: #fda4af;
+        background: #462b3b;
+        border-color: #744154;
+    }
+
+    .tf-tasklist-priority--medium,
+    .tf-tasklist-status--pending {
+        color: #fcd34d;
+        background: #463923;
+        border-color: #756039;
+    }
+
+    .tf-tasklist-priority--low,
+    .tf-tasklist-status--completed {
+        color: #86efac;
+        background: #1d423e;
+        border-color: #356b58;
+    }
+
+    .tf-tasklist-status--in_progress {
+        color: #93c5fd;
+        background: #223d61;
+        border-color: #375d8e;
+    }
+}
+
+/* Date */
+
+.tf-tasklist-date {
+    color: var(--tf-list-text);
+    font-size: 0.79rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Edit action */
+
+.tf-tasklist-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 36px;
+    padding: 7px 12px;
+
+    border: 1px solid var(--tf-list-border);
+    border-radius: 9px;
+
+    background: var(--tf-list-soft);
+    color: var(--tf-list-text);
+
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        background 0.18s,
+        border-color 0.18s;
+}
+
+.tf-tasklist-edit:hover {
+    background: var(--tf-list-hover);
+    border-color: #3b82f6;
+    color: var(--tf-list-text);
+}
+
+.tf-tasklist-edit:focus-visible,
+.tf-tasklist-create:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+/* Empty state */
+
+.tf-tasklist-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+
+    padding: 42px 22px;
+    text-align: center;
+
+    border: 1px dashed var(--tf-list-border);
+    border-radius: 13px;
+    background: var(--tf-list-soft);
+}
+
+.tf-tasklist-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 14px;
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.tf-tasklist-empty h3 {
+    margin: 0;
+    color: var(--tf-list-text);
+    font-size: 1.1rem;
+}
+
+.tf-tasklist-empty p {
+    max-width: 390px;
+    margin: 0 0 7px;
+    color: var(--tf-list-muted);
+    font-size: 0.83rem;
+    line-height: 1.7;
+}
+
+/* Responsive */
+
+@media (max-width: 720px) {
+    .tf-tasklist-header {
+        align-items: flex-start;
+    }
+
+    .tf-tasklist-create {
+        width: 100%;
+    }
+
+    .tf-tasklist-table th,
+    .tf-tasklist-table td {
+        padding: 14px 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-tasklist-table tbody tr,
+    .tf-tasklist-edit,
+    .tf-tasklist-create {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - TASK COMPLETION ACTIONS
+   ========================================== */
+
+.tf-tasklist-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.tf-tasklist-complete-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.tf-tasklist-complete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 36px;
+    padding: 7px 12px;
+
+    border: 1px solid #a7e3c1;
+    border-radius: 9px;
+
+    background: #ecfdf5;
+    color: #166534;
+
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s,
+        border-color 0.18s;
+}
+
+.tf-tasklist-complete:hover {
+    background: #d1fae5;
+    border-color: #65c995;
+}
+
+.tf-tasklist-complete:focus-visible {
+    outline: 3px solid #34d399;
+    outline-offset: 3px;
+}
+
+.tf-tasklist-completed {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    color: #15803d;
+    font-size: 0.78rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+/* Dark mode */
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-pw-tasks .tf-tasklist-complete {
+    background: #173d34;
+    border-color: #326c57;
+    color: #a7f3d0;
+}
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-pw-tasks .tf-tasklist-complete:hover {
+    background: #205244;
+    border-color: #4a9673;
+}
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-pw-tasks .tf-tasklist-completed {
+    color: #86efac;
+}
+

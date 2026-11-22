@@ -1,0 +1,249 @@
+/* ==========================================
+   TASKFLOW - PROJECT TASK FILTER TOOLBAR
+   ========================================== */
+
+.tf-taskfilter {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    margin: 0 0 22px;
+    padding: 20px;
+
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    border-radius: 14px;
+
+    background: var(--tf-list-soft, #f8fafc);
+    color: var(--tf-list-text, #14233b);
+}
+
+.tf-taskfilter label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: var(--tf-list-muted, #64748b);
+    font-size: 0.73rem;
+    font-weight: 750;
+}
+
+.tf-taskfilter-search {
+    width: 100%;
+}
+
+.tf-taskfilter-search input,
+.tf-taskfilter-field select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+
+    padding: 10px 13px;
+
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    border-radius: 9px;
+
+    background: var(--tf-list-bg, #ffffff);
+    color: var(--tf-list-text, #14233b);
+
+    font-family: inherit;
+    font-size: 0.83rem;
+    line-height: 1.4;
+
+    box-shadow: none;
+}
+
+.tf-taskfilter input::placeholder {
+    color: var(--tf-list-muted, #64748b);
+    opacity: 0.8;
+}
+
+.tf-taskfilter-controls {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1.35fr)
+        auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.tf-taskfilter-field {
+    min-width: 0;
+}
+
+.tf-taskfilter-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+    padding: 10px 17px;
+
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font: inherit;
+    font-size: 0.81rem;
+    font-weight: 750;
+    white-space: nowrap;
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+}
+
+.tf-taskfilter-apply:hover {
+    background: #1d4ed8;
+}
+
+.tf-taskfilter input:focus-visible,
+.tf-taskfilter select:focus-visible,
+.tf-taskfilter button:focus-visible,
+.tf-taskfilter a:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 2px;
+}
+
+.tf-taskfilter-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding-top: 13px;
+    border-top: 1px solid var(--tf-list-border, #e2e8f0);
+}
+
+.tf-taskfilter-footer p {
+    margin: 0;
+    color: var(--tf-list-muted, #64748b);
+    font-size: 0.77rem;
+}
+
+.tf-taskfilter-footer strong {
+    color: var(--tf-list-text, #14233b);
+    font-weight: 750;
+}
+
+.tf-taskfilter-clear,
+.tf-taskfilter-no-results a {
+    color: #3b82f6;
+    font-size: 0.79rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.tf-taskfilter-clear:hover,
+.tf-taskfilter-no-results a:hover {
+    text-decoration: underline;
+}
+
+/* No matching results */
+
+.tf-taskfilter-no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+
+    padding: 38px 22px;
+
+    border: 1px dashed var(--tf-list-border, #e2e8f0);
+    border-radius: 12px;
+
+    background: var(--tf-list-soft, #f8fafc);
+    text-align: center;
+}
+
+.tf-taskfilter-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.10);
+    color: #3b82f6;
+
+    font-size: 1.6rem;
+}
+
+.tf-taskfilter-no-results h3 {
+    margin: 0;
+    color: var(--tf-list-text, #14233b);
+    font-size: 1rem;
+}
+
+.tf-taskfilter-no-results p {
+    margin: 0;
+    max-width: 400px;
+
+    color: var(--tf-list-muted, #64748b);
+    font-size: 0.81rem;
+    line-height: 1.6;
+}
+
+/* Responsive controls */
+
+@media (max-width: 850px) {
+    .tf-taskfilter-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .tf-taskfilter {
+        padding: 15px;
+    }
+
+    .tf-taskfilter-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .tf-taskfilter-apply {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-taskfilter-apply {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - LIVE TASK FILTER FEEDBACK
+   ========================================== */
+
+.tf-taskfilter-live {
+    margin: 0;
+
+    color: var(--tf-list-muted, #64748b);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.tf-taskfilter-live:empty {
+    display: none;
+}
+
+#tf-task-results {
+    transition: opacity 0.15s ease;
+}
+
+#tf-task-results[aria-busy="true"] {
+    opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #tf-task-results {
+        transition: none;
+    }
+}
+

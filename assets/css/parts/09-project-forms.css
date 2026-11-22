@@ -1,0 +1,468 @@
+/* ================================================
+   TASKFLOW - CREATE / EDIT PROJECT FORM
+   ================================================ */
+
+.project-form-page {
+    --pf-surface: #ffffff;
+    --pf-soft: #f7f9fc;
+    --pf-border: #dce4ef;
+    --pf-text: #17243b;
+    --pf-muted: #64748b;
+    --pf-input: #ffffff;
+}
+
+:is(
+    [data-theme="dark"],
+    .dark-mode,
+    .dark-theme,
+    .theme-dark,
+    [data-bs-theme="dark"]
+) .project-form-page {
+    --pf-surface: #172337;
+    --pf-soft: #1f2d43;
+    --pf-border: #34445c;
+    --pf-text: #f0f4fb;
+    --pf-muted: #a9b9cd;
+    --pf-input: #111c2e;
+}
+
+/* CONTAINER */
+
+.project-form-page .form-container {
+    width: min(900px, 100%);
+    max-width: 900px;
+    margin: 30px auto 70px;
+    padding: clamp(24px, 4vw, 40px);
+
+    border: 1px solid var(--pf-border);
+    border-radius: 18px;
+
+    background: var(--pf-surface);
+    color: var(--pf-text);
+
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.045);
+}
+
+/* PAGE HEADING */
+
+.project-form-page .page-header {
+    margin-bottom: 29px;
+}
+
+.project-form-page .page-header h1 {
+    margin: 0 0 10px;
+
+    color: var(--pf-text);
+    font-size: clamp(1.8rem, 3vw, 2.3rem);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+}
+
+.project-form-page .page-header p {
+    max-width: 670px;
+    margin: 0;
+
+    color: var(--pf-muted);
+    font-size: 0.88rem;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* FORM STRUCTURE */
+
+.project-form-page .project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+}
+
+.project-form-page .form-group {
+    min-width: 0;
+    margin: 0;
+}
+
+.project-form-page .form-group > label,
+.project-form-page .project-collaborators > legend {
+    display: block;
+    width: 100%;
+    margin: 0 0 9px;
+
+    color: var(--pf-text);
+    font-size: 0.83rem;
+    font-weight: 700;
+}
+
+/* TEXT, DATE AND SELECT FIELDS */
+
+.project-form-page .project-form input:not([type="checkbox"]):not([type="hidden"]),
+.project-form-page .project-form textarea,
+.project-form-page .project-form select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    padding: 11px 14px;
+    margin: 0;
+
+    border: 1px solid var(--pf-border);
+    border-radius: 10px;
+
+    background: var(--pf-input);
+    color: var(--pf-text);
+
+    font-family: inherit;
+    font-size: 0.89rem;
+    font-weight: 400;
+    line-height: 1.55;
+
+    box-shadow: none;
+}
+
+.project-form-page .project-form input:not([type="checkbox"]):not([type="hidden"]),
+.project-form-page .project-form select {
+    min-height: 46px;
+}
+
+.project-form-page .project-form textarea {
+    height: 140px;
+    min-height: 110px;
+    max-height: 320px;
+    resize: vertical;
+}
+
+.project-form-page .project-form input:focus,
+.project-form-page .project-form textarea:focus,
+.project-form-page .project-form select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+/* COLLABORATOR SELECTION */
+
+.project-form-page .project-collaborator-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.project-form-page .project-collaborator-option {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-width: 0;
+    padding: 13px 15px;
+
+    border: 1px solid var(--pf-border);
+    border-radius: 11px;
+
+    background: var(--pf-soft);
+    color: var(--pf-text);
+
+    cursor: pointer;
+}
+
+.project-form-page .project-collaborator-option:has(input:checked) {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.10);
+}
+
+.project-form-page .project-collaborator-option[hidden] {
+    display: none !important;
+}
+
+.project-form-page .project-collaborator-option input {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #2563eb;
+}
+
+.project-form-page .collaborator-name {
+    min-width: 0;
+    color: var(--pf-text);
+    font-size: 0.83rem;
+    overflow-wrap: anywhere;
+}
+
+/* ERRORS AND GUIDANCE */
+
+.project-form-page .form-help {
+    color: var(--pf-muted);
+    font-size: 0.77rem;
+    line-height: 1.55;
+}
+
+.project-form-page .field-error,
+.project-form-page .form-errors {
+    color: #e05a70;
+    font-size: 0.81rem;
+}
+
+/* FORM ACTIONS */
+
+.project-form-page .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-top: 7px;
+    padding-top: 23px;
+
+    border-top: 1px solid var(--pf-border);
+}
+
+.project-form-page .form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 10px;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* MOBILE FORM LAYOUT */
+
+@media (max-width: 620px) {
+    .project-form-page .form-container {
+        margin: 18px auto 45px;
+        padding: 22px 18px;
+    }
+
+    .project-form-page .project-collaborator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - PROJECT FORM REFINEMENT
+   ========================================== */
+
+/* More controlled overall proportions */
+
+.project-form-page .form-container {
+    width: min(790px, calc(100% - 32px));
+    max-width: 790px;
+    margin: 28px auto 70px;
+    padding: clamp(24px, 3vw, 36px);
+
+    border-radius: 16px;
+    background: var(--pf-surface);
+    border: 1px solid var(--pf-border);
+
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.045);
+}
+
+
+/* ==========================================
+   PROJECT FORM - REFINED HEADER
+   ========================================== */
+
+.project-form-page .page-header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin: 0 0 30px;
+    padding: 28px 30px;
+
+    background:
+        linear-gradient(
+            115deg,
+            rgba(59, 130, 246, 0.09),
+            transparent 75%
+        ),
+        var(--pf-soft);
+
+    border: 1px solid var(--pf-border);
+    border-radius: 14px;
+
+    overflow: hidden;
+}
+
+/* Subtle blue accent along the top */
+
+.project-form-page .page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #60a5fa
+    );
+}
+
+/* Project Management eyebrow */
+
+.project-form-page .page-header .section-eyebrow,
+.project-form-page .page-header p:first-of-type {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+    margin: 0;
+    padding: 6px 10px;
+
+    color: #2563eb;
+    background: rgba(59, 130, 246, 0.09);
+
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 6px;
+
+    font-size: 0.69rem;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Main page title */
+
+.project-form-page .page-header h1 {
+    margin: 2px 0 0;
+
+    color: var(--pf-text);
+
+    font-size: clamp(2rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.12;
+}
+
+/* Explanatory subtitle */
+
+.project-form-page .page-header p:last-of-type:not(:first-of-type) {
+    max-width: 640px;
+    margin: 0;
+
+    color: var(--pf-muted);
+
+    font-size: 0.91rem;
+    font-weight: 400;
+    line-height: 1.65;
+}
+
+/* Dark-mode eyebrow contrast */
+
+:is(
+    [data-theme="dark"],
+    .dark-mode,
+    .dark-theme,
+    .theme-dark,
+    [data-bs-theme="dark"]
+) .project-form-page .page-header p:first-of-type {
+    color: #93c5fd;
+}
+
+/* Responsive header spacing */
+
+@media (max-width: 620px) {
+    .project-form-page .page-header {
+        padding: 23px 20px;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+}
+
+/* Reduce excessive vertical spacing */
+
+.project-form-page .project-form {
+    gap: 19px;
+}
+
+.project-form-page .form-group > label,
+.project-form-page .project-collaborators > legend {
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 0.81rem;
+}
+
+/* Compact, consistent fields */
+
+.project-form-page .project-form
+input:not([type="checkbox"]):not([type="hidden"]),
+.project-form-page .project-form select {
+    min-height: 44px;
+    border-radius: 9px;
+    font-size: 0.87rem;
+}
+
+/* Description should support writing
+   without dominating the entire form */
+
+.project-form-page .project-form textarea {
+    height: 112px;
+    min-height: 112px;
+    max-height: 300px;
+    resize: vertical;
+
+    border-radius: 10px;
+    font-size: 0.87rem;
+    line-height: 1.6;
+}
+
+/* More compact collaborator options */
+
+.project-form-page .project-collaborator-grid {
+    gap: 10px;
+}
+
+.project-form-page .project-collaborator-option {
+    min-height: 46px;
+    padding: 11px 13px;
+    border-radius: 9px;
+
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease;
+}
+
+/* Refined action area */
+
+.project-form-page .form-actions {
+    margin-top: 10px;
+    padding-top: 21px;
+    gap: 10px;
+}
+
+.project-form-page .form-actions .btn {
+    min-height: 43px;
+    padding: 10px 18px;
+    border-radius: 9px;
+}
+
+/* Keep comfortable spacing on mobile */
+
+@media (max-width: 620px) {
+    .project-form-page .form-container {
+        width: calc(100% - 24px);
+        margin: 18px auto 48px;
+        padding: 22px 18px;
+    }
+
+    .project-form-page .page-header {
+        padding-bottom: 20px;
+    }
+
+    .project-form-page .project-collaborator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

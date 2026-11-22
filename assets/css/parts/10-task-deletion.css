@@ -1,0 +1,342 @@
+/* ==========================================
+   TASKFLOW - DELETE TASK ACTION
+   ========================================== */
+
+.tf-tasklist-delete-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 36px;
+    padding: 7px 12px;
+
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    border-radius: 9px;
+
+    background: transparent;
+    color: #dc5366;
+
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.tf-tasklist-delete-trigger:hover {
+    background: rgba(220, 83, 102, 0.1);
+    border-color: #dc5366;
+}
+
+.tf-tasklist-delete-trigger:focus-visible {
+    outline: 3px solid #fda4af;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   DELETE CONFIRMATION MODAL
+   ========================================== */
+
+.tf-task-delete-dialog {
+    width: min(440px, calc(100vw - 32px));
+    max-width: 440px;
+    max-height: calc(100vh - 40px);
+
+    padding: 0;
+    margin: auto;
+    overflow-y: auto;
+
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    border-radius: 18px;
+
+    background: var(--tf-list-bg, #ffffff);
+    color: var(--tf-list-text, #14233b);
+
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.tf-task-delete-dialog::backdrop {
+    background: rgba(5, 12, 25, 0.68);
+    backdrop-filter: blur(4px);
+}
+
+.tf-task-delete-content {
+    padding: 28px;
+}
+
+.tf-task-delete-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+    margin-bottom: 21px;
+
+    border-radius: 13px;
+
+    background: rgba(220, 83, 102, 0.12);
+    color: #e45e73;
+
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.tf-task-delete-content h2 {
+    margin: 0 0 12px;
+
+    color: var(--tf-list-text, #14233b);
+    font-size: 1.35rem;
+    font-weight: 760;
+    letter-spacing: -0.025em;
+}
+
+.tf-task-delete-content p {
+    margin: 0 0 15px;
+
+    color: var(--tf-list-muted, #64748b);
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+.tf-task-delete-name {
+    padding: 14px 16px;
+    margin-bottom: 17px;
+
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    border-radius: 10px;
+
+    background: var(--tf-list-soft, #f8fafc);
+    color: var(--tf-list-text, #14233b);
+
+    font-size: 0.87rem;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.tf-task-delete-content .tf-task-delete-warning {
+    color: #e07181;
+    font-size: 0.79rem;
+}
+
+.tf-task-delete-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 11px;
+
+    margin-top: 25px;
+    padding-top: 20px;
+
+    border-top: 1px solid var(--tf-list-border, #e2e8f0);
+}
+
+.tf-task-delete-actions button {
+    min-height: 43px;
+    padding: 10px 17px;
+
+    border-radius: 9px;
+
+    font: inherit;
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.tf-task-delete-cancel {
+    border: 1px solid var(--tf-list-border, #e2e8f0);
+    background: var(--tf-list-soft, #f8fafc);
+    color: var(--tf-list-text, #14233b);
+}
+
+.tf-task-delete-confirm {
+    border: 1px solid #c73548;
+    background: #c73548;
+    color: #ffffff;
+}
+
+.tf-task-delete-confirm:hover {
+    background: #a82438;
+}
+
+.tf-task-delete-confirm:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.tf-task-delete-actions button:focus-visible {
+    outline: 3px solid #fda4af;
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .tf-task-delete-content {
+        padding: 22px;
+    }
+
+    .tf-task-delete-actions button {
+        flex: 1;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - THEME-AWARE DELETE DIALOG
+   ========================================== */
+
+/* Use the existing Project Workspace theme */
+
+.tf-project-workspace .tf-task-delete-dialog {
+    background: var(--pw-surface);
+    color: var(--pw-text);
+    border: 1px solid var(--pw-border);
+}
+
+/* Heading */
+
+.tf-project-workspace .tf-task-delete-content h2 {
+    color: var(--pw-text);
+}
+
+/* Descriptive text */
+
+.tf-project-workspace .tf-task-delete-content p {
+    color: var(--pw-muted);
+}
+
+/* Selected task name */
+
+.tf-project-workspace .tf-task-delete-name {
+    background: var(--pw-surface-soft);
+    border: 1px solid var(--pw-border);
+    color: var(--pw-text);
+}
+
+/* Destructive action warning */
+
+.tf-project-workspace .tf-task-delete-content
+.tf-task-delete-warning {
+    color: #e46e80;
+}
+
+/* Action buttons container */
+
+.tf-project-workspace .tf-task-delete-actions {
+    border-top: 1px solid var(--pw-border);
+}
+
+/* Cancel button */
+
+.tf-project-workspace .tf-task-delete-cancel {
+    background: var(--pw-surface-soft);
+    border: 1px solid var(--pw-border);
+    color: var(--pw-text);
+}
+
+.tf-project-workspace .tf-task-delete-cancel:hover {
+    border-color: #64748b;
+}
+
+/* Delete confirmation button */
+
+.tf-project-workspace .tf-task-delete-confirm {
+    background: #c73548;
+    border-color: #c73548;
+    color: #ffffff;
+}
+
+.tf-project-workspace .tf-task-delete-confirm:hover {
+    background: #a82438;
+}
+
+/* Better keyboard focus visibility */
+
+.tf-project-workspace .tf-task-delete-actions
+button:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   TASKFLOW - REFINED TASK ACTIONS
+   ========================================== */
+
+/* Allow horizontal scrolling on narrow screens */
+.tf-tasklist-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Preserve readable table columns */
+.tf-tasklist-table {
+    width: 100%;
+    min-width: 1100px;
+}
+
+/* Keep all actions in a single horizontal row */
+.tf-tasklist-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 7px;
+    width: max-content;
+}
+
+/* Prevent action buttons from shrinking */
+.tf-tasklist-actions > a,
+.tf-tasklist-actions > button,
+.tf-tasklist-actions > form {
+    flex: 0 0 auto;
+}
+
+/* Consistent button dimensions */
+.tf-tasklist-edit,
+.tf-tasklist-complete,
+.tf-tasklist-delete-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 36px;
+    padding: 7px 11px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+/* Remove unwanted form spacing */
+.tf-tasklist-complete-form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+/* Subtle destructive action */
+.tf-tasklist-delete-trigger {
+    color: #dc5366;
+    background: transparent;
+}
+
+.tf-tasklist-delete-trigger:hover {
+    background: rgba(220, 83, 102, 0.10);
+}
+
+/* Keyboard accessibility */
+.tf-tasklist-actions a:focus-visible,
+.tf-tasklist-actions button:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 2px;
+}

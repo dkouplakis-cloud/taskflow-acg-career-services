@@ -1,0 +1,1036 @@
+/* ==========================================
+   TASKFLOW - PROJECT DETAIL WORKSPACE
+   ========================================== */
+
+.tf-project-workspace {
+    width: min(1120px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 32px 0 80px;
+    color: inherit;
+}
+
+/* Breadcrumb */
+
+.tf-pw-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.tf-pw-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.tf-pw-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.tf-pw-breadcrumb span:last-child {
+    overflow-wrap: anywhere;
+}
+
+/* Shared panel styling */
+
+.tf-pw-overview,
+.tf-pw-panel {
+    padding: clamp(22px, 3vw, 34px);
+    margin-bottom: 24px;
+    border: 1px solid color-mix(
+        in srgb, currentColor 11%, transparent
+    );
+    border-radius: 18px;
+    background: color-mix(
+        in srgb, currentColor 3%, transparent
+    );
+    box-shadow: 0 5px 22px rgba(0, 0, 0, 0.035);
+}
+
+/* Compact overview */
+
+.tf-pw-overview {
+    position: relative;
+    overflow: hidden;
+}
+
+.tf-pw-overview::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(
+        180deg, #2563eb, #06b6d4
+    );
+}
+
+.tf-pw-titlebar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.tf-pw-heading {
+    flex: 1;
+    min-width: 0;
+}
+
+.tf-pw-eyebrow {
+    margin: 0 0 10px;
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.65;
+}
+
+.tf-pw-heading h1 {
+    margin: 0;
+    font-size: clamp(1.7rem, 3vw, 2.25rem);
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+}
+
+.tf-pw-properties {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-top: 18px;
+}
+
+.tf-pw-property {
+    font-size: 0.86rem;
+    opacity: 0.85;
+}
+
+.tf-pw-description {
+    max-width: 850px;
+    margin: 20px 0 0;
+    font-size: 0.96rem;
+    font-weight: 400;
+    line-height: 1.75;
+    opacity: 0.85;
+    overflow-wrap: anywhere;
+}
+
+/* Actions */
+
+.tf-pw-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tf-pw-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.tf-pw-button--primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.tf-pw-button--primary:hover {
+    background: #1d4ed8;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.tf-pw-button:focus-visible,
+.tf-pw-text-link:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+/* Status indicators */
+
+.tf-pw-status,
+.tf-pw-priority {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 6px 11px;
+    border: 1px solid color-mix(
+        in srgb, currentColor 10%, transparent
+    );
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.tf-pw-status--active,
+.tf-pw-status--in_progress {
+    background: rgba(37, 99, 235, 0.14);
+}
+
+.tf-pw-status--completed {
+    background: rgba(16, 185, 129, 0.17);
+}
+
+.tf-pw-status--planned,
+.tf-pw-status--pending {
+    background: rgba(148, 163, 184, 0.16);
+}
+
+.tf-pw-priority--high {
+    background: rgba(239, 68, 68, 0.13);
+}
+
+.tf-pw-priority--medium {
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.tf-pw-priority--low {
+    background: rgba(16, 185, 129, 0.12);
+}
+
+/* Section headings */
+
+.tf-pw-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.tf-pw-section-heading h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.tf-pw-section-description {
+    margin: 7px 0 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    opacity: 0.7;
+}
+
+.tf-pw-text-link {
+    font-size: 0.86rem;
+    font-weight: 650;
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.tf-pw-text-link:hover {
+    text-decoration: underline;
+}
+
+/* Project team */
+
+.tf-pw-team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.tf-pw-team-section {
+    min-width: 0;
+    padding: 20px;
+    border-radius: 12px;
+    background: color-mix(
+        in srgb, currentColor 3%, transparent
+    );
+}
+
+.tf-pw-team-section h3 {
+    margin: 0 0 18px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.75;
+}
+
+.tf-pw-member-list {
+    display: grid;
+    gap: 16px;
+}
+
+.tf-pw-member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.tf-pw-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.17);
+    font-size: 0.95rem;
+    font-weight: 750;
+}
+
+.tf-pw-member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.tf-pw-member-info strong {
+    font-size: 0.9rem;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+.tf-pw-member-info span {
+    font-size: 0.78rem;
+    opacity: 0.7;
+}
+
+.tf-pw-muted {
+    font-size: 0.86rem;
+    opacity: 0.7;
+}
+
+/* Tasks */
+
+.tf-pw-task-count {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: color-mix(
+        in srgb, currentColor 8%, transparent
+    );
+    font-size: 0.8rem;
+    font-weight: 650;
+}
+
+.tf-pw-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tf-pw-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    color: inherit;
+}
+
+.tf-pw-table th,
+.tf-pw-table td {
+    padding: 16px;
+    border-bottom: 1px solid color-mix(
+        in srgb, currentColor 10%, transparent
+    );
+    font-size: 0.86rem;
+}
+
+.tf-pw-table th {
+    font-size: 0.73rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.tf-pw-task-name {
+    font-weight: 650;
+    min-width: 180px;
+    overflow-wrap: anywhere;
+}
+
+/* Empty task state */
+
+.tf-pw-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    border: 1px dashed color-mix(
+        in srgb, currentColor 20%, transparent
+    );
+    border-radius: 14px;
+    text-align: center;
+    background: color-mix(
+        in srgb, currentColor 2%, transparent
+    );
+}
+
+.tf-pw-empty-icon {
+    display: grid;
+    align-content: center;
+    gap: 6px;
+    width: 56px;
+    height: 56px;
+    padding: 15px;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: rgba(59, 130, 246, 0.13);
+}
+
+.tf-pw-empty-icon span {
+    height: 4px;
+    border-radius: 4px;
+    background: #3b82f6;
+}
+
+.tf-pw-empty-icon span:last-child {
+    width: 65%;
+}
+
+.tf-pw-empty h3 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.tf-pw-empty p {
+    max-width: 430px;
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    opacity: 0.72;
+}
+
+/* Responsive layout */
+
+@media (max-width: 720px) {
+    .tf-project-workspace {
+        width: calc(100% - 28px);
+        padding-top: 22px;
+    }
+
+    .tf-pw-team-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .tf-pw-actions {
+        width: 100%;
+    }
+
+    .tf-pw-button {
+        width: 100%;
+    }
+
+    .tf-pw-table {
+        min-width: 620px;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - MY PROJECTS WORKSPACE
+   ========================================== */
+
+.tf-pl-page {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 42px 0 90px;
+    color: inherit;
+}
+
+/* Page heading */
+
+.tf-pl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.tf-pl-heading {
+    flex: 1;
+    min-width: 0;
+}
+
+.tf-pl-eyebrow {
+    margin: 0 0 12px;
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    opacity: 0.65;
+}
+
+.tf-pl-heading h1 {
+    margin: 0;
+    font-size: clamp(2rem, 3.5vw, 2.65rem);
+    font-weight: 750;
+    letter-spacing: -0.045em;
+    line-height: 1.18;
+}
+
+.tf-pl-heading > p:last-child {
+    max-width: 640px;
+    margin: 14px 0 0;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    opacity: 0.72;
+}
+
+/* Primary action */
+
+.tf-pl-create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    min-height: 46px;
+    padding: 11px 20px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    box-shadow: 0 5px 16px rgba(37, 99, 235, 0.18);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.tf-pl-create:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.tf-pl-create:focus-visible,
+.tf-pl-card:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 4px;
+}
+
+/* Portfolio summary */
+
+.tf-pl-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    padding: 20px 26px;
+    margin-bottom: 24px;
+
+    border: 1px solid color-mix(
+        in srgb, currentColor 10%, transparent
+    );
+    border-radius: 15px;
+
+    background: linear-gradient(
+        110deg,
+        rgba(59, 130, 246, 0.10),
+        rgba(59, 130, 246, 0.015) 65%
+    );
+}
+
+.tf-pl-summary-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.tf-pl-summary-stat > span {
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    opacity: 0.65;
+}
+
+.tf-pl-summary-stat strong {
+    font-size: 1.85rem;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+}
+
+.tf-pl-summary-stat small {
+    font-size: 0.87rem;
+    font-weight: 500;
+    letter-spacing: normal;
+    opacity: 0.75;
+}
+
+.tf-pl-summary > p {
+    max-width: 420px;
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    opacity: 0.75;
+}
+
+/* Responsive project collection */
+
+.tf-pl-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 470px), 1fr)
+    );
+    align-items: stretch;
+    gap: 22px;
+}
+
+/* Project card */
+
+.tf-pl-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+
+    padding: clamp(22px, 3vw, 30px);
+
+    border: 1px solid color-mix(
+        in srgb, currentColor 13%, transparent
+    );
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(59, 130, 246, 0.075),
+            transparent 48%
+        ),
+        color-mix(
+            in srgb, currentColor 3%, transparent
+        );
+
+    color: inherit;
+    text-decoration: none;
+
+    box-shadow: 0 12px 36px rgba(10, 27, 54, 0.045);
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        transform 0.2s;
+}
+
+.tf-pl-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #38bdf8
+    );
+}
+
+.tf-pl-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59, 130, 246, 0.52);
+    box-shadow: 0 20px 46px rgba(10, 27, 54, 0.11);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Card header */
+
+.tf-pl-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.tf-pl-card-category {
+    font-size: 0.67rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    opacity: 0.58;
+}
+
+.tf-pl-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+
+    border-radius: 999px;
+    background: color-mix(
+        in srgb, currentColor 8%, transparent
+    );
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.tf-pl-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+.tf-pl-status--active {
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.tf-pl-status--active::before {
+    background: #3b82f6;
+}
+
+.tf-pl-status--completed {
+    background: rgba(16, 185, 129, 0.12);
+}
+
+.tf-pl-status--completed::before {
+    background: #10b981;
+}
+
+/* Project information */
+
+.tf-pl-card-intro h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.tf-pl-card-intro p {
+    margin: 0;
+    max-width: 750px;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    opacity: 0.76;
+    overflow-wrap: anywhere;
+}
+
+/* Project team */
+
+.tf-pl-card-team {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+
+    padding: 22px 0;
+    margin-top: 24px;
+
+    border-top: 1px solid color-mix(
+        in srgb, currentColor 11%, transparent
+    );
+}
+
+.tf-pl-team-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.tf-pl-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.tf-pl-person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.tf-pl-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+
+    background: rgba(59, 130, 246, 0.18);
+    color: inherit;
+
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.tf-pl-avatar--small {
+    width: 25px;
+    height: 25px;
+    font-size: 0.68rem;
+}
+
+.tf-pl-person-name {
+    font-size: 0.87rem;
+    font-weight: 650;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.tf-pl-collab-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.tf-pl-collab-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    padding: 5px 10px 5px 5px;
+
+    border: 1px solid color-mix(
+        in srgb, currentColor 10%, transparent
+    );
+    border-radius: 999px;
+
+    background: color-mix(
+        in srgb, currentColor 5%, transparent
+    );
+
+    font-size: 0.78rem;
+    font-weight: 550;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.tf-pl-unassigned {
+    font-size: 0.84rem;
+    opacity: 0.65;
+}
+
+/* Footer */
+
+.tf-pl-card-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+
+    margin-top: auto;
+    padding-top: 19px;
+
+    border-top: 1px solid color-mix(
+        in srgb, currentColor 11%, transparent
+    );
+}
+
+.tf-pl-card-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 30px;
+}
+
+.tf-pl-card-stats > span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tf-pl-card-stats strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.tf-pl-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.83rem;
+    font-weight: 750;
+}
+
+.tf-pl-open span {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+
+.tf-pl-card:hover .tf-pl-open span {
+    transform: translateX(4px);
+}
+
+/* Empty portfolio */
+
+.tf-pl-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+
+    padding: 55px 24px;
+    border: 1px dashed color-mix(
+        in srgb, currentColor 20%, transparent
+    );
+    border-radius: 18px;
+
+    background: color-mix(
+        in srgb, currentColor 3%, transparent
+    );
+    text-align: center;
+}
+
+.tf-pl-empty-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+
+    border-radius: 16px;
+    background: rgba(59, 130, 246, 0.14);
+
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.tf-pl-empty h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.tf-pl-empty > p:not(.tf-pl-eyebrow) {
+    max-width: 420px;
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    opacity: 0.74;
+}
+
+/* Mobile and tablet */
+
+@media (max-width: 720px) {
+    .tf-pl-page {
+        width: calc(100% - 28px);
+        padding: 26px 0 60px;
+    }
+
+    .tf-pl-header {
+        align-items: stretch;
+    }
+
+    .tf-pl-header > .tf-pl-create {
+        width: 100%;
+    }
+
+    .tf-pl-card-team {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .tf-pl-card-footer {
+        align-items: flex-start;
+    }
+
+    .tf-pl-summary {
+        padding: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-pl-card,
+    .tf-pl-create,
+    .tf-pl-open span {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - TEAM MEMBER AVATAR COLORS
+   ========================================== */
+
+.tf-pl-avatar,
+.tf-pw-avatar {
+    background-color: var(
+        --tf-member-avatar-bg,
+        #e2e8f0
+    );
+
+    color: var(
+        --tf-member-avatar-fg,
+        #334155
+    );
+
+    font-weight: 750;
+    letter-spacing: 0.01em;
+}
+
+/* Alexandra Prindezi */
+.tf-team-avatar--violet {
+    --tf-member-avatar-bg: #ede9fe;
+    --tf-member-avatar-fg: #5b21b6;
+}
+
+/* Dimitris Megremis */
+.tf-team-avatar--blue {
+    --tf-member-avatar-bg: #dbeafe;
+    --tf-member-avatar-fg: #1e40af;
+}
+
+/* Efthimis Charokopos */
+.tf-team-avatar--teal {
+    --tf-member-avatar-bg: #ccfbf1;
+    --tf-member-avatar-fg: #115e59;
+}
+
+/* Elina Krithari */
+.tf-team-avatar--rose {
+    --tf-member-avatar-bg: #fce7f3;
+    --tf-member-avatar-fg: #9d174d;
+}
+
+/* Marina Perantonaki */
+.tf-team-avatar--amber {
+    --tf-member-avatar-bg: #fef3c7;
+    --tf-member-avatar-fg: #92400e;
+}
+
+/* Fallback for future team members */
+.tf-team-avatar--slate {
+    --tf-member-avatar-bg: #e2e8f0;
+    --tf-member-avatar-fg: #334155;
+}
+
+/* Room for two initials on compact avatars */
+.tf-pl-avatar--small {
+    width: 30px;
+    height: 30px;
+    font-size: 0.68rem;
+}
+

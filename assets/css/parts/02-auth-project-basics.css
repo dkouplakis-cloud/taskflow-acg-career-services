@@ -1,0 +1,773 @@
+/* ============================================================
+   DJANGO TASKFLOW - AUTHENTICATION PAGES
+   ============================================================
+
+   Styles for the Django authentication interface.
+
+   Design goals:
+   - Centered, professional login card
+   - Consistent TaskFlow colors
+   - Accessible form fields and focus indicators
+   - Responsive layout
+   - Compatibility with existing light/dark themes
+
+   All selectors are scoped to authentication pages to
+   avoid unintentionally modifying legacy TaskFlow pages.
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. LOGIN PAGE LAYOUT
+   ------------------------------------------------------------ */
+
+.auth-page {
+    width: 100%;
+    max-width: 520px;
+    margin: 70px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.auth-page .auth-container {
+    padding: 40px;
+    background: var(--surface, #ffffff);
+    color: var(--text, #172033);
+    border: 1px solid rgba(120, 140, 170, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ------------------------------------------------------------
+   2. HEADER AND INTRODUCTION
+   ------------------------------------------------------------ */
+
+.auth-page .auth-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.auth-page .page-eyebrow {
+    margin-bottom: 10px;
+    color: var(--primary, #2458a6);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.auth-page h1 {
+    margin: 0 0 12px;
+    color: var(--text, #172033);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.auth-page .page-description {
+    margin: 0;
+    color: var(--muted, #667085);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+
+/* ------------------------------------------------------------
+   3. FORM FIELDS
+   ------------------------------------------------------------ */
+
+.auth-page .auth-form {
+    width: 100%;
+}
+
+.auth-page .form-group {
+    margin-bottom: 22px;
+}
+
+.auth-page .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text, #172033);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.auth-page .form-group input {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    background: var(--surface, #ffffff);
+    color: var(--text, #172033);
+    border: 1px solid #9ca9bc;
+    border-radius: 8px;
+    font: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Make keyboard focus clearly visible. */
+.auth-page .form-group input:focus {
+    outline: 2px solid var(--primary, #2458a6);
+    outline-offset: 2px;
+    border-color: var(--primary, #2458a6);
+}
+
+
+/* ------------------------------------------------------------
+   4. PRIMARY SIGN-IN BUTTON
+   ------------------------------------------------------------ */
+
+.auth-page .form-actions {
+    display: block;
+    margin-top: 28px;
+}
+
+.auth-page .btn.btn-primary {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    background: var(--primary, #2458a6);
+    color: #ffffff;
+    border: 0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.2s;
+}
+
+.auth-page .btn.btn-primary:hover {
+    filter: brightness(1.12);
+}
+
+.auth-page .btn.btn-primary:active {
+    transform: translateY(1px);
+}
+
+.auth-page .btn.btn-primary:focus-visible {
+    outline: 3px solid var(--text, #172033);
+    outline-offset: 3px;
+}
+
+
+/* ------------------------------------------------------------
+   5. HELP TEXT AND VALIDATION ERRORS
+   ------------------------------------------------------------ */
+
+.auth-page .auth-help {
+    margin: 24px 0 0;
+    color: var(--muted, #667085);
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.auth-page .form-errors,
+.auth-page .field-error {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: rgba(220, 53, 69, 0.08);
+    color: var(--text, #172033);
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.auth-page .form-errors ul,
+.auth-page .field-error ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+
+/* ------------------------------------------------------------
+   6. ACCESSIBLE SKIP NAVIGATION
+   ------------------------------------------------------------ */
+
+/* Hide the skip link visually until keyboard-focused. */
+.skip-link {
+    position: fixed;
+    top: 0;
+    left: 16px;
+    z-index: 9999;
+    padding: 12px 16px;
+    background: #ffffff;
+    color: #173b70;
+    border-radius: 8px;
+    transform: translateY(-150%);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    transform: translateY(12px);
+}
+
+
+/* ------------------------------------------------------------
+   7. MOBILE RESPONSIVENESS
+   ------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+
+    .auth-page {
+        margin: 32px auto;
+        padding: 0 16px;
+    }
+
+    .auth-page .auth-container {
+        padding: 28px 20px;
+        border-radius: 12px;
+    }
+
+    .auth-page h1 {
+        font-size: 27px;
+    }
+
+    .auth-page .page-description {
+        font-size: 14px;
+    }
+
+}
+
+/* ============================================================
+   DJANGO TASKFLOW - MY PROJECTS WORKSPACE
+   ============================================================
+
+   Professional project dashboard styling.
+
+   Design objectives:
+   - Clear visual hierarchy and intuitive navigation
+   - Comfortable spacing and readable typography
+   - Prominent project creation actions
+   - Attractive empty states and project cards
+   - Responsive layouts for everyday users
+   - Compatibility with TaskFlow's theme variables
+
+   These styles are scoped to the Django Projects page
+   to avoid disrupting the existing frontend.
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. MAIN PROJECT WORKSPACE
+   ------------------------------------------------------------ */
+
+.site-main .projects-page {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 65vh;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+    box-sizing: border-box;
+    color: var(--text, #182230);
+}
+
+
+/* ------------------------------------------------------------
+   2. PROJECT PAGE HEADER
+   ------------------------------------------------------------ */
+
+.projects-page .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.projects-page .page-eyebrow {
+    margin: 0 0 10px;
+    color: var(--primary, #2458a6);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.projects-page h1 {
+    margin: 0 0 12px;
+    color: var(--text, #182230);
+    font-size: clamp(30px, 3vw, 40px);
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.8px;
+}
+
+.projects-page .page-description {
+    max-width: 550px;
+    margin: 0;
+    color: var(--muted, #667085);
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+
+/* ------------------------------------------------------------
+   3. PRIMARY PROJECT BUTTONS
+   ------------------------------------------------------------ */
+
+.projects-page .btn.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 12px 22px;
+    box-sizing: border-box;
+    background: var(--primary, #2458a6);
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.projects-page .btn.btn-primary:hover {
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.projects-page .btn.btn-primary:focus-visible {
+    outline: 3px solid var(--primary, #2458a6);
+    outline-offset: 3px;
+}
+
+
+/* ------------------------------------------------------------
+   4. EMPTY STATE FOR FIRST-TIME USERS
+   ------------------------------------------------------------ */
+
+.projects-page .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 760px;
+    min-height: 340px;
+    margin: 45px auto 0;
+    padding: 50px 35px;
+    box-sizing: border-box;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+/* Decorative icon that introduces the first-project action. */
+.projects-page .empty-state::before {
+    content: "+";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 24px;
+    background: var(--background, #eef3fb);
+    color: var(--primary, #2458a6);
+    border-radius: 18px;
+    font-size: 36px;
+    font-weight: 400;
+}
+
+.projects-page .empty-state h2 {
+    margin: 0 0 12px;
+    color: var(--text, #182230);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.projects-page .empty-state p {
+    max-width: 450px;
+    margin: 0 0 28px;
+    color: var(--muted, #667085);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+
+/* ------------------------------------------------------------
+   5. PROJECT CARD GRID
+   ------------------------------------------------------------ */
+
+.projects-page .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(min(100%, 300px), 1fr)
+    );
+    gap: 24px;
+}
+
+.projects-page .project-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 28px;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.projects-page .project-card:hover {
+    border-color: var(--primary, #2458a6);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.projects-page .project-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.projects-page .project-card h2 {
+    margin: 0;
+    color: var(--text, #182230);
+    font-size: 19px;
+    line-height: 1.4;
+}
+
+.projects-page .project-status {
+    padding: 6px 10px;
+    background: var(--background, #eef3fb);
+    color: var(--text, #182230);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.projects-page .project-description {
+    flex-grow: 1;
+    margin: 0;
+    color: var(--muted, #667085);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.projects-page .project-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.projects-page .project-meta p {
+    margin: 0;
+    color: var(--muted, #667085);
+    font-size: 13px;
+}
+
+
+/* ------------------------------------------------------------
+   6. IMPROVE HEADER NAVIGATION CONTRAST
+   ------------------------------------------------------------ */
+
+.site-header .site-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.site-header .site-nav a {
+    color: #f8fafc;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.site-header .site-nav a:hover {
+    color: #c9ddff;
+}
+
+.site-header .site-nav a:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 5px;
+    border-radius: 3px;
+}
+
+
+/* ------------------------------------------------------------
+   7. RESPONSIVE DESIGN
+   ------------------------------------------------------------ */
+
+@media (max-width: 700px) {
+
+    .site-main .projects-page {
+        padding: 30px 18px 60px;
+    }
+
+    .projects-page .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .projects-page h1 {
+        font-size: 30px;
+    }
+
+    .projects-page .page-header .btn.btn-primary {
+        width: 100%;
+    }
+
+    .projects-page .empty-state {
+        min-height: 300px;
+        margin-top: 24px;
+        padding: 38px 22px;
+    }
+
+    .projects-page .empty-state h2 {
+        font-size: 21px;
+    }
+
+    .projects-page .project-card {
+        padding: 22px;
+    }
+
+    .site-header .site-nav {
+        gap: 14px;
+    }
+}
+
+/* Respect reduced-motion preferences for interactive elements. */
+@media (prefers-reduced-motion: reduce) {
+
+    .projects-page .btn.btn-primary,
+    .projects-page .project-card {
+        transition: none;
+    }
+
+    .projects-page .btn.btn-primary:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================
+   PROJECT CARD NAVIGATION
+   ========================================== */
+
+.project-card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.project-card-link:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 4px;
+}
+
+/* ==========================================
+   TASKFLOW - PROJECT COLLABORATORS
+   ========================================== */
+
+.project-collaborator-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 16px;
+}
+
+.project-collaborators {
+    min-width: 0;
+}
+
+.project-collaborator-option {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Mobile layout */
+@media (max-width: 680px) {
+    .project-collaborator-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.project-collaborator-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    min-height: 58px;
+
+    border: 1px solid color-mix(
+        in srgb, currentColor 18%, transparent
+    );
+
+    border-radius: 12px;
+    background: color-mix(
+        in srgb, currentColor 5%, transparent
+    );
+
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.project-collaborator-option:hover {
+    border-color: #3988d1;
+    background: color-mix(
+        in srgb, #3988d1 12%, transparent
+    );
+}
+
+.project-collaborator-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin: 0;
+    accent-color: #3988d1;
+    cursor: pointer;
+}
+
+.collaborator-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.project-collaborator-option:has(input:checked) {
+    border-color: #3988d1;
+    background: color-mix(
+        in srgb, #3988d1 15%, transparent
+    );
+}
+
+.project-collaborator-option:focus-within {
+    outline: 2px solid #3988d1;
+    outline-offset: 2px;
+}
+
+/* Ensure the selected manager is not displayed. */
+.project-collaborator-option[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   TASKFLOW - DJANGO NOTIFICATIONS
+   ========================================== */
+
+.tf-notifications {
+    width: min(1100px, calc(100% - 32px));
+    margin: 20px auto;
+}
+
+.tf-notification {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 15px 20px;
+
+    border: 1px solid rgba(16, 185, 129, 0.30);
+    border-left: 4px solid #16a085;
+    border-radius: 12px;
+
+    background: rgba(16, 185, 129, 0.09);
+    color: inherit;
+
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.tf-notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #087f5b;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.tf-notification-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Error notifications */
+.tf-notification--error {
+    border-color: rgba(220, 38, 38, 0.30);
+    border-left-color: #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+}
+
+.tf-notification--error .tf-notification-icon {
+    background: #b91c1c;
+}
+
+@media (max-width: 600px) {
+    .tf-notification {
+        padding: 12px 14px;
+    }
+}
+
+/* ==========================================
+   PROJECT CARD - TEAM INFORMATION
+   ========================================== */
+
+.project-card-team {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    margin-top: 18px;
+    padding: 16px 0;
+
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.project-team-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.project-team-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.project-team-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    color: inherit;
+}
+

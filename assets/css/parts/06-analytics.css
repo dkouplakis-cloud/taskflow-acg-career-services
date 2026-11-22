@@ -1,0 +1,1036 @@
+/* ==================================================
+   TASKFLOW - ANALYTICS DASHBOARD
+   ================================================== */
+
+.tf-analytics {
+    --an-surface: #ffffff;
+    --an-surface-soft: #f7f9fd;
+    --an-border: #e2e8f0;
+    --an-text: #16243b;
+    --an-muted: #64748b;
+    --an-blue: #2563eb;
+    --an-track: #e8edf5;
+    --an-shadow: 0 8px 30px rgba(15, 23, 42, 0.045);
+
+    width: min(1160px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 38px 0 85px;
+    color: var(--an-text);
+}
+
+.tf-analytics,
+.tf-analytics * {
+    box-sizing: border-box;
+}
+
+/* Dark mode */
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-analytics {
+    --an-surface: #172337;
+    --an-surface-soft: #1d2d45;
+    --an-border: #34455d;
+    --an-text: #edf3fc;
+    --an-muted: #a9b9ce;
+    --an-blue: #78a9ff;
+    --an-track: #33455d;
+    --an-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ==================================================
+   PAGE HEADER
+   ================================================== */
+
+.tf-analytics-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+
+    margin-bottom: 46px;
+}
+
+.tf-analytics-eyebrow {
+    margin: 0 0 10px;
+    color: var(--an-blue);
+
+    font-size: 0.69rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+.tf-analytics-header h1 {
+    margin: 0;
+
+    color: var(--an-text);
+    font-size: clamp(2rem, 3.5vw, 2.65rem);
+    font-weight: 780;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+}
+
+.tf-analytics-intro {
+    max-width: 600px;
+    margin: 14px 0 0;
+
+    color: var(--an-muted);
+    font-size: 0.94rem;
+    line-height: 1.65;
+}
+
+/* Project filter */
+
+.tf-analytics-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0;
+}
+
+.tf-analytics-filter label {
+    color: var(--an-muted);
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+
+.tf-analytics-filter-controls {
+    display: flex;
+    gap: 9px;
+}
+
+.tf-analytics-filter select {
+    width: 215px;
+    max-width: 100%;
+    min-height: 43px;
+    padding: 9px 12px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 10px;
+
+    background: var(--an-surface);
+    color: var(--an-text);
+
+    font: inherit;
+    font-size: 0.83rem;
+}
+
+.tf-analytics-filter button {
+    min-height: 43px;
+    padding: 9px 16px;
+
+    border: 1px solid #2563eb;
+    border-radius: 10px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.tf-analytics-filter button:hover {
+    background: #1d4ed8;
+}
+
+/* ==================================================
+   SECTION HEADINGS
+   ================================================== */
+
+.tf-analytics-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    margin-bottom: 21px;
+}
+
+.tf-analytics-section-heading h2 {
+    margin: 0;
+
+    color: var(--an-text);
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.tf-analytics-scope {
+    display: inline-flex;
+    align-items: center;
+
+    max-width: 100%;
+    padding: 8px 12px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 999px;
+
+    background: var(--an-surface);
+    color: var(--an-muted);
+
+    font-size: 0.75rem;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+/* ==================================================
+   KPI STATISTICS
+   ================================================== */
+
+.tf-analytics-overview {
+    margin-bottom: 27px;
+}
+
+.tf-analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.tf-analytics-stat {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+
+    padding: 25px 23px 23px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 16px;
+
+    background: var(--an-surface);
+    box-shadow: var(--an-shadow);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Subtle colored upper accent */
+
+.tf-analytics-stat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+
+    background: var(--stat-accent, #64748b);
+}
+
+.tf-analytics-stat:nth-child(1) {
+    --stat-accent: #3b82f6;
+}
+
+.tf-analytics-stat:nth-child(2) {
+    --stat-accent: #10b981;
+}
+
+.tf-analytics-stat:nth-child(3) {
+    --stat-accent: #8b5cf6;
+}
+
+.tf-analytics-stat:nth-child(4) {
+    --stat-accent: #f59e0b;
+}
+
+.tf-analytics-stat:hover {
+    transform: translateY(-3px);
+    border-color: var(--stat-accent);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
+}
+
+.tf-analytics-stat > span {
+    display: block;
+    margin-bottom: 20px;
+
+    color: var(--an-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.tf-analytics-stat > strong {
+    display: block;
+    margin-bottom: 11px;
+
+    color: var(--an-text);
+    font-size: clamp(1.9rem, 3vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+}
+
+.tf-analytics-stat > p {
+    margin: 0;
+    color: var(--an-muted);
+
+    font-size: 0.75rem;
+    line-height: 1.55;
+}
+
+/* ==================================================
+   DISTRIBUTION CHARTS
+   ================================================== */
+
+.tf-analytics-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 22px;
+
+    margin-bottom: 25px;
+}
+
+.tf-analytics-panel {
+    min-width: 0;
+    padding: 27px 29px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 16px;
+
+    background: var(--an-surface);
+    box-shadow: var(--an-shadow);
+}
+
+.tf-analytics-panel-heading {
+    margin-bottom: 30px;
+}
+
+.tf-analytics-panel-heading h2 {
+    margin: 0 0 9px;
+
+    color: var(--an-text);
+    font-size: 1.14rem;
+    font-weight: 760;
+    letter-spacing: -0.025em;
+}
+
+.tf-analytics-panel-heading p:not(.tf-analytics-eyebrow) {
+    margin: 0;
+
+    color: var(--an-muted);
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.tf-analytics-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.tf-analytics-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.tf-analytics-bar-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    color: var(--an-text);
+    font-size: 0.82rem;
+}
+
+.tf-analytics-bar-label span {
+    font-weight: 600;
+}
+
+.tf-analytics-bar-label strong {
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Native progress charts */
+
+.tf-analytics-progress {
+    --bar-color: #3b82f6;
+
+    display: block;
+    width: 100%;
+    height: 10px;
+    overflow: hidden;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: var(--an-track);
+    appearance: none;
+    accent-color: var(--bar-color);
+}
+
+.tf-analytics-progress::-webkit-progress-bar {
+    background: var(--an-track);
+    border-radius: 999px;
+}
+
+.tf-analytics-progress::-webkit-progress-value {
+    background: var(--bar-color);
+    border-radius: 999px;
+}
+
+.tf-analytics-progress::-moz-progress-bar {
+    background: var(--bar-color);
+    border-radius: 999px;
+}
+
+/* Status chart colors */
+
+.tf-analytics-progress--pending {
+    --bar-color: #e7a53f;
+}
+
+.tf-analytics-progress--active {
+    --bar-color: #3b82f6;
+}
+
+.tf-analytics-progress--completed {
+    --bar-color: #10b981;
+}
+
+/* Priority chart colors */
+
+.tf-analytics-progress--high {
+    --bar-color: #ef6477;
+}
+
+.tf-analytics-progress--medium {
+    --bar-color: #e7a53f;
+}
+
+.tf-analytics-progress--low {
+    --bar-color: #25a8a0;
+}
+
+/* Empty analytics state */
+
+.tf-analytics-empty {
+    margin: 0;
+    padding: 28px 18px;
+
+    border: 1px dashed var(--an-border);
+    border-radius: 12px;
+
+    background: var(--an-surface-soft);
+    color: var(--an-muted);
+
+    font-size: 0.83rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ==================================================
+   PROJECT HEALTH
+   ================================================== */
+
+.tf-analytics-summary {
+    margin-top: 4px;
+}
+
+.tf-analytics-health-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.tf-analytics-health-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 13px;
+
+    min-width: 0;
+    padding: 23px 25px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 13px;
+
+    background: var(--an-surface-soft);
+}
+
+.tf-analytics-health-item > span {
+    color: var(--an-muted);
+    font-size: 0.8rem;
+    font-weight: 650;
+}
+
+.tf-analytics-health-item > strong {
+    color: var(--an-text);
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.tf-analytics-health-item .tf-analytics-progress {
+    margin-top: 4px;
+}
+
+.tf-analytics-health-item > p {
+    margin: 0;
+
+    color: var(--an-muted);
+    font-size: 0.78rem;
+    line-height: 1.55;
+}
+
+/* ==================================================
+   ACCESSIBILITY AND RESPONSIVENESS
+   ================================================== */
+
+.tf-analytics a:focus-visible,
+.tf-analytics button:focus-visible,
+.tf-analytics select:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+@media (max-width: 1050px) {
+    .tf-analytics-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .tf-analytics-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tf-analytics-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 560px) {
+    .tf-analytics {
+        width: calc(100% - 28px);
+        padding: 26px 0 60px;
+    }
+
+    .tf-analytics-header {
+        margin-bottom: 32px;
+    }
+
+    .tf-analytics-filter,
+    .tf-analytics-filter-controls {
+        width: 100%;
+    }
+
+    .tf-analytics-filter select {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+    }
+
+    .tf-analytics-stats {
+        gap: 12px;
+    }
+
+    .tf-analytics-stat {
+        padding: 20px 17px;
+    }
+
+    .tf-analytics-panel {
+        padding: 22px 19px;
+    }
+
+    .tf-analytics-health-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-analytics-stat,
+    .tf-analytics-filter button {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - TEAM WORKLOAD ANALYTICS
+   ========================================== */
+
+.tf-analytics-team {
+    margin-bottom: 25px;
+}
+
+.tf-analytics-team-grid {
+    display: grid;
+    grid-template-columns: repeat(
+        2,
+        minmax(0, 1fr)
+    );
+    gap: 16px;
+}
+
+.tf-analytics-team-card {
+    min-width: 0;
+    padding: 21px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 13px;
+
+    background: var(--an-surface-soft);
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.tf-analytics-team-card:hover {
+    border-color: #6094ef;
+    transform: translateY(-2px);
+}
+
+/* Team member information */
+
+.tf-analytics-team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.tf-analytics-team-person {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.tf-analytics-team-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 43px;
+    height: 43px;
+
+    border-radius: 50%;
+
+    background: var(
+        --tf-member-avatar-bg,
+        #e2e8f0
+    );
+
+    color: var(
+        --tf-member-avatar-fg,
+        #334155
+    );
+
+    font-size: 0.73rem;
+    font-weight: 800;
+}
+
+.tf-analytics-team-identity {
+    min-width: 0;
+}
+
+.tf-analytics-team-identity h3 {
+    margin: 0 0 5px;
+    color: var(--an-text);
+
+    font-size: 0.87rem;
+    font-weight: 750;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.tf-analytics-team-identity p {
+    margin: 0;
+    color: var(--an-muted);
+
+    font-size: 0.74rem;
+    line-height: 1.45;
+}
+
+.tf-analytics-team-count {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 11px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 999px;
+
+    background: var(--an-surface);
+    color: var(--an-muted);
+
+    font-size: 0.73rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Individual completion tracking */
+
+.tf-analytics-team-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tf-analytics-team-progress-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: var(--an-muted);
+    font-size: 0.76rem;
+}
+
+.tf-analytics-team-progress-heading strong {
+    color: var(--an-text);
+    font-size: 0.8rem;
+    font-weight: 750;
+}
+
+.tf-analytics-team-progress progress {
+    display: block;
+    width: 100%;
+    height: 8px;
+
+    overflow: hidden;
+    border: none;
+    border-radius: 999px;
+
+    background: var(--an-track);
+
+    appearance: none;
+    accent-color: #10b981;
+}
+
+.tf-analytics-team-progress
+progress::-webkit-progress-bar {
+    background: var(--an-track);
+    border-radius: 999px;
+}
+
+.tf-analytics-team-progress
+progress::-webkit-progress-value {
+    background: #10b981;
+    border-radius: 999px;
+}
+
+.tf-analytics-team-progress
+progress::-moz-progress-bar {
+    background: #10b981;
+    border-radius: 999px;
+}
+
+/* Responsive */
+
+@media (max-width: 780px) {
+    .tf-analytics-team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .tf-analytics-team-card {
+        padding: 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-analytics-team-card {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - EXPANDABLE TEAM WORKLOAD
+   ========================================== */
+
+.tf-analytics-team-toggle {
+    display: block;
+    list-style: none;
+    cursor: pointer;
+}
+
+.tf-analytics-team-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.tf-analytics-team-toggle:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 5px;
+    border-radius: 8px;
+}
+
+.tf-analytics-team-counts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.tf-analytics-member-no-work {
+    margin: 0;
+    color: var(--an-muted);
+    font-size: 0.79rem;
+}
+
+.tf-analytics-expand-cue {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 17px;
+    color: var(--an-blue);
+
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.tf-analytics-expand-cue > span {
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.tf-analytics-team-details[open]
+.tf-analytics-expand-cue > span {
+    transform: rotate(180deg);
+}
+
+/* Expanded information */
+
+.tf-analytics-member-details {
+    margin-top: 19px;
+    padding-top: 20px;
+    border-top: 1px solid var(--an-border);
+}
+
+.tf-analytics-member-section + .tf-analytics-member-section {
+    margin-top: 24px;
+}
+
+.tf-analytics-member-section h4 {
+    margin: 0 0 12px;
+
+    color: var(--an-text);
+    font-size: 0.86rem;
+    font-weight: 750;
+}
+
+.tf-analytics-member-section-note {
+    margin: 0 0 14px;
+    color: var(--an-muted);
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+.tf-analytics-member-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tf-analytics-member-task {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+
+    padding: 14px;
+
+    border: 1px solid var(--an-border);
+    border-radius: 10px;
+    background: var(--an-surface);
+}
+
+.tf-analytics-member-task-info {
+    min-width: 0;
+}
+
+.tf-analytics-member-task-link {
+    display: inline-block;
+
+    color: var(--an-text);
+    font-size: 0.83rem;
+    font-weight: 750;
+    line-height: 1.5;
+
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.tf-analytics-member-task-link:hover {
+    color: var(--an-blue);
+    text-decoration: underline;
+}
+
+.tf-analytics-member-task-link:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+.tf-analytics-member-task-info p {
+    margin: 5px 0;
+    color: var(--an-muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.tf-analytics-member-task-date {
+    color: var(--an-muted);
+    font-size: 0.73rem;
+}
+
+.tf-analytics-member-empty {
+    margin: 0;
+    padding: 13px 15px;
+
+    border: 1px dashed var(--an-border);
+    border-radius: 9px;
+
+    color: var(--an-muted);
+    font-size: 0.77rem;
+    line-height: 1.6;
+}
+
+/* Task status indicators */
+
+.tf-analytics-member-status {
+    flex-shrink: 0;
+    padding: 6px 10px;
+
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.tf-analytics-member-status--pending {
+    background: rgba(234, 179, 8, 0.14);
+    color: #b77900;
+}
+
+.tf-analytics-member-status--in_progress {
+    background: rgba(59, 130, 246, 0.14);
+    color: #2563eb;
+}
+
+.tf-analytics-member-status--completed {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+}
+
+/* Dark mode status colors */
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-analytics-member-status--pending {
+    color: #fcd34d;
+}
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-analytics-member-status--in_progress {
+    color: #93c5fd;
+}
+
+:is(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-analytics-member-status--completed {
+    color: #86efac;
+}
+
+@media (max-width: 520px) {
+    .tf-analytics-member-task {
+        flex-direction: column;
+    }
+
+    .tf-analytics-team-counts {
+        justify-content: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-analytics-expand-cue > span {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   TASKFLOW - REFINED EXPANDABLE CARD ARROW
+   ========================================== */
+
+.tf-analytics-expand-cue {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 9px;
+    white-space: nowrap;
+}
+
+/* Draw a clean chevron using CSS */
+.tf-analytics-expand-cue::after {
+    content: "";
+
+    display: inline-block;
+    flex-shrink: 0;
+
+    width: 8px;
+    height: 8px;
+
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+
+    transform: rotate(45deg);
+
+    transition: transform 0.2s ease;
+}
+
+/* Rotate arrow when expanded */
+.tf-analytics-team-details[open]
+.tf-analytics-expand-cue::after {
+    transform: rotate(225deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-analytics-expand-cue::after {
+        transition: none;
+    }
+}
+

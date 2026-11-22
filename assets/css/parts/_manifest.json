@@ -1,0 +1,17 @@
+{
+  "files": [
+    "01-foundation-and-midterm.css",
+    "02-auth-project-basics.css",
+    "03-project-workspaces.css",
+    "04-task-editor.css",
+    "05-task-management.css",
+    "06-analytics.css",
+    "07-task-filters.css",
+    "08-project-detail-refinements.css",
+    "09-project-forms.css",
+    "10-task-deletion.css"
+  ],
+  "original_sha256": "ff16082cb96e083a9c2e692fe5ec1399f63f29efd4d1b5bf93ebd060c10e9ed6",
+  "backup_path": "styles-before-split-20261122-154527.css",
+  "approved_sha256": "1d15cf39a0e2d9f183c9de563facd9f558a648fcc0f7cfc0277080c66afaf570"
+}

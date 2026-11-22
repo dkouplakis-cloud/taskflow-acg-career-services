@@ -1,0 +1,667 @@
+/* ==========================================
+   TASKFLOW - PROFESSIONAL TASK EDITOR
+   ========================================== */
+
+.tf-task-shell {
+    --tf-task-surface: #ffffff;
+    --tf-task-soft: #f7f9fd;
+    --tf-task-input: #ffffff;
+    --tf-task-text: #17243b;
+    --tf-task-muted: #64748b;
+    --tf-task-border: #e2e8f0;
+    --tf-task-accent: #2563eb;
+    --tf-task-shadow: 0 10px 34px rgba(15, 23, 42, 0.045);
+
+    width: min(1160px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 34px 0 80px;
+    color: var(--tf-task-text);
+    color-scheme: light;
+}
+
+.tf-task-shell,
+.tf-task-shell * {
+    box-sizing: border-box;
+}
+
+/* Dark theme support */
+
+:where(
+    .dark-mode,
+    .dark,
+    .dark-theme,
+    .theme-dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-task-shell {
+    --tf-task-surface: #1a263b;
+    --tf-task-soft: #152135;
+    --tf-task-input: #111c2e;
+    --tf-task-text: #edf2fa;
+    --tf-task-muted: #9eacc0;
+    --tf-task-border: #34435a;
+    --tf-task-shadow: 0 12px 34px rgba(0, 0, 0, 0.14);
+
+    color-scheme: dark;
+}
+
+/* ==========================================
+   BREADCRUMB & PAGE HEADING
+   ========================================== */
+
+.tf-task-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-bottom: 30px;
+    font-size: 0.79rem;
+    line-height: 1.5;
+    color: var(--tf-task-muted);
+}
+
+.tf-task-breadcrumb a {
+    color: var(--tf-task-muted);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.tf-task-breadcrumb a:hover {
+    color: var(--tf-task-accent);
+}
+
+.tf-task-breadcrumb [aria-current="page"] {
+    color: var(--tf-task-text);
+    font-weight: 650;
+}
+
+.tf-task-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.tf-task-kicker {
+    margin: 0 0 9px;
+    color: var(--tf-task-accent);
+
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.tf-task-heading h1 {
+    margin: 0;
+    color: var(--tf-task-text);
+
+    font-size: clamp(1.9rem, 3vw, 2.4rem);
+    font-weight: 760;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+}
+
+.tf-task-heading-text {
+    max-width: 600px;
+    margin: 11px 0 0;
+
+    color: var(--tf-task-muted);
+    font-size: 0.93rem;
+    line-height: 1.65;
+}
+
+.tf-task-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+
+    padding: 10px 0;
+    color: var(--tf-task-muted);
+
+    font-size: 0.83rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.tf-task-back:hover {
+    color: var(--tf-task-accent);
+}
+
+/* ==========================================
+   TWO-COLUMN LAYOUT
+   ========================================== */
+
+.tf-task-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    align-items: start;
+    gap: 24px;
+}
+
+.tf-task-editor-card,
+.tf-task-side-card {
+    min-width: 0;
+    border: 1px solid var(--tf-task-border);
+    border-radius: 16px;
+    background: var(--tf-task-surface);
+    box-shadow: var(--tf-task-shadow);
+}
+
+.tf-task-editor-card {
+    overflow: hidden;
+}
+
+/* ==========================================
+   FORM SECTIONS
+   ========================================== */
+
+.tf-task-section {
+    padding: 28px 32px 30px;
+}
+
+.tf-task-section + .tf-task-section {
+    border-top: 1px solid var(--tf-task-border);
+}
+
+.tf-task-section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 25px;
+}
+
+.tf-task-section-index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(37, 99, 235, 0.14);
+    border-radius: 10px;
+
+    background: rgba(37, 99, 235, 0.09);
+    color: #3b82f6;
+
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.tf-task-section-header h2 {
+    margin: 0 0 4px;
+    color: var(--tf-task-text);
+
+    font-size: 1.04rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+}
+
+.tf-task-section-header p {
+    margin: 0;
+    color: var(--tf-task-muted);
+    font-size: 0.81rem;
+    line-height: 1.55;
+}
+
+/* ==========================================
+   FORM CONTROLS
+   ========================================== */
+
+.tf-task-field {
+    min-width: 0;
+    margin-bottom: 20px;
+}
+
+.tf-task-field:last-child {
+    margin-bottom: 0;
+}
+
+.tf-task-field label {
+    display: block;
+    margin-bottom: 9px;
+
+    color: var(--tf-task-text);
+    font-size: 0.83rem;
+    font-weight: 690;
+}
+
+.tf-task-required {
+    margin-left: 2px;
+    color: #dc4865;
+}
+
+.tf-task-shell .tf-task-field input,
+.tf-task-shell .tf-task-field select,
+.tf-task-shell .tf-task-field textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    padding: 11px 14px;
+    margin: 0;
+
+    border: 1px solid var(--tf-task-border);
+    border-radius: 10px;
+
+    background: var(--tf-task-input);
+    color: var(--tf-task-text);
+
+    font: inherit;
+    font-size: 0.89rem;
+    font-weight: 450;
+    line-height: 1.5;
+
+    box-shadow: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.tf-task-shell .tf-task-field input,
+.tf-task-shell .tf-task-field select {
+    height: 46px;
+    min-height: 46px;
+}
+
+.tf-task-shell .tf-task-field textarea {
+    height: 118px;
+    min-height: 118px;
+    resize: vertical;
+}
+
+.tf-task-shell .tf-task-field input:hover,
+.tf-task-shell .tf-task-field select:hover,
+.tf-task-shell .tf-task-field textarea:hover {
+    border-color: #94a3b8;
+}
+
+.tf-task-shell .tf-task-field input:focus,
+.tf-task-shell .tf-task-field select:focus,
+.tf-task-shell .tf-task-field textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.tf-task-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.tf-task-field-help {
+    margin: 8px 0 0;
+    color: var(--tf-task-muted);
+
+    font-size: 0.76rem;
+    line-height: 1.55;
+}
+
+/* Form validation */
+
+.tf-task-field--invalid input,
+.tf-task-field--invalid select,
+.tf-task-field--invalid textarea {
+    border-color: #e05265 !important;
+}
+
+.tf-task-field-error {
+    margin-top: 8px;
+    color: #d84b61;
+    font-size: 0.8rem;
+}
+
+.tf-task-field-error ul,
+.tf-task-form-alert ul {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.tf-task-form-alert {
+    margin: 24px 32px 0;
+    padding: 13px 16px;
+
+    border: 1px solid rgba(220, 72, 101, 0.3);
+    border-radius: 10px;
+
+    background: rgba(220, 72, 101, 0.08);
+    color: #d84b61;
+
+    font-size: 0.85rem;
+}
+
+/* ==========================================
+   ASSIGNMENT NOTICE
+   ========================================== */
+
+.tf-task-assignment-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    padding: 13px 15px;
+    margin-top: 16px;
+
+    border: 1px solid rgba(37, 99, 235, 0.13);
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.055);
+}
+
+.tf-task-assignment-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 0.67rem;
+    font-weight: 800;
+}
+
+.tf-task-assignment-note p {
+    margin: 0;
+    color: var(--tf-task-muted);
+
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   FORM ACTIONS
+   ========================================== */
+
+.tf-task-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding: 20px 32px;
+
+    border-top: 1px solid var(--tf-task-border);
+    background: var(--tf-task-soft);
+}
+
+.tf-task-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-height: 44px;
+    padding: 10px 19px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s,
+        border-color 0.2s;
+}
+
+.tf-task-button--secondary {
+    background: var(--tf-task-surface);
+    border-color: var(--tf-task-border);
+    color: var(--tf-task-text);
+}
+
+.tf-task-button--secondary:hover {
+    background: var(--tf-task-soft);
+    color: var(--tf-task-text);
+}
+
+.tf-task-button--primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.tf-task-button--primary:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.tf-task-button:focus-visible,
+.tf-task-back:focus-visible,
+.tf-task-breadcrumb a:focus-visible,
+.tf-task-manage-team:focus-visible {
+    outline: 3px solid #60a5fa;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   PROJECT SIDEBAR
+   ========================================== */
+
+.tf-task-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+}
+
+.tf-task-side-card {
+    padding: 23px;
+}
+
+.tf-task-side-label {
+    margin: 0 0 16px;
+    color: var(--tf-task-muted);
+
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+}
+
+.tf-task-side-card h2 {
+    margin: 0 0 17px;
+    color: var(--tf-task-text);
+
+    font-size: 1.03rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.tf-task-project-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 7px 11px;
+
+    border: 1px solid rgba(37, 99, 235, 0.12);
+    border-radius: 999px;
+
+    background: rgba(37, 99, 235, 0.09);
+    color: var(--tf-task-text);
+
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.tf-task-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3b82f6;
+}
+
+.tf-task-side-divider {
+    height: 1px;
+    margin: 21px 0;
+    background: var(--tf-task-border);
+}
+
+.tf-task-side-metadata {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.tf-task-side-metadata > span {
+    color: var(--tf-task-muted);
+    font-size: 0.76rem;
+}
+
+.tf-task-side-metadata strong {
+    color: var(--tf-task-text);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.tf-task-side-card .tf-task-side-heading {
+    margin-bottom: 20px;
+}
+
+.tf-task-side-team {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.tf-task-member {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.tf-task-member-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 39px;
+    height: 39px;
+
+    border-radius: 50%;
+
+    background: var(--tf-member-avatar-bg, #e2e8f0);
+    color: var(--tf-member-avatar-fg, #334155);
+
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.tf-task-member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.tf-task-member-info strong {
+    color: var(--tf-task-text);
+
+    font-size: 0.81rem;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.tf-task-member-info > span {
+    color: var(--tf-task-muted);
+    font-size: 0.72rem;
+}
+
+.tf-task-manage-team {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-top: 24px;
+    padding-top: 17px;
+
+    border-top: 1px solid var(--tf-task-border);
+    width: 100%;
+
+    color: #3b82f6;
+    font-size: 0.79rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.tf-task-manage-team:hover {
+    color: #2563eb;
+}
+
+/* ==========================================
+   RESPONSIVE LAYOUT
+   ========================================== */
+
+@media (max-width: 900px) {
+    .tf-task-columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-task-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .tf-task-shell {
+        width: calc(100% - 28px);
+        padding: 24px 0 55px;
+    }
+
+    .tf-task-heading {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .tf-task-section {
+        padding: 24px 20px;
+    }
+
+    .tf-task-field-grid,
+    .tf-task-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .tf-task-actions {
+        padding: 18px 20px;
+    }
+
+    .tf-task-button {
+        flex: 1;
+    }
+
+    .tf-task-form-alert {
+        margin: 20px 20px 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-task-shell *,
+    .tf-task-shell *::before,
+    .tf-task-shell *::after {
+        transition: none;
+    }
+}
+

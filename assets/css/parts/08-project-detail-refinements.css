@@ -1,0 +1,313 @@
+/* ================================================
+   TASKFLOW - PROJECT DETAILS VISUAL REFINEMENT
+   ================================================ */
+
+.tf-project-workspace {
+    --pw-surface: #ffffff;
+    --pw-surface-soft: #f5f7fb;
+    --pw-border: #e1e7f0;
+    --pw-text: #18253d;
+    --pw-muted: #637187;
+
+    width: min(1160px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 32px 0 80px;
+    color: var(--pw-text);
+}
+
+:is(
+    [data-theme="dark"],
+    .dark-mode,
+    .dark-theme,
+    .theme-dark,
+    [data-bs-theme="dark"]
+) .tf-project-workspace {
+    --pw-surface: #172337;
+    --pw-surface-soft: #202e45;
+    --pw-border: #34435b;
+    --pw-text: #f0f4fb;
+    --pw-muted: #a9b8cc;
+}
+
+/* PROJECT OVERVIEW */
+
+.tf-project-workspace .tf-pw-overview {
+    position: relative;
+    padding: 32px 36px;
+    margin-bottom: 24px;
+
+    background: var(--pw-surface);
+    border: 1px solid var(--pw-border);
+    border-radius: 18px;
+
+    overflow: hidden;
+}
+
+.tf-project-workspace .tf-pw-overview::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+
+    background: linear-gradient(
+        180deg,
+        #2563eb,
+        #38bdf8
+    );
+}
+
+.tf-pw-overview-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.tf-pw-overview-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.tf-project-workspace .tf-pw-overview h1 {
+    margin: 0 0 17px;
+
+    color: var(--pw-text);
+    font-size: clamp(1.7rem, 3vw, 2.25rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.25;
+
+    overflow-wrap: anywhere;
+}
+
+.tf-project-workspace .tf-pw-eyebrow {
+    margin: 0 0 12px;
+
+    color: #3b82f6;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.tf-pw-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-bottom: 19px;
+}
+
+.tf-pw-deadline {
+    color: var(--pw-muted);
+    font-size: 0.85rem;
+}
+
+.tf-pw-deadline strong {
+    color: var(--pw-text);
+    font-weight: 650;
+}
+
+.tf-project-workspace .tf-pw-description {
+    max-width: 880px;
+    margin: 0;
+
+    color: var(--pw-muted);
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.75;
+
+    overflow-wrap: anywhere;
+}
+
+.tf-project-workspace .tf-pw-edit-project {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    min-height: 43px;
+    padding: 10px 18px;
+    margin: 0;
+
+    border-radius: 10px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 0.83rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.tf-project-workspace .tf-pw-edit-project:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+/* PROJECT PANELS */
+
+.tf-project-workspace .tf-pw-panel {
+    padding: 30px 34px;
+    margin-bottom: 24px;
+
+    border: 1px solid var(--pw-border);
+    border-radius: 18px;
+
+    background: var(--pw-surface);
+}
+
+.tf-project-workspace .tf-pw-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    margin-bottom: 24px;
+}
+
+.tf-project-workspace .tf-pw-panel-header h2 {
+    margin: 0 0 7px;
+
+    color: var(--pw-text);
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.tf-project-workspace .tf-pw-section-description {
+    margin: 0;
+    color: var(--pw-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.tf-project-workspace .tf-pw-manage-team {
+    color: #3b82f6;
+    font-size: 0.83rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.tf-project-workspace .tf-pw-manage-team:hover {
+    text-decoration: underline;
+}
+
+/* TEAM MEMBER CARDS */
+
+.tf-project-workspace .tf-pw-team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.tf-project-workspace .tf-pw-team-card {
+    min-width: 0;
+    padding: 22px;
+
+    border: 1px solid var(--pw-border);
+    border-radius: 13px;
+
+    background: var(--pw-surface-soft);
+}
+
+.tf-project-workspace .tf-pw-team-card h3 {
+    margin: 0 0 19px;
+
+    color: var(--pw-muted);
+    font-size: 0.79rem;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+.tf-project-workspace .tf-pw-person {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.tf-project-workspace .tf-pw-collaborators {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.tf-project-workspace .tf-pw-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+
+    background: var(--tf-member-avatar-bg, #dbeafe);
+    color: var(--tf-member-avatar-fg, #1e40af);
+
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.tf-project-workspace .tf-pw-person-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    min-width: 0;
+}
+
+.tf-project-workspace .tf-pw-person-info strong {
+    display: block;
+    margin: 0;
+
+    color: var(--pw-text);
+    font-size: 0.88rem;
+    font-weight: 750;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.tf-project-workspace .tf-pw-person-info > span {
+    display: block;
+
+    color: var(--pw-muted);
+    font-size: 0.77rem;
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+.tf-project-workspace .tf-pw-unassigned {
+    margin: 0;
+    color: var(--pw-muted);
+    font-size: 0.85rem;
+}
+
+/* RESPONSIVE PROJECT LAYOUT */
+
+@media (max-width: 720px) {
+    .tf-project-workspace {
+        width: calc(100% - 28px);
+        padding: 24px 0 60px;
+    }
+
+    .tf-pw-overview-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .tf-project-workspace .tf-pw-overview,
+    .tf-project-workspace .tf-pw-panel {
+        padding: 23px 20px;
+    }
+
+    .tf-project-workspace .tf-pw-team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
