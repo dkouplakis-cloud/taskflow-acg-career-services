@@ -270,12 +270,23 @@ function renderJobs(jobs) {
         ? `Location: ${job.candidate_required_location.slice(0, 150)}`
         : "Location: Remote";
 
+    // Group job information for a structured,
+    // responsive opportunity card.
+    const jobInfo = document.createElement("div");
+    jobInfo.className = "job-card-info";
+
+    jobInfo.append(title, company, location);
+
+    // Some API results do not provide a usable logo.
     if (hasValidLogo) {
       card.appendChild(logo);
+    } else {
+      card.classList.add("job-card--no-logo");
     }
 
-    card.append(title, company, location);
+    card.appendChild(jobInfo);
 
+    // Preserve the existing external opportunity link.
     if (typeof job.url === "string") {
       card.appendChild(createJobLink(job));
     }

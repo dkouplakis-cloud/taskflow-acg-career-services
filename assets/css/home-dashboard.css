@@ -732,3 +732,138 @@
     transform: none;
   }
 }
+
+/* ==========================================
+   HOME — COMPACT CAREER OPPORTUNITIES
+   ========================================== */
+
+.home-page .career-insights-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Compact horizontal opportunity listing */
+.home-page .job-card {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.15rem;
+  min-width: 0;
+  min-height: 100px;
+  padding: 1rem 1.25rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.home-page .job-card:hover {
+  border-color: #5c80b5;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+/* If the API provides no valid logo */
+.home-page .job-card--no-logo {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* Company identity */
+.home-page .job-company-logo {
+  display: block;
+  width: 52px;
+  height: 52px;
+  max-width: 52px;
+  margin: 0;
+  padding: 0.35rem;
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+/* Grouped title and metadata */
+.home-page .job-card-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.home-page .job-title {
+  margin: 0 0 0.35rem;
+  color: var(--text);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.home-page .job-company,
+.home-page .job-location {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.home-page .job-company {
+  margin-bottom: 0.15rem;
+}
+
+/* Preserve the accessible external action */
+.home-page .job-card .button {
+  align-self: center;
+  justify-self: end;
+  flex-shrink: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  white-space: nowrap;
+  border-radius: 9px;
+  font-size: 0.85rem;
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+  .home-page .job-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .home-page .job-card--no-logo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-page .job-company-logo {
+    width: 44px;
+    height: 44px;
+    max-width: 44px;
+  }
+
+  .home-page .job-card .button {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    margin-top: 0.35rem;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .job-card {
+    transition: none;
+  }
+
+  .home-page .job-card:hover {
+    transform: none;
+  }
+}
