@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% load static %}
+
 {% block title %}{{ page_title }} | TaskFlow{% endblock %}
 
 {% block content %}
@@ -25,10 +27,18 @@
                     {{ page_title }}
                 </h1>
 
-                <p class="page-description">
-                    Organize your work by creating a project.
-                    You can add and manage tasks inside it later.
-                </p>
+                {% if form.instance.pk %}
+                    <p>
+                        Update project details, manage team responsibilities
+                        and keep your workspace organized.
+                    </p>
+                {% else %}
+                    <p>
+                        Create a project, appoint a project manager
+                        and bring your team together.
+                    </p>
+                {% endif %}
+
             </div>
 
         </header>
@@ -87,6 +97,86 @@
                 {% endif %}
 
             </div>
+
+            
+            <!--
+                Mandatory Project Manager.
+
+                The manager must be one of the five
+                ACG Career Services team members.
+                Django performs server-side validation.
+            -->
+            <div class="form-group">
+
+                <label for="{{ form.project_manager.id_for_label }}">
+                    Project Manager *
+                </label>
+
+                {{ form.project_manager }}
+
+                <p class="form-help">
+                    Select the team member responsible
+                    for managing this project.
+                </p>
+
+                {% if form.project_manager.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.project_manager.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!--
+                Optional project collaborators.
+
+                The project manager must not also
+                be selected as a collaborator.
+            -->
+            
+            <!-- Project collaborators -->
+            <fieldset class="form-group project-collaborators"
+                    aria-describedby="collaborators-help">
+
+                <legend>Project Collaborators</legend>
+
+                <p class="form-help" id="collaborators-help">
+                    Select the team members who will collaborate
+                    on this project. The selected Project Manager
+                    cannot also be a collaborator.
+                </p>
+
+                <div
+                    class="project-collaborator-grid"
+                    id="project-collaborator-options"
+                >
+
+                    {% for option in form.collaborators %}
+
+                        <label
+                            class="project-collaborator-option"
+                            for="{{ option.id_for_label }}"
+                        >
+
+                            {{ option.tag }}
+
+                            <span class="collaborator-name">
+                                {{ option.choice_label }}
+                            </span>
+
+                        </label>
+
+                    {% endfor %}
+
+                </div>
+
+                {% if form.collaborators.errors %}
+                    <div class="field-error" role="alert">
+                        {{ form.collaborators.errors }}
+                    </div>
+                {% endif %}
+
+            </fieldset>
 
             <!-- Project status. -->
             <div class="form-group">
@@ -159,4 +249,11 @@
 
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script
+    type="module"
+    src="{% static 'js/project-form.js' %}"
+></script>
 {% endblock %}

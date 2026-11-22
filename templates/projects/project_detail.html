@@ -1,0 +1,897 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ project.name }} | TaskFlow{% endblock %}
+
+{% block page_class %}project-detail-page{% endblock %}
+
+{% block content %}
+
+<!-- ==========================================
+     TASKFLOW - PROJECT WORKSPACE
+     ========================================== -->
+
+<div class="tf-project-workspace">
+
+    <!-- ======================================
+         BREADCRUMB NAVIGATION
+         ====================================== -->
+
+    <nav
+        class="tf-pw-breadcrumb"
+        aria-label="Breadcrumb"
+    >
+
+        <a href="{% url 'projects:project_list' %}">
+            My Projects
+        </a>
+
+        <span aria-hidden="true">/</span>
+
+        <span aria-current="page">
+            {{ project.name }}
+        </span>
+
+    </nav>
+
+
+    <!-- ======================================
+         PROJECT OVERVIEW
+         ====================================== -->
+
+    <section
+        class="tf-pw-overview"
+        aria-labelledby="project-heading"
+    >
+
+        <div class="tf-pw-overview-header">
+
+            <div class="tf-pw-overview-content">
+
+                <p class="tf-pw-eyebrow">
+                    PROJECT WORKSPACE
+                </p>
+
+                <h1 id="project-heading">
+                    {{ project.name }}
+                </h1>
+
+                <div class="tf-pw-meta">
+
+                    <span
+                        class="tf-pw-status tf-pw-status--{{ project.status }}"
+                    >
+                        {{ project.get_status_display }}
+                    </span>
+
+                    <span class="tf-pw-deadline">
+
+                        <strong>Deadline:</strong>
+
+                        {% if project.deadline %}
+
+                            <time datetime="{{ project.deadline|date:'Y-m-d' }}">
+                                {{ project.deadline|date:"M j, Y" }}
+                            </time>
+
+                        {% else %}
+
+                            Not set
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                <p class="tf-pw-description">
+                    {{ project.description|default:"Manage your project's tasks and progress."|linebreaksbr }}
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'projects:project_update' project.id %}"
+                class="btn btn-primary tf-pw-edit-project"
+            >
+                Edit Project
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         PROJECT TEAM
+         ====================================== -->
+
+    <section
+        class="tf-pw-panel tf-pw-team"
+        aria-labelledby="project-team-heading"
+    >
+
+        <div class="tf-pw-panel-header">
+
+            <div>
+
+                <p class="tf-pw-eyebrow">
+                    PEOPLE &amp; RESPONSIBILITIES
+                </p>
+
+                <h2 id="project-team-heading">
+                    Project Team
+                </h2>
+
+                <p class="tf-pw-section-description">
+                    The people responsible for delivering this project.
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'projects:project_update' project.id %}"
+                class="tf-pw-manage-team"
+            >
+                Manage Team
+            </a>
+
+        </div>
+
+
+        <div class="tf-pw-team-grid">
+
+            <!-- Project Manager -->
+
+            <div class="tf-pw-team-card">
+
+                <h3>Project Manager</h3>
+
+                {% if project.project_manager %}
+
+                    <div class="tf-pw-person">
+
+                        <span
+                            class="tf-pw-avatar tf-team-avatar--{{ project.project_manager.avatar_tone }}"
+                            aria-hidden="true"
+                        >
+                            {{ project.project_manager.initials }}
+                        </span>
+
+                        <div class="tf-pw-person-info">
+
+                            <strong>
+                                {{ project.project_manager.full_name }}
+                            </strong>
+
+                            <span>
+                                {{ project.project_manager.job_title }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="tf-pw-unassigned">
+                        No project manager assigned.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Collaborators -->
+
+            <div class="tf-pw-team-card">
+
+                <h3>Collaborators</h3>
+
+                <div class="tf-pw-collaborators">
+
+                    {% for member in project.collaborators.all %}
+
+                        <div class="tf-pw-person">
+
+                            <span
+                                class="tf-pw-avatar tf-team-avatar--{{ member.avatar_tone }}"
+                                aria-hidden="true"
+                            >
+                                {{ member.initials }}
+                            </span>
+
+                            <div class="tf-pw-person-info">
+
+                                <strong>
+                                    {{ member.full_name }}
+                                </strong>
+
+                                <span>
+                                    {{ member.job_title }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <p class="tf-pw-unassigned">
+                            No collaborators assigned.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================
+         PROJECT TASK MANAGEMENT
+         ====================================== -->
+
+    <section
+        class="tf-pw-panel tf-pw-tasks"
+        aria-labelledby="project-tasks-heading"
+    >
+
+        <!-- Task section header -->
+
+        <div class="tf-tasklist-header">
+
+            <div>
+
+                <p class="tf-tasklist-eyebrow">
+                    PROJECT ACTIVITY
+                </p>
+
+                <div class="tf-tasklist-title-row">
+
+                    <h2 id="project-tasks-heading">
+                        Project Tasks
+                    </h2>
+
+                    <span class="tf-tasklist-count">
+                        {{ task_stats.total }}
+                        task{{ task_stats.total|pluralize }}
+                    </span>
+
+                </div>
+
+                <p class="tf-tasklist-subtitle">
+                    Manage responsibilities, priorities
+                    and progress across your project.
+                </p>
+
+            </div>
+
+            <a
+                href="{% url 'projects:task_create' project.id %}"
+                class="tf-tasklist-create"
+            >
+                <span aria-hidden="true">+</span>
+                New Task
+            </a>
+
+        </div>
+
+
+        <!-- ==================================
+             TASK SEARCH AND FILTERS
+             ================================== -->
+
+        {% if tasks %}
+
+            <form
+                method="get"
+                action="{% url 'projects:project_detail' project.id %}"
+                class="tf-taskfilter"
+                role="search"
+                aria-label="Search and filter project tasks"
+            >
+
+                <!-- Search field -->
+
+                <div class="tf-taskfilter-search">
+
+                    <label for="task-search">
+                        Search tasks
+                    </label>
+
+                    <input
+                        type="search"
+                        id="task-search"
+                        name="q"
+                        value="{{ task_filters.q }}"
+                        placeholder="Search by task name or description..."
+                        maxlength="200"
+                    >
+
+                </div>
+
+
+                <!-- Filter controls -->
+
+                <div class="tf-taskfilter-controls">
+
+                    <!-- Status filter -->
+
+                    <div class="tf-taskfilter-field">
+
+                        <label for="task-status-filter">
+                            Status
+                        </label>
+
+                        <select
+                            id="task-status-filter"
+                            name="status"
+                        >
+
+                            <option value="">
+                                All statuses
+                            </option>
+
+                            <option
+                                value="pending"
+                                {% if task_filters.status == "pending" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Pending
+                            </option>
+
+                            <option
+                                value="in_progress"
+                                {% if task_filters.status == "in_progress" %}
+                                    selected
+                                {% endif %}
+                            >
+                                In Progress
+                            </option>
+
+                            <option
+                                value="completed"
+                                {% if task_filters.status == "completed" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Completed
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Priority filter -->
+
+                    <div class="tf-taskfilter-field">
+
+                        <label for="task-priority-filter">
+                            Priority
+                        </label>
+
+                        <select
+                            id="task-priority-filter"
+                            name="priority"
+                        >
+
+                            <option value="">
+                                All priorities
+                            </option>
+
+                            <option
+                                value="low"
+                                {% if task_filters.priority == "low" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Low
+                            </option>
+
+                            <option
+                                value="medium"
+                                {% if task_filters.priority == "medium" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Medium
+                            </option>
+
+                            <option
+                                value="high"
+                                {% if task_filters.priority == "high" %}
+                                    selected
+                                {% endif %}
+                            >
+                                High
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Sort order -->
+
+                    <div class="tf-taskfilter-field">
+
+                        <label for="task-sort-filter">
+                            Sort by
+                        </label>
+
+                        <select
+                            id="task-sort-filter"
+                            name="sort"
+                        >
+
+                            <option
+                                value="due_soon"
+                                {% if task_filters.sort == "due_soon" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Due date: earliest
+                            </option>
+
+                            <option
+                                value="due_late"
+                                {% if task_filters.sort == "due_late" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Due date: latest
+                            </option>
+
+                            <option
+                                value="name_az"
+                                {% if task_filters.sort == "name_az" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Name: A–Z
+                            </option>
+
+                            <option
+                                value="name_za"
+                                {% if task_filters.sort == "name_za" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Name: Z–A
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Apply filters -->
+
+                    <button
+                        type="submit"
+                        class="tf-taskfilter-apply"
+                    >
+                        Apply Filters
+                    </button>
+
+                </div>
+
+
+                <!-- Results count -->
+
+                <div class="tf-taskfilter-footer">
+
+                    <p>
+                        Showing
+                        <strong>{{ visible_task_count }}</strong>
+                        of
+                        <strong>{{ task_stats.total }}</strong>
+                        tasks
+                    </p>
+
+                    {% if task_filters.q or task_filters.status or task_filters.priority or task_filters.sort != "due_soon" %}
+
+                        <a
+                            href="{% url 'projects:project_detail' project.id %}"
+                            class="tf-taskfilter-clear"
+                        >
+                            Clear filters
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </form>
+
+
+            <!-- ==================================
+                 LIVE TASK RESULTS
+
+                 This container is replaced by
+                 task-filters.js when filters change.
+                 ================================== -->
+
+            <div id="tf-task-results">
+
+                {% if visible_tasks %}
+
+                    <div class="tf-tasklist-table-wrapper">
+
+                        <table class="tf-tasklist-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th scope="col">Task</th>
+                                    <th scope="col">Assignee</th>
+                                    <th scope="col">Priority</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Due Date</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for task in visible_tasks %}
+
+                                    <tr>
+
+                                        <!-- Task name -->
+
+                                        <td>
+
+                                            <div class="tf-tasklist-task-name">
+                                                {{ task.name }}
+                                            </div>
+
+                                            {% if task.description %}
+
+                                                <p class="tf-tasklist-description">
+                                                    {{ task.description|truncatechars:75 }}
+                                                </p>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <!-- Task assignee -->
+
+                                        <td>
+
+                                            {% if task.assignee %}
+
+                                                <div class="tf-tasklist-assignee">
+
+                                                    <span
+                                                        class="tf-tasklist-avatar tf-team-avatar--{{ task.assignee.avatar_tone }}"
+                                                        aria-hidden="true"
+                                                    >
+                                                        {{ task.assignee.initials }}
+                                                    </span>
+
+                                                    <span class="tf-tasklist-assignee-name">
+                                                        {{ task.assignee.full_name }}
+                                                    </span>
+
+                                                </div>
+
+                                            {% else %}
+
+                                                <span class="tf-tasklist-muted">
+                                                    Unassigned
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <!-- Priority -->
+
+                                        <td>
+
+                                            <span
+                                                class="tf-tasklist-priority tf-tasklist-priority--{{ task.priority }}"
+                                            >
+                                                {{ task.get_priority_display }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Status -->
+
+                                        <td>
+
+                                            <span
+                                                class="tf-tasklist-status tf-tasklist-status--{{ task.status }}"
+                                            >
+
+                                                <span
+                                                    class="tf-tasklist-status-dot"
+                                                    aria-hidden="true"
+                                                ></span>
+
+                                                {{ task.get_status_display }}
+
+                                            </span>
+
+                                        </td>
+
+
+                                        <!-- Due date -->
+
+                                        <td>
+
+                                            {% if task.due_date %}
+
+                                                <time
+                                                    class="tf-tasklist-date"
+                                                    datetime="{{ task.due_date|date:'Y-m-d' }}"
+                                                >
+                                                    {{ task.due_date|date:"M j, Y" }}
+                                                </time>
+
+                                            {% else %}
+
+                                                <span class="tf-tasklist-muted">
+                                                    Not set
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <!-- ==================================
+                                             TASK ACTIONS
+                                             ================================== -->
+
+                                        <td>
+
+                                            <div class="tf-tasklist-actions">
+
+                                                <!-- Edit Task -->
+
+                                                <a
+                                                    href="{% url 'projects:task_update' project.id task.id %}"
+                                                    class="tf-tasklist-edit"
+                                                    aria-label="Edit task: {{ task.name }}"
+                                                >
+                                                    Edit
+                                                    <span aria-hidden="true">→</span>
+                                                </a>
+
+
+                                                <!-- Mark Completed -->
+
+                                                {% if task.status != "completed" %}
+
+                                                    <form
+                                                        method="post"
+                                                        action="{% url 'projects:task_complete' project.id task.id %}"
+                                                        class="tf-tasklist-complete-form"
+                                                    >
+
+                                                        {% csrf_token %}
+
+                                                        <button
+                                                            type="submit"
+                                                            class="tf-tasklist-complete"
+                                                            aria-label="Mark {{ task.name }} as completed"
+                                                        >
+                                                            <span aria-hidden="true">✓</span>
+                                                            Mark Completed
+                                                        </button>
+
+                                                    </form>
+
+                                                {% endif %}
+
+
+                                                <!-- Delete Task -->
+
+                                                <button
+                                                    type="button"
+                                                    class="tf-tasklist-delete-trigger"
+                                                    data-task-name="{{ task.name }}"
+                                                    data-delete-url="{% url 'projects:task_delete' project.id task.id %}"
+                                                    aria-label="Delete task: {{ task.name }}"
+                                                >
+                                                    <span aria-hidden="true">×</span>
+                                                    Delete
+                                                </button>
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                {% else %}
+
+                    <!-- No matching tasks -->
+
+                    <div class="tf-taskfilter-no-results">
+
+                        <div
+                            class="tf-taskfilter-empty-icon"
+                            aria-hidden="true"
+                        >
+                            <span>⌕</span>
+                        </div>
+
+                        <h3>No matching tasks</h3>
+
+                        <p>
+                            No tasks match your current search
+                            or filters. Try adjusting the criteria.
+                        </p>
+
+                        <a href="{% url 'projects:project_detail' project.id %}">
+                            Clear all filters
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <!-- END LIVE TASK RESULTS -->
+
+
+        {% else %}
+
+            <!-- ==================================
+                 EMPTY PROJECT TASK STATE
+                 ================================== -->
+
+            <div class="tf-tasklist-empty">
+
+                <div
+                    class="tf-tasklist-empty-icon"
+                    aria-hidden="true"
+                >
+                    <span>✓</span>
+                </div>
+
+                <h3>No tasks yet</h3>
+
+                <p>
+                    This project is ready for its first task.
+                    Create one and assign it to a member
+                    of your project team.
+                </p>
+
+                <a
+                    href="{% url 'projects:task_create' project.id %}"
+                    class="tf-tasklist-create"
+                >
+                    Create First Task
+                    <span aria-hidden="true">→</span>
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- ======================================
+         DELETE TASK CONFIRMATION DIALOG
+
+         Outside the live results container
+         so filtering cannot remove it.
+         ====================================== -->
+
+    <dialog
+        id="tf-task-delete-dialog"
+        class="tf-task-delete-dialog"
+        aria-labelledby="tf-task-delete-title"
+        aria-describedby="tf-task-delete-description"
+    >
+
+        <div class="tf-task-delete-content">
+
+            <span
+                class="tf-task-delete-icon"
+                aria-hidden="true"
+            >
+                ×
+            </span>
+
+            <h2 id="tf-task-delete-title">
+                Delete this task?
+            </h2>
+
+            <p id="tf-task-delete-description">
+                You are about to permanently delete
+                the following task:
+            </p>
+
+            <div
+                class="tf-task-delete-name"
+                id="tf-task-delete-name"
+            ></div>
+
+            <p class="tf-task-delete-warning">
+                This action cannot be undone.
+                The task will also be removed from
+                project statistics and Analytics.
+            </p>
+
+            <form
+                id="tf-task-delete-form"
+                method="post"
+                class="tf-task-delete-actions"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="button"
+                    id="tf-task-delete-cancel"
+                    class="tf-task-delete-cancel"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="tf-task-delete-confirm"
+                >
+                    Delete Task
+                </button>
+
+            </form>
+
+        </div>
+
+    </dialog>
+
+</div>
+
+{% endblock %}
+
+
+<!-- ==========================================
+     PAGE-SPECIFIC JAVASCRIPT
+     ========================================== -->
+
+{% block extra_scripts %}
+
+<script
+    src="{% static 'js/task-filters.js' %}"
+    defer
+></script>
+
+<script
+    src="{% static 'js/task-delete.js' %}"
+    defer
+></script>
+
+{% endblock %}

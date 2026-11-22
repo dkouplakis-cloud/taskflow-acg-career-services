@@ -19,6 +19,15 @@ class Task(models.Model):
         related_name='tasks'
     )
 
+    # Team member responsible for completing this task.
+    assignee = models.ForeignKey(
+        'core.TeamMember',
+        on_delete=models.PROTECT,
+        related_name='assigned_tasks',
+        null=True,
+        blank=True
+    )
+
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
 

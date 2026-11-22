@@ -1,0 +1,600 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Analytics | TaskFlow{% endblock %}
+
+{% block page_class %}analytics-page{% endblock %}
+
+{% block content %}
+
+<div class="tf-analytics">
+
+    <!-- PAGE HEADER -->
+    <header class="tf-analytics-header">
+
+        <div>
+            <p class="tf-analytics-eyebrow">
+                WORKSPACE INTELLIGENCE
+            </p>
+
+            <h1>Task Analytics</h1>
+
+            <p class="tf-analytics-intro">
+                Track performance, monitor priorities
+                and understand your team's workload.
+            </p>
+        </div>
+
+        <!-- Project filter -->
+        <form
+            method="get"
+            action="{% url 'projects:analytics' %}"
+            class="tf-analytics-filter"
+        >
+
+            <label for="analytics-project">
+                Project
+            </label>
+
+            <div class="tf-analytics-filter-controls">
+
+                <select
+                    id="analytics-project"
+                    name="project"
+                >
+                    <option value="">
+                        All Projects
+                    </option>
+
+                    {% for project in projects %}
+                        <option
+                            value="{{ project.id }}"
+                            {% if selected_project.id == project.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ project.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">
+                    Apply Filter
+                </button>
+
+            </div>
+
+        </form>
+
+    </header>
+
+
+    <!-- OVERVIEW -->
+    <section
+        class="tf-analytics-overview"
+        aria-labelledby="analytics-overview-heading"
+    >
+
+        <div class="tf-analytics-section-heading">
+            <div>
+                <p class="tf-analytics-eyebrow">
+                    PERFORMANCE SNAPSHOT
+                </p>
+
+                <h2 id="analytics-overview-heading">
+                    Overview
+                </h2>
+            </div>
+
+            <span class="tf-analytics-scope">
+                {% if selected_project %}
+                    {{ selected_project.name }}
+                {% else %}
+                    All Projects
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="tf-analytics-stats">
+
+            <article class="tf-analytics-stat">
+                <span>Total Tasks</span>
+                <strong>{{ statistics.total }}</strong>
+                <p>Tasks in the selected scope</p>
+            </article>
+
+            <article class="tf-analytics-stat">
+                <span>Completed Tasks</span>
+                <strong>{{ statistics.completed }}</strong>
+                <p>Successfully finished work</p>
+            </article>
+
+            <article class="tf-analytics-stat">
+                <span>Completion Rate</span>
+                <strong>{{ completion_rate }}%</strong>
+                <p>Overall task completion</p>
+            </article>
+
+            <article class="tf-analytics-stat">
+                <span>High Priority</span>
+                <strong>{{ statistics.high_priority }}</strong>
+                <p>Tasks requiring attention</p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- DISTRIBUTION CHARTS -->
+    <div class="tf-analytics-chart-grid">
+
+        <!-- STATUS DISTRIBUTION -->
+        <section
+            class="tf-analytics-panel"
+            aria-labelledby="status-heading"
+        >
+
+            <div class="tf-analytics-panel-heading">
+                <div>
+                    <p class="tf-analytics-eyebrow">
+                        WORKFLOW
+                    </p>
+
+                    <h2 id="status-heading">
+                        Task Status
+                    </h2>
+
+                    <p>
+                        Distribution of work across
+                        each stage.
+                    </p>
+                </div>
+            </div>
+
+            {% if statistics.total %}
+
+                <div class="tf-analytics-bars">
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>Pending</span>
+                            <strong>{{ statistics.pending }}</strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--pending"
+                            value="{{ statistics.pending }}"
+                            max="{{ statistics.total }}"
+                            aria-label="Pending tasks"
+                        ></progress>
+                    </div>
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>In Progress</span>
+                            <strong>{{ statistics.in_progress }}</strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--active"
+                            value="{{ statistics.in_progress }}"
+                            max="{{ statistics.total }}"
+                            aria-label="In-progress tasks"
+                        ></progress>
+                    </div>
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>Completed</span>
+                            <strong>{{ statistics.completed }}</strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--completed"
+                            value="{{ statistics.completed }}"
+                            max="{{ statistics.total }}"
+                            aria-label="Completed tasks"
+                        ></progress>
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <p class="tf-analytics-empty">
+                    No tasks available for analysis.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- PRIORITY BREAKDOWN -->
+        <section
+            class="tf-analytics-panel"
+            aria-labelledby="priority-heading"
+        >
+
+            <div class="tf-analytics-panel-heading">
+                <div>
+                    <p class="tf-analytics-eyebrow">
+                        WORKLOAD
+                    </p>
+
+                    <h2 id="priority-heading">
+                        Priority Breakdown
+                    </h2>
+
+                    <p>
+                        Understand the urgency of
+                        your current workload.
+                    </p>
+                </div>
+            </div>
+
+            {% if statistics.total %}
+
+                <div class="tf-analytics-bars">
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>High Priority</span>
+                            <strong>
+                                {{ statistics.high_priority }}
+                            </strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--high"
+                            value="{{ statistics.high_priority }}"
+                            max="{{ statistics.total }}"
+                            aria-label="High-priority tasks"
+                        ></progress>
+                    </div>
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>Medium Priority</span>
+                            <strong>
+                                {{ statistics.medium_priority }}
+                            </strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--medium"
+                            value="{{ statistics.medium_priority }}"
+                            max="{{ statistics.total }}"
+                            aria-label="Medium-priority tasks"
+                        ></progress>
+                    </div>
+
+                    <div class="tf-analytics-bar-item">
+                        <div class="tf-analytics-bar-label">
+                            <span>Low Priority</span>
+                            <strong>
+                                {{ statistics.low_priority }}
+                            </strong>
+                        </div>
+
+                        <progress
+                            class="tf-analytics-progress tf-analytics-progress--low"
+                            value="{{ statistics.low_priority }}"
+                            max="{{ statistics.total }}"
+                            aria-label="Low-priority tasks"
+                        ></progress>
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <p class="tf-analytics-empty">
+                    No tasks available for analysis.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+
+    <!-- ==========================================
+        TEAM WORKLOAD ANALYTICS
+        ========================================== -->
+
+    <section
+        class="tf-analytics-panel tf-analytics-team"
+        aria-labelledby="team-workload-heading"
+    >
+
+        <div class="tf-analytics-panel-heading">
+
+            <p class="tf-analytics-eyebrow">
+                TEAM PERFORMANCE
+            </p>
+
+            <h2 id="team-workload-heading">
+                Team Workload
+            </h2>
+
+            <p>
+                Understand how responsibilities are distributed
+                and monitor each team member's task progress.
+            </p>
+
+        </div>
+
+        <div class="tf-analytics-team-grid">
+
+            {% for member in team_workload %}
+
+            <!-- Expandable team member card -->
+            <details class="tf-analytics-team-card tf-analytics-team-details">
+
+                <summary class="tf-analytics-team-toggle">
+
+                    <!-- Team member identity -->
+                    <div class="tf-analytics-team-header">
+
+                        <div class="tf-analytics-team-person">
+
+                            <span
+                                class="tf-analytics-team-avatar tf-team-avatar--{{ member.avatar_tone }}"
+                                aria-hidden="true"
+                            >
+                                {{ member.initials }}
+                            </span>
+
+                            <div class="tf-analytics-team-identity">
+                                <h3>{{ member.full_name }}</h3>
+                                <p>{{ member.job_title }}</p>
+                            </div>
+
+                        </div>
+
+                        <div class="tf-analytics-team-counts">
+
+                            <span class="tf-analytics-team-count">
+                                {{ member.assigned_total }} assigned
+                            </span>
+
+                            {% if member.overseen_task_count %}
+                                <span class="tf-analytics-team-count">
+                                    {{ member.overseen_task_count }} overseen
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                    <!-- Direct assignment progress -->
+                    <div class="tf-analytics-team-progress">
+
+                        {% if member.assigned_total %}
+
+                            <div class="tf-analytics-team-progress-heading">
+
+                                <span>
+                                    {{ member.assigned_completed }}
+                                    of {{ member.assigned_total }}
+                                    assigned tasks completed
+                                </span>
+
+                                <strong>
+                                    {{ member.completion_rate }}%
+                                </strong>
+
+                            </div>
+
+                            <progress
+                                value="{{ member.assigned_completed }}"
+                                max="{{ member.assigned_total }}"
+                                aria-label="Completion progress for {{ member.full_name }}"
+                            >
+                                {{ member.completion_rate }}%
+                            </progress>
+
+                        {% else %}
+
+                            <p class="tf-analytics-member-no-work">
+                                No directly assigned tasks
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                    <span class="tf-analytics-expand-cue">
+                        View tasks
+                    </span>
+
+                </summary>
+
+                <!-- Expanded task information -->
+                <div class="tf-analytics-member-details">
+
+                    <!-- Direct assignments -->
+                    <section class="tf-analytics-member-section">
+
+                        <h4>Directly Assigned Tasks</h4>
+
+                        {% if member.assigned_task_list %}
+
+                            <ul class="tf-analytics-member-task-list">
+
+                                {% for task in member.assigned_task_list %}
+
+                                    <li class="tf-analytics-member-task">
+
+                                        <div class="tf-analytics-member-task-info">
+
+                                            <a
+                                                href="{% url 'projects:task_update' task.project_id task.id %}"
+                                                class="tf-analytics-member-task-link"
+                                            >
+                                                {{ task.name }}
+                                            </a>
+
+                                            <p>{{ task.project.name }}</p>
+
+                                            <span class="tf-analytics-member-task-date">
+                                                Due:
+                                                {% if task.due_date %}
+                                                    {{ task.due_date|date:"M j, Y" }}
+                                                {% else %}
+                                                    Not set
+                                                {% endif %}
+                                            </span>
+
+                                        </div>
+
+                                        <span class="tf-analytics-member-status tf-analytics-member-status--{{ task.status }}">
+                                            {{ task.get_status_display }}
+                                        </span>
+
+                                    </li>
+
+                                {% endfor %}
+
+                            </ul>
+
+                        {% else %}
+
+                            <p class="tf-analytics-member-empty">
+                                No tasks directly assigned to this team member.
+                            </p>
+
+                        {% endif %}
+
+                    </section>
+
+                    <!-- Project management responsibilities -->
+                    {% if member.overseen_task_list %}
+
+                        <section class="tf-analytics-member-section">
+
+                            <h4>Tasks Overseen as Project Manager</h4>
+
+                            <p class="tf-analytics-member-section-note">
+                                These tasks belong to projects managed by
+                                this person, but may be assigned to others.
+                            </p>
+
+                            <ul class="tf-analytics-member-task-list">
+
+                                {% for task in member.overseen_task_list %}
+
+                                    <li class="tf-analytics-member-task">
+
+                                        <div class="tf-analytics-member-task-info">
+
+                                            <a
+                                                href="{% url 'projects:task_update' task.project_id task.id %}"
+                                                class="tf-analytics-member-task-link"
+                                            >
+                                                {{ task.name }}
+                                            </a>
+
+                                            <p>{{ task.project.name }}</p>
+
+                                            <span class="tf-analytics-member-task-date">
+                                                Assigned to:
+                                                {% if task.assignee %}
+                                                    {{ task.assignee.full_name }}
+                                                {% else %}
+                                                    Unassigned
+                                                {% endif %}
+                                            </span>
+
+                                        </div>
+
+                                        <span class="tf-analytics-member-status tf-analytics-member-status--{{ task.status }}">
+                                            {{ task.get_status_display }}
+                                        </span>
+
+                                    </li>
+
+                                {% endfor %}
+
+                            </ul>
+
+                        </section>
+
+                    {% endif %}
+
+                </div>
+
+            </details>
+
+
+            {% empty %}
+
+                <p class="tf-analytics-empty">
+                    No active team members are available.
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- DEADLINES AND COMPLETION -->
+    <section
+        class="tf-analytics-panel tf-analytics-summary"
+        aria-labelledby="summary-heading"
+    >
+
+        <div class="tf-analytics-panel-heading">
+            <div>
+                <p class="tf-analytics-eyebrow">
+                    PROGRESS MONITORING
+                </p>
+
+                <h2 id="summary-heading">
+                    Project Health
+                </h2>
+            </div>
+        </div>
+
+        <div class="tf-analytics-health-grid">
+
+            <div class="tf-analytics-health-item">
+                <span>Overall Completion</span>
+
+                <strong>
+                    {{ completion_rate }}%
+                </strong>
+
+                <progress
+                    class="tf-analytics-progress tf-analytics-progress--completed"
+                    value="{{ statistics.completed }}"
+                    max="{{ statistics.total|default:1 }}"
+                    aria-label="Overall completion"
+                ></progress>
+            </div>
+
+            <div class="tf-analytics-health-item">
+                <span>Overdue Tasks</span>
+
+                <strong>
+                    {{ statistics.overdue }}
+                </strong>
+
+                <p>
+                    Incomplete tasks past their due date
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

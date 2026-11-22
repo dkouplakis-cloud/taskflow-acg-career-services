@@ -182,6 +182,16 @@
                     >
                         My Projects
                     </a>
+                    
+                    <!-- Analytics Dashboard -->
+                    <a
+                        href="{% url 'projects:analytics' %}"
+                        {% if request.resolver_match.view_name == 'projects:analytics' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Analytics
+                    </a>
 
                     <!--
                         New Project remains accessible
@@ -272,24 +282,44 @@
 
         Messages originate from Django's backend.
     -->
-    {% if messages %}
 
-        <div
-            class="flash-messages"
-            role="status"
-            aria-live="polite"
-        >
+        
+    {% if messages %}
+        <div class="tf-notifications" aria-label="Notifications">
 
             {% for message in messages %}
 
-                <p class="message{% if message.tags %} message-{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </p>
+                <div
+                    class="tf-notification tf-notification--{{ message.level_tag }}"
+                    {% if message.level_tag == 'error' %}
+                        role="alert"
+                    {% else %}
+                        role="status"
+                    {% endif %}
+                >
+
+                    <span
+                        class="tf-notification-icon"
+                        aria-hidden="true"
+                    >
+                        {% if message.level_tag == 'success' %}
+                            ✓
+                        {% elif message.level_tag == 'error' %}
+                            !
+                        {% else %}
+                            i
+                        {% endif %}
+                    </span>
+
+                    <span class="tf-notification-text">
+                        {{ message }}
+                    </span>
+
+                </div>
 
             {% endfor %}
 
         </div>
-
     {% endif %}
 
     <!-- ==========================================
@@ -339,6 +369,16 @@
 
             <a href="{% url 'projects:project_list' %}">
                 My Projects
+            </a>
+
+            <!-- Analytics Dashboard -->
+            <a
+                href="{% url 'projects:analytics' %}"
+                {% if request.resolver_match.view_name == 'projects:analytics' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Analytics
             </a>
 
             <a href="mailto:career@acg.edu">

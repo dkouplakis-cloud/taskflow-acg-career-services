@@ -1,73 +1,201 @@
-{% extends 'layout.html' %}
+
+{% extends "layout.html" %}
 
 {% block title %}My Projects | TaskFlow{% endblock %}
 
 {% block content %}
 
-<!-- Main workspace for the authenticated user's projects. -->
-<section class="projects-page" aria-labelledby="projects-heading">
+<main class="tf-pl-page">
 
-    <!-- Page introduction and primary creation action. -->
-    <div class="page-header">
-        <div>
-            <p class="page-eyebrow">Your workspace</p>
+    <!-- Workspace heading -->
+    <header class="tf-pl-header">
 
-            <h1 id="projects-heading">My Projects</h1>
+        <div class="tf-pl-heading">
+            <p class="tf-pl-eyebrow">
+                ACG CAREER SERVICES / WORKSPACE
+            </p>
 
-            <p class="page-description">
-                Keep your projects organized and manage
-                everything in one place.
+            <h1>My Projects</h1>
+
+            <p>
+                Plan, collaborate and keep every project
+                moving forward in one organized workspace.
             </p>
         </div>
 
-        <a href="{% url 'projects:project_create' %}"
-           class="btn btn-primary">
-            + New Project
+        <a
+            href="{% url 'projects:project_create' %}"
+            class="tf-pl-create"
+        >
+            <span aria-hidden="true">+</span>
+            New Project
         </a>
-    </div>
+
+    </header>
 
     {% if projects %}
 
-        <!-- Display only projects supplied by the ownership-filtered view. -->
-        <div class="projects-grid">
+        <!-- Project portfolio summary -->
+        <div class="tf-pl-summary">
+
+            <div class="tf-pl-summary-stat">
+                <span>YOUR PORTFOLIO</span>
+
+                <strong>
+                    {{ projects|length }}
+                    <small>
+                        project{{ projects|length|pluralize }}
+                    </small>
+                </strong>
+            </div>
+
+            <p>
+                Select a project to manage its team,
+                review deadlines and organize tasks.
+            </p>
+
+        </div>
+
+        <!-- Project collection -->
+        <div class="tf-pl-grid">
 
             {% for project in projects %}
 
-                <article class="project-card">
+                <a
+                    href="{% url 'projects:project_detail' project.id %}"
+                    class="tf-pl-card"
+                    aria-label="Open project: {{ project.name }}"
+                >
 
-                    <div class="project-card-header">
-                        <h2>{{ project.name }}</h2>
+                    <!-- Status -->
+                    <div class="tf-pl-card-top">
 
-                        <span class="project-status">
+                        <span class="tf-pl-card-category">
+                            PROJECT WORKSPACE
+                        </span>
+
+                        <span class="tf-pl-status tf-pl-status--{{ project.status }}">
                             {{ project.get_status_display }}
                         </span>
+
                     </div>
 
-                    <p class="project-description">
-                        {{ project.description|default:"No description added yet."|truncatechars:160 }}
-                    </p>
+                    <!-- Project title and description -->
+                    <div class="tf-pl-card-intro">
 
-                    <!-- Display project information stored in Django. -->
-                    <div class="project-meta">
+                        <h2>{{ project.name }}</h2>
 
                         <p>
-                            <strong>Tasks:</strong>
-                            {{ project.tasks.count }}
+                            {{ project.description|default:"No description added yet."|truncatechars:200 }}
                         </p>
 
-                        <p>
-                            <strong>Deadline:</strong>
+                    </div>
 
-                            {% if project.deadline %}
-                                {{ project.deadline|date:"M d, Y" }}
+                    <!-- Team information -->
+                    <div class="tf-pl-card-team">
+
+                        <div class="tf-pl-team-block">
+
+                            <span class="tf-pl-label">
+                                Project Manager
+                            </span>
+
+                            {% if project.project_manager %}
+
+                                <div class="tf-pl-person">
+                               
+                                <span
+                                    class="tf-pl-avatar tf-team-avatar--{{ project.project_manager.avatar_tone }}"
+                                    aria-hidden="true"
+                                >
+                                    {{ project.project_manager.initials }}
+                                </span>
+
+                                    <span class="tf-pl-person-name">
+                                        {{ project.project_manager.full_name }}
+                                    </span>
+
+                                </div>
+
                             {% else %}
-                                No deadline
+
+                                <span class="tf-pl-unassigned">
+                                    Not assigned
+                                </span>
+
                             {% endif %}
-                        </p>
+
+                        </div>
+
+                        <div class="tf-pl-team-block">
+
+                            <span class="tf-pl-label">
+                                Collaborators
+                            </span>
+
+                            <div class="tf-pl-collab-list">
+
+                                {% for member in project.collaborators.all %}
+
+                                    <span class="tf-pl-collab-chip">
+                     
+                                    <span
+                                        class="tf-pl-avatar tf-pl-avatar--small tf-team-avatar--{{ member.avatar_tone }}"
+                                        aria-hidden="true"
+                                    >
+                                        {{ member.initials }}
+                                    </span>
+
+                                        <span>{{ member.full_name }}</span>
+
+                                    </span>
+
+                                {% empty %}
+
+                                    <span class="tf-pl-unassigned">
+                                        No collaborators
+                                    </span>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
 
                     </div>
 
-                </article>
+                    <!-- Card footer -->
+                    <div class="tf-pl-card-footer">
+
+                        <div class="tf-pl-card-stats">
+
+                            <span>
+                                <span class="tf-pl-label">TASKS</span>
+                                <strong>{{ project.tasks.count }}</strong>
+                            </span>
+
+                            <span>
+                                <span class="tf-pl-label">DEADLINE</span>
+
+                                <strong>
+                                    {% if project.deadline %}
+                                        {{ project.deadline|date:"M j, Y" }}
+                                    {% else %}
+                                        Not set
+                                    {% endif %}
+                                </strong>
+                            </span>
+
+                        </div>
+
+                        <span class="tf-pl-open">
+                            Open Project
+                            <span aria-hidden="true">→</span>
+                        </span>
+
+                    </div>
+
+                </a>
 
             {% endfor %}
 
@@ -75,26 +203,35 @@
 
     {% else %}
 
-        <!-- Help first-time users understand what to do next. -->
-        <div class="empty-state">
+        <!-- Empty portfolio -->
+        <div class="tf-pl-empty">
 
-            <h2>No projects yet</h2>
+            <div class="tf-pl-empty-symbol" aria-hidden="true">
+                +
+            </div>
+
+            <p class="tf-pl-eyebrow">YOUR WORKSPACE IS READY</p>
+
+            <h2>Start with your first project</h2>
 
             <p>
-                Start by creating your first project.
-                You can then add tasks, organize your work,
-                and track your progress.
+                Create a project, choose a manager,
+                bring together your team and organize
+                everything that needs to get done.
             </p>
 
-            <a href="{% url 'projects:project_create' %}"
-               class="btn btn-primary">
-                Create Your First Project
+            <a
+                href="{% url 'projects:project_create' %}"
+                class="tf-pl-create"
+            >
+                Create Project
+                <span aria-hidden="true">→</span>
             </a>
 
         </div>
 
     {% endif %}
 
-</section>
+</main>
 
 {% endblock %}

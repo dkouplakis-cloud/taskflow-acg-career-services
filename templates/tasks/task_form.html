@@ -1,0 +1,371 @@
+
+{% extends "layout.html" %}
+
+{% block title %}{{ page_title }} | TaskFlow{% endblock %}
+
+{% block page_class %}task-form-page{% endblock %}
+
+{% block content %}
+
+<div class="tf-task-shell">
+
+    <!-- Breadcrumb navigation -->
+    <nav class="tf-task-breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'projects:project_list' %}">
+            My Projects
+        </a>
+
+        <span aria-hidden="true">/</span>
+
+        <a href="{% url 'projects:project_detail' project.id %}">
+            {{ project.name }}
+        </a>
+
+        <span aria-hidden="true">/</span>
+
+        <span aria-current="page">{{ page_title }}</span>
+    </nav>
+
+    <!-- Page heading -->
+    <header class="tf-task-heading">
+
+        <div>
+            <p class="tf-task-kicker">TASK MANAGEMENT</p>
+
+            <h1>{{ page_title }}</h1>
+
+            <p class="tf-task-heading-text">
+                Define the work, set priorities and assign
+                responsibility to your project team.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'projects:project_detail' project.id %}"
+            class="tf-task-back"
+        >
+            <span aria-hidden="true">←</span>
+            Back to project
+        </a>
+
+    </header>
+
+    <div class="tf-task-columns">
+
+        <!-- Main editor -->
+        <div class="tf-task-editor-card">
+
+            <form method="post" class="tf-task-editor">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="tf-task-form-alert" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- SECTION 01: TASK DETAILS -->
+                <section class="tf-task-section">
+
+                    <div class="tf-task-section-header">
+                        <span class="tf-task-section-index">01</span>
+
+                        <div>
+                            <h2>Task details</h2>
+                            <p>
+                                What needs to be accomplished?
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="tf-task-field{% if form.name.errors %} tf-task-field--invalid{% endif %}">
+                        <label for="{{ form.name.id_for_label }}">
+                            Task name
+                            {% if form.name.field.required %}
+                                <span class="tf-task-required">*</span>
+                            {% endif %}
+                        </label>
+
+                        {{ form.name }}
+
+                        {% if form.name.errors %}
+                            <div class="tf-task-field-error" role="alert">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tf-task-field{% if form.description.errors %} tf-task-field--invalid{% endif %}">
+                        <label for="{{ form.description.id_for_label }}">
+                            Description
+                            {% if form.description.field.required %}
+                                <span class="tf-task-required">*</span>
+                            {% endif %}
+                        </label>
+
+                        {{ form.description }}
+
+                        <p class="tf-task-field-help">
+                            Include the objective, deliverables or
+                            any important instructions.
+                        </p>
+
+                        {% if form.description.errors %}
+                            <div class="tf-task-field-error" role="alert">
+                                {{ form.description.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </section>
+
+                <!-- SECTION 02: PLANNING -->
+                <section class="tf-task-section">
+
+                    <div class="tf-task-section-header">
+                        <span class="tf-task-section-index">02</span>
+
+                        <div>
+                            <h2>Planning &amp; priority</h2>
+                            <p>
+                                Keep the work organized and on schedule.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="tf-task-field-grid">
+
+                        <div class="tf-task-field{% if form.status.errors %} tf-task-field--invalid{% endif %}">
+                            <label for="{{ form.status.id_for_label }}">
+                                Status
+                                {% if form.status.field.required %}
+                                    <span class="tf-task-required">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ form.status }}
+
+                            {% if form.status.errors %}
+                                <div class="tf-task-field-error" role="alert">
+                                    {{ form.status.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="tf-task-field{% if form.priority.errors %} tf-task-field--invalid{% endif %}">
+                            <label for="{{ form.priority.id_for_label }}">
+                                Priority
+                                {% if form.priority.field.required %}
+                                    <span class="tf-task-required">*</span>
+                                {% endif %}
+                            </label>
+
+                            {{ form.priority }}
+
+                            {% if form.priority.errors %}
+                                <div class="tf-task-field-error" role="alert">
+                                    {{ form.priority.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="tf-task-field{% if form.due_date.errors %} tf-task-field--invalid{% endif %}">
+                        <label for="{{ form.due_date.id_for_label }}">
+                            Due date
+                            {% if form.due_date.field.required %}
+                                <span class="tf-task-required">*</span>
+                            {% endif %}
+                        </label>
+
+                        {{ form.due_date }}
+
+                        <p class="tf-task-field-help">
+                            The target date for completing this task.
+                        </p>
+
+                        {% if form.due_date.errors %}
+                            <div class="tf-task-field-error" role="alert">
+                                {{ form.due_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </section>
+
+                <!-- SECTION 03: ASSIGNMENT -->
+                <section class="tf-task-section">
+
+                    <div class="tf-task-section-header">
+                        <span class="tf-task-section-index">03</span>
+
+                        <div>
+                            <h2>Responsibility</h2>
+                            <p>
+                                Choose the person accountable for this task.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="tf-task-field{% if form.assignee.errors %} tf-task-field--invalid{% endif %}">
+                        <label for="{{ form.assignee.id_for_label }}">
+                            Assigned to
+                            {% if form.assignee.field.required %}
+                                <span class="tf-task-required">*</span>
+                            {% endif %}
+                        </label>
+
+                        {{ form.assignee }}
+
+                        {% if form.assignee.errors %}
+                            <div class="tf-task-field-error" role="alert">
+                                {{ form.assignee.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tf-task-assignment-note">
+                        <span class="tf-task-assignment-icon"
+                              aria-hidden="true">✓</span>
+
+                        <p>
+                            Only the project manager and selected
+                            collaborators can be assigned tasks.
+                        </p>
+                    </div>
+
+                </section>
+
+                <!-- Actions -->
+                <div class="tf-task-actions">
+
+                    <a
+                        href="{% url 'projects:project_detail' project.id %}"
+                        class="tf-task-button tf-task-button--secondary"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="tf-task-button tf-task-button--primary"
+                    >
+                        {{ submit_label }}
+                        <span aria-hidden="true">→</span>
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- Project context sidebar -->
+        <aside class="tf-task-sidebar"
+               aria-label="Project information">
+
+            <section class="tf-task-side-card">
+
+                <p class="tf-task-side-label">
+                    LINKED PROJECT
+                </p>
+
+                <h2>{{ project.name }}</h2>
+
+                <span class="tf-task-project-status">
+                    <span class="tf-task-status-dot"
+                          aria-hidden="true"></span>
+                    {{ project.get_status_display }}
+                </span>
+
+                <div class="tf-task-side-divider"></div>
+
+                <div class="tf-task-side-metadata">
+                    <span>Project deadline</span>
+
+                    <strong>
+                        {% if project.deadline %}
+                            {{ project.deadline|date:"M j, Y" }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </section>
+
+            <section class="tf-task-side-card">
+
+                <p class="tf-task-side-label">
+                    PEOPLE &amp; RESPONSIBILITIES
+                </p>
+
+                <h2 class="tf-task-side-heading">
+                    Project team
+                </h2>
+
+                <div class="tf-task-side-team">
+
+                    {% if project.project_manager %}
+
+                        <div class="tf-task-member">
+
+                            <span
+                                class="tf-task-member-avatar tf-team-avatar--{{ project.project_manager.avatar_tone }}"
+                                aria-hidden="true"
+                            >
+                                {{ project.project_manager.initials }}
+                            </span>
+
+                            <div class="tf-task-member-info">
+                                <strong>
+                                    {{ project.project_manager.full_name }}
+                                </strong>
+
+                                <span>Project Manager</span>
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% for member in project.collaborators.all %}
+
+                        <div class="tf-task-member">
+
+                            <span
+                                class="tf-task-member-avatar tf-team-avatar--{{ member.avatar_tone }}"
+                                aria-hidden="true"
+                            >
+                                {{ member.initials }}
+                            </span>
+
+                            <div class="tf-task-member-info">
+                                <strong>{{ member.full_name }}</strong>
+                                <span>Collaborator</span>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <a
+                    href="{% url 'projects:project_update' project.id %}"
+                    class="tf-task-manage-team"
+                >
+                    Manage project team
+                    <span aria-hidden="true">→</span>
+                </a>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}
