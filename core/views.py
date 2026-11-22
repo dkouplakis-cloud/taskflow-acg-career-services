@@ -12,20 +12,198 @@ developed during the midterm project.
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
+from datetime import timedelta
+from django.utils import timezone
 
+from django.db.models import Count, Q
+from projects.models import Project
+from tasks.models import Task
 from .forms import ContactMessageForm
+
 
 def home(request):
     """
-    Render the original TaskFlow homepage.
-
-    The template extends the shared Django layout
-    and preserves the original homepage components.
-
-    Database-backed statistics and recent task activity
-    will be integrated in subsequent steps.
+    Display database-backed dashboard statistics
+    for the authenticated user's projects and tasks.
     """
-    return render(request, "core/home.html")
+
+    context = {
+        "total_projects": 0,
+        "active_projects": 0,
+        "total_tasks": 0,
+        "pending_tasks": 0,
+        "in_progress_tasks": 0,
+        "completed_tasks": 0,
+        "recent_tasks": [],
+        "upcoming_task_deadlines": [],
+        "overdue_tasks": [],
+        "upcoming_project_deadlines": [],
+        "overdue_projects": [],
+        "next_deadline": None,
+
+    }
+
+    if request.user.is_authenticated:
+
+        # Only retrieve projects owned by this user.
+        projects = Project.objects.filter(
+            owner=request.user
+        )
+
+        # Retrieve tasks belonging to those projects.
+        tasks = Task.objects.filter(
+            project__owner=request.user
+        )
+
+        # Retrieve the five most recently updated tasks
+        # belonging to this user's projects.
+        context["recent_tasks"] = (
+            tasks
+            .select_related("project", "assignee")
+            .order_by("-updated_at", "-pk")[:5]
+        )
+
+        # Calculate project statistics.
+        context.update(
+            projects.aggregate(
+                total_projects=Count("pk"),
+                active_projects=Count(
+                    "pk",
+                    filter=Q(status=Project.Status.ACTIVE)
+                ),
+            )
+        )
+
+        # Calculate task statistics.
+        context.update(
+            tasks.aggregate(
+                total_tasks=Count("pk"),
+                pending_tasks=Count(
+                    "pk",
+                    filter=Q(status=Task.Status.PENDING)
+                ),
+                in_progress_tasks=Count(
+                    "pk",
+                    filter=Q(status=Task.Status.IN_PROGRESS)
+                ),
+                completed_tasks=Count(
+                    "pk",
+                    filter=Q(status=Task.Status.COMPLETED)
+                ),
+            )
+        )
+
+        # ----------------------------------------
+        # UPCOMING DEADLINES
+        # ----------------------------------------
+
+        today = timezone.localdate()
+        deadline_limit = today + timedelta(days=7)
+
+        # Incomplete tasks belonging to the user.
+        incomplete_tasks = tasks.exclude(
+            status=Task.Status.COMPLETED
+        )
+
+        # Projects that are not completed.
+        incomplete_projects = projects.exclude(
+            status=Project.Status.COMPLETED
+        )
+
+        # Tasks due within the next 7 days.
+        upcoming_task_deadlines = (
+            incomplete_tasks
+            .filter(
+                due_date__gte=today,
+                due_date__lte=deadline_limit
+            )
+            .select_related("project", "assignee")
+            .order_by("due_date", "pk")[:5]
+        )
+
+        # Tasks whose deadlines have passed.
+        overdue_tasks = (
+            incomplete_tasks
+            .filter(due_date__lt=today)
+            .select_related("project", "assignee")
+            .order_by("due_date", "pk")[:5]
+        )
+
+        # Projects due within the next 7 days.
+        upcoming_project_deadlines = (
+            incomplete_projects
+            .filter(
+                deadline__gte=today,
+                deadline__lte=deadline_limit
+            )
+            .order_by("deadline", "pk")[:5]
+        )
+
+        # Projects whose deadlines have passed.
+        overdue_projects = (
+            incomplete_projects
+            .filter(deadline__lt=today)
+            .order_by("deadline", "pk")[:5]
+        )
+
+        # Make deadline information available
+        # to the Django Home template.
+        context.update({
+            "upcoming_task_deadlines": upcoming_task_deadlines,
+            "overdue_tasks": overdue_tasks,
+            "upcoming_project_deadlines": upcoming_project_deadlines,
+            "overdue_projects": overdue_projects,
+        })
+
+
+        # ----------------------------------------
+        # NEXT SCHEDULED DEADLINE
+        # ----------------------------------------
+
+        # Find the nearest upcoming incomplete task.
+        next_task = (
+            incomplete_tasks
+            .filter(due_date__gte=today)
+            .select_related("project")
+            .order_by("due_date", "pk")
+            .first()
+        )
+
+        # Find the nearest upcoming unfinished project.
+        next_project = (
+            incomplete_projects
+            .filter(deadline__gte=today)
+            .order_by("deadline", "pk")
+            .first()
+        )
+
+        # Select whichever deadline occurs first.
+        if next_task and (
+            not next_project
+            or next_task.due_date <= next_project.deadline
+        ):
+            context["next_deadline"] = {
+                "type": "Task",
+                "title": next_task.name,
+                "due_date": next_task.due_date,
+                "project": next_task.project,
+                "priority": next_task.get_priority_display(),
+            }
+
+        elif next_project:
+            context["next_deadline"] = {
+                "type": "Project",
+                "title": next_project.name,
+                "due_date": next_project.deadline,
+                "project": next_project,
+                "priority": None,
+            }
+
+    return render(
+        request,
+        "core/home.html",
+        context
+    )
 
 def about(request):
     """

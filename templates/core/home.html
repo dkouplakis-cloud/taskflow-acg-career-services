@@ -6,6 +6,13 @@
 
 {% block page_class %}home-page{% endblock %}
 
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{% static 'css/home-dashboard.css' %}"
+>
+{% endblock %}
+
 {% block content %}
 
 <!-- Original TaskFlow homepage adapted for Django. -->
@@ -45,17 +52,17 @@
             href="{% url 'projects:project_list' %}"
             class="primary-button"
           >
-            Manage Tasks
+            My Projects
             <span aria-hidden="true">
               &rarr;
             </span>
           </a>
 
           <a
-            href="kanban.html"
+            href="#upcoming-deadlines"
             class="home-secondary-button"
           >
-            View Kanban Board
+            Upcoming Deadlines
           </a>
 
         </div>
@@ -147,14 +154,10 @@
 
         <a
           class="home-text-link"
-          href="analytics.html"
+          href="{% url 'projects:analytics' %}"
         >
           View analytics
-
-          <span aria-hidden="true">
-            &rarr;
-          </span>
-
+          <span aria-hidden="true">&rarr;</span>
         </a>
 
       </div>
@@ -172,7 +175,7 @@
             class="dashboard-number"
             data-stat="total"
           >
-            0
+            {{ total_tasks }}
           </p>
 
           <p class="home-stat-caption">
@@ -192,7 +195,7 @@
             class="dashboard-number"
             data-stat="pending"
           >
-            0
+            {{ pending_tasks }}
           </p>
 
           <p class="home-stat-caption">
@@ -212,7 +215,7 @@
             class="dashboard-number"
             data-stat="progress"
           >
-            0
+            {{ in_progress_tasks }}
           </p>
 
           <p class="home-stat-caption">
@@ -232,7 +235,7 @@
             class="dashboard-number"
             data-stat="completed"
           >
-            0
+            {{ completed_tasks }}
           </p>
 
           <p class="home-stat-caption">
@@ -249,6 +252,281 @@
       </p>
 
     </section>
+
+
+<!-- ========================================
+     UPCOMING DEADLINES
+     ======================================== -->
+
+<section
+  id="upcoming-deadlines"
+  class="tf-deadlines-section"
+  aria-labelledby="deadlines-heading"
+>
+
+  <div class="home-section-heading">
+    <div>
+      <p class="home-eyebrow">
+        STAY AHEAD
+      </p>
+
+      <h2 id="deadlines-heading">
+        Upcoming Deadlines
+      </h2>
+
+      <p class="home-panel-description">
+        Keep track of approaching deadlines and
+        work that needs your attention.
+      </p>
+    </div>
+  </div>
+
+  <!-- ========================================
+      NEXT SCHEDULED DEADLINE
+      ======================================== -->
+
+  {% if next_deadline %}
+
+    <article class="tf-next-deadline">
+
+      <div class="tf-next-deadline-content">
+
+        <p class="tf-next-deadline-eyebrow">
+          NEXT SCHEDULED DEADLINE · {{ next_deadline.type }}
+        </p>
+
+        <h3 class="tf-next-deadline-title">
+          {{ next_deadline.title }}
+        </h3>
+
+        <p class="tf-next-deadline-project">
+          {{ next_deadline.project.name }}
+        </p>
+
+        <p class="tf-next-deadline-meta">
+          Due {{ next_deadline.due_date|date:"F j, Y" }}
+
+          {% if next_deadline.priority %}
+            · {{ next_deadline.priority }} priority
+          {% endif %}
+        </p>
+
+      </div>
+
+      <div
+        class="tf-next-deadline-date"
+        aria-label="Due {{ next_deadline.due_date|date:'F j, Y' }}"
+      >
+        <span class="tf-next-deadline-day">
+          {{ next_deadline.due_date|date:"d" }}
+        </span>
+
+        <span class="tf-next-deadline-month">
+          {{ next_deadline.due_date|date:"M"|upper }}
+        </span>
+      </div>
+
+      <a
+        href="{% url 'projects:project_detail' next_deadline.project.pk %}"
+        class="tf-next-deadline-action"
+      >
+        Open Workspace &rarr;
+      </a>
+
+    </article>
+
+  {% endif %}
+
+
+  <div class="tf-deadlines-grid">
+
+    <!-- UPCOMING -->
+    <div class="home-panel tf-deadlines-panel">
+
+      <div class="tf-deadlines-panel-heading">
+        <h3>Next 7 Days</h3>
+        <span class="tf-deadlines-label">
+          Upcoming
+        </span>
+      </div>
+
+      {% if upcoming_task_deadlines or upcoming_project_deadlines %}
+
+        <ul class="tf-deadlines-list">
+
+          {% for task in upcoming_task_deadlines %}
+
+            <li class="tf-deadline-item">
+
+              <span class="tf-deadline-type">
+                Task
+              </span>
+
+              <a
+                href="{% url 'projects:project_detail' task.project.pk %}"
+                class="tf-deadline-title"
+              >
+                {{ task.name }}
+              </a>
+
+              <p class="tf-deadline-project">
+                {{ task.project.name }}
+              </p>
+
+              <div class="tf-deadline-meta">
+                <span>
+                  Due {{ task.due_date|date:"M j, Y" }}
+                </span>
+
+                <span class="tf-deadline-priority">
+                  {{ task.get_priority_display }} priority
+                </span>
+              </div>
+
+            </li>
+
+          {% endfor %}
+
+          {% for project in upcoming_project_deadlines %}
+
+            <li class="tf-deadline-item">
+
+              <span class="tf-deadline-type">
+                Project
+              </span>
+
+              <a
+                href="{% url 'projects:project_detail' project.pk %}"
+                class="tf-deadline-title"
+              >
+                {{ project.name }}
+              </a>
+
+              <div class="tf-deadline-meta">
+                <span>
+                  Due {{ project.deadline|date:"M j, Y" }}
+                </span>
+
+                <span>
+                  {{ project.get_status_display }}
+                </span>
+              </div>
+
+            </li>
+
+          {% endfor %}
+
+        </ul>
+
+      {% else %}
+
+        <div class="tf-deadlines-empty">
+          <p><strong>You're all caught up!</strong></p>
+          <p>
+            No deadlines are approaching
+            in the next seven days.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+    <!-- OVERDUE -->
+    <div class="home-panel tf-deadlines-panel">
+
+      <div class="tf-deadlines-panel-heading">
+        <h3>Needs Attention</h3>
+        <span class="tf-deadlines-label tf-deadlines-label--overdue">
+          Overdue
+        </span>
+      </div>
+
+      {% if overdue_tasks or overdue_projects %}
+
+        <ul class="tf-deadlines-list">
+
+          {% for task in overdue_tasks %}
+
+            <li class="tf-deadline-item">
+
+              <span class="tf-deadline-type">
+                Overdue Task
+              </span>
+
+              <a
+                href="{% url 'projects:project_detail' task.project.pk %}"
+                class="tf-deadline-title"
+              >
+                {{ task.name }}
+              </a>
+
+              <p class="tf-deadline-project">
+                {{ task.project.name }}
+              </p>
+
+              <div class="tf-deadline-meta">
+                <span>
+                  Due {{ task.due_date|date:"M j, Y" }}
+                </span>
+
+                <span>
+                  {{ task.get_priority_display }} priority
+                </span>
+              </div>
+
+            </li>
+
+          {% endfor %}
+
+          {% for project in overdue_projects %}
+
+            <li class="tf-deadline-item">
+
+              <span class="tf-deadline-type">
+                Overdue Project
+              </span>
+
+              <a
+                href="{% url 'projects:project_detail' project.pk %}"
+                class="tf-deadline-title"
+              >
+                {{ project.name }}
+              </a>
+
+              <div class="tf-deadline-meta">
+                <span>
+                  Due {{ project.deadline|date:"M j, Y" }}
+                </span>
+
+                <span>
+                  {{ project.get_status_display }}
+                </span>
+              </div>
+
+            </li>
+
+          {% endfor %}
+
+        </ul>
+
+      {% else %}
+
+        <div class="tf-deadlines-empty">
+          <p><strong>Nothing overdue.</strong></p>
+          <p>
+            No outstanding tasks or projects
+            have passed their deadlines.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</section>
 
     <!-- ========================================
          RECENT TASK ACTIVITY
@@ -270,7 +548,7 @@
             </p>
 
             <h2 id="activity-heading">
-              Recent Task Activity
+              Recently Updated Tasks
             </h2>
 
           </div>
@@ -285,17 +563,55 @@
         </div>
 
         <p class="home-panel-description">
-          Your five most recent task changes.
+          Your five most recently updated tasks across all projects.
         </p>
 
         <ul
           id="recent-activity-list"
           class="activity-list"
-          aria-label="Recent task activity"
+          aria-label="Recently updated tasks"
+          data-source="django"
         >
-          <li>
-            Loading recent activity...
-          </li>
+          {% for task in recent_tasks %}
+
+            <li class="activity-item">
+
+              <div class="activity-content">
+
+                <strong class="activity-action">
+                  {{ task.get_status_display }}
+                </strong>
+
+                <a
+                  class="activity-title"
+                  href="{% url 'projects:project_detail' task.project.pk %}"
+                >
+                  {{ task.name }}
+                </a>
+
+                <span class="activity-project">
+                  {{ task.project.name }}
+                </span>
+
+              </div>
+
+              <time
+                class="activity-date"
+                datetime="{{ task.updated_at|date:'c' }}"
+              >
+                {{ task.updated_at|date:"j M Y, H:i" }}
+              </time>
+
+            </li>
+
+          {% empty %}
+
+            <li class="activity-empty">
+              No tasks yet. Create a project and add
+              your first task to get started.
+            </li>
+
+          {% endfor %}
         </ul>
 
         <p
@@ -306,15 +622,13 @@
         ></p>
 
         <a
-          href="tasks.html"
+          href="{% url 'projects:project_list' %}"
           class="home-text-link"
         >
-          View all tasks
-
+          Explore Projects
           <span aria-hidden="true">
             &rarr;
           </span>
-
         </a>
 
       </section>

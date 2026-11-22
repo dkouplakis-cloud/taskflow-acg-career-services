@@ -1,0 +1,455 @@
+
+/* ==========================================
+   TASKFLOW — HOME DASHBOARD
+   Dedicated, page-specific styling
+   ========================================== */
+
+/* UPCOMING DEADLINES */
+
+.home-page .tf-deadlines-section {
+  margin: 2.5rem 0;
+}
+
+.home-page .tf-deadlines-section .home-section-heading {
+  margin-bottom: 1.5rem;
+}
+
+.home-page .tf-deadlines-section h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  color: var(--text);
+}
+
+/* Two-column dashboard layout */
+
+.home-page .tf-deadlines-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* Main panels */
+
+.home-page .tf-deadlines-panel {
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* Panel headings */
+
+.home-page .tf-deadlines-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.home-page .tf-deadlines-panel-heading h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* Status indicators */
+
+.home-page .tf-deadlines-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.11);
+  color: #3b82f6;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.home-page .tf-deadlines-label--overdue {
+  background: rgba(220, 72, 72, 0.12);
+  color: #e05252;
+}
+
+/* Deadline entries */
+
+.home-page .tf-deadlines-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.home-page .tf-deadline-item {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.home-page .tf-deadline-item:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+.home-page .tf-deadline-type {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.home-page .tf-deadline-title {
+  display: inline-block;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.home-page .tf-deadline-title:hover {
+  color: #3b82f6;
+}
+
+.home-page .tf-deadline-project {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.home-page .tf-deadline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* Compact empty states */
+
+.home-page .tf-deadlines-empty {
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: var(--background);
+  border: 1px dashed var(--border);
+}
+
+.home-page .tf-deadlines-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.home-page .tf-deadlines-empty p + p {
+  margin-top: 0.4rem;
+}
+
+.home-page .tf-deadlines-empty strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+
+/* ==========================================
+   NEXT SCHEDULED DEADLINE
+   ========================================== */
+
+.home-page .tf-next-deadline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary-light);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.home-page .tf-next-deadline-content {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.home-page .tf-next-deadline-eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.home-page .tf-next-deadline-title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.home-page .tf-next-deadline-project {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.home-page .tf-next-deadline-meta {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.home-page .tf-next-deadline-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 0.8rem 1rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.home-page .tf-next-deadline-day {
+  color: var(--text);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.home-page .tf-next-deadline-month {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.home-page .tf-next-deadline-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: opacity 180ms ease;
+}
+
+.home-page .tf-next-deadline-action:hover {
+  color: #ffffff;
+  opacity: 0.88;
+}
+
+.home-page .tf-next-deadline-action:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .home-page .tf-next-deadline {
+    padding: 1.25rem;
+  }
+}
+
+/* Responsive layout */
+
+@media (max-width: 800px) {
+  .home-page .tf-deadlines-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-page .tf-deadlines-panel {
+    padding: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .tf-deadline-item {
+    transition: none;
+  }
+
+  .home-page .tf-deadline-item:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================
+   RECENTLY UPDATED TASKS
+   ========================================== */
+
+.home-page .home-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.home-page .activity-section {
+  min-height: 0;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.home-page .activity-section .home-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.home-page .activity-section .home-panel-description {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Activity list */
+
+.home-page #recent-activity-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* Individual task cards */
+
+.home-page #recent-activity-list .activity-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--background);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.home-page #recent-activity-list .activity-item:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* Task information */
+
+.home-page #recent-activity-list .activity-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+/* Status badge */
+
+.home-page #recent-activity-list .activity-action {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Task title */
+
+.home-page #recent-activity-list .activity-title {
+  display: inline-block;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.home-page #recent-activity-list .activity-title:hover {
+  color: var(--primary-light);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Project name */
+
+.home-page #recent-activity-list .activity-project {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Last updated timestamp */
+
+.home-page #recent-activity-list .activity-date {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* Empty state */
+
+.home-page #recent-activity-list .activity-empty {
+  padding: 1.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: var(--background);
+  color: var(--muted);
+}
+
+/* Responsive layout */
+
+@media (max-width: 640px) {
+  .home-page #recent-activity-list .activity-item {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem;
+  }
+
+  .home-page #recent-activity-list .activity-date {
+    text-align: left;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page #recent-activity-list .activity-item {
+    transition: none;
+  }
+}

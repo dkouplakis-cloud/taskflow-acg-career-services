@@ -260,10 +260,25 @@ function getSavedTasks() {
 /**
  * Calculate and display task statistics.
  */
+
 function updateDashboardStatistics() {
+
+  // The Django Home page uses database-backed
+  // statistics instead of legacy localStorage data.
+  // Do not overwrite values rendered by Django.
+
+  const djangoHomePage = document.querySelector(
+    "main.home-page"
+  );
+
+  if (djangoHomePage) {
+    return;
+  }
+
   const totalElement = document.querySelector(
     '[data-stat="total"]'
   );
+
 
   const pendingElement = document.querySelector(
     '[data-stat="pending"]'

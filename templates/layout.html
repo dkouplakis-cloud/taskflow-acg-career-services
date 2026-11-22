@@ -44,6 +44,9 @@
         href="{% static 'css/styles.css' %}"
     >
 
+    <!-- Optional page-specific stylesheets -->
+    {% block extra_css %}{% endblock %}
+
     <!-- Allow individual pages to load additional resources. -->
     {% block extra_head %}{% endblock %}
 

@@ -67,7 +67,10 @@ function renderRecentActivity() {
     "#activity-feedback"
   );
 
-  if (!activityList) {
+  if (
+    !activityList ||
+    activityList.dataset.source === "django"
+  ) {
     return;
   }
 
