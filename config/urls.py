@@ -19,6 +19,12 @@ urlpatterns = [
     # Django's built-in administration interface.
     path("admin/", admin.site.urls),
 
+    # Custom TaskFlow catalogue administration interface.
+    path(
+        "manage/catalog/",
+        include("catalog.management_urls")
+    ),
+
     # Authentication: login, logout, and password management.
     path("accounts/", include("django.contrib.auth.urls")),
 

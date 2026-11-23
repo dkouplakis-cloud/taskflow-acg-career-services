@@ -1,0 +1,207 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    Catalogue Management | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+    catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+    <link
+        rel="stylesheet"
+        href="{% static 'css/catalog-management.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<div class="tf-admin-dashboard container-fluid">
+
+    <!-- Administration page header -->
+    <header class="tf-admin-header">
+
+        <div class="tf-admin-header-copy">
+            <p class="tf-admin-eyebrow">
+                TASKFLOW / ADMINISTRATION
+            </p>
+
+            <h1>Catalogue Management</h1>
+
+            <p class="tf-admin-description">
+                Oversee career services, workshops,
+                catalogue categories and platform activity
+                from one central workspace.
+            </p>
+        </div>
+
+        <div class="tf-admin-header-label">
+            <span class="tf-admin-status-dot"
+                  aria-hidden="true"></span>
+            Administrator workspace
+        </div>
+
+    </header>
+
+    <!-- Catalogue summary -->
+    <section
+        class="tf-admin-overview"
+        aria-labelledby="catalogue-overview-heading"
+    >
+
+        <div class="tf-admin-section-heading">
+            <div>
+                <h2 id="catalogue-overview-heading">
+                    Catalogue Overview
+                </h2>
+                <p>
+                    A snapshot of your catalogue and platform.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <article class="tf-admin-stat-card">
+                    <span class="tf-admin-stat-label">
+                        Total Items
+                    </span>
+
+                    <strong class="tf-admin-stat-value">
+                        {{ total_items|default:"0" }}
+                    </strong>
+
+                    <span class="tf-admin-stat-description">
+                        Catalogue entries
+                    </span>
+                </article>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <article class="tf-admin-stat-card">
+                    <span class="tf-admin-stat-label">
+                        Available Items
+                    </span>
+
+                    <strong class="tf-admin-stat-value">
+                        {{ available_items|default:"0" }}
+                    </strong>
+
+                    <span class="tf-admin-stat-description">
+                        Active and available
+                    </span>
+                </article>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <article class="tf-admin-stat-card">
+                    <span class="tf-admin-stat-label">
+                        Categories
+                    </span>
+
+                    <strong class="tf-admin-stat-value">
+                        {{ total_categories|default:"0" }}
+                    </strong>
+
+                    <span class="tf-admin-stat-description">
+                        Catalogue classifications
+                    </span>
+                </article>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <article class="tf-admin-stat-card">
+                    <span class="tf-admin-stat-label">
+                        Registered Users
+                    </span>
+
+                    <strong class="tf-admin-stat-value">
+                        {{ total_users|default:"0" }}
+                    </strong>
+
+                    <span class="tf-admin-stat-description">
+                        Platform accounts
+                    </span>
+                </article>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Recent catalogue activity -->
+    <section
+        class="tf-admin-recent"
+        aria-labelledby="recent-catalogue-heading"
+    >
+
+        <div class="tf-admin-section-heading">
+            <div>
+                <h2 id="recent-catalogue-heading">
+                    Recent Catalogue Items
+                </h2>
+
+                <p>
+                    Your most recently added catalogue entries.
+                </p>
+            </div>
+        </div>
+
+        <div class="tf-admin-table-panel">
+
+            {% if recent_items %}
+
+                <div class="table-responsive">
+
+                    <table class="table tf-admin-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Item</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Availability</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for item in recent_items %}
+                                <tr>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.category.name }}</td>
+                                    <td>
+                                        {% if item.is_active and item.is_available %}
+                                            Available
+                                        {% else %}
+                                            Unavailable
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="tf-admin-empty-state">
+                    <h3>No catalogue items yet</h3>
+
+                    <p>
+                        Catalogue entries will appear here
+                        once they have been added.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

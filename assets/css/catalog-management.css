@@ -1,0 +1,483 @@
+
+/* =====================================================
+   TaskFlow | Catalogue Management Dashboard
+   ITC4214 Django Final Project
+
+   Dedicated page styles.
+   Preserves the existing TaskFlow theme system.
+   ===================================================== */
+
+
+/* -----------------------------------------------------
+   1. DASHBOARD LAYOUT
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-dashboard {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 36px 24px 64px;
+    color: var(--text);
+}
+
+.catalog-management-page {
+    min-width: 0;
+}
+
+
+/* -----------------------------------------------------
+   2. ADMINISTRATION HEADER
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-header {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 28px;
+
+    padding: 42px 44px;
+    margin-bottom: 38px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+
+    background: linear-gradient(
+        120deg,
+        var(--primary) 0%,
+        var(--primary-light) 100%
+    );
+
+    box-shadow: 0 18px 42px rgba(20, 33, 61, 0.14);
+}
+
+.catalog-management-page .tf-admin-header::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    width: 340px;
+    height: 340px;
+
+    top: -190px;
+    right: -80px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.055);
+}
+
+.catalog-management-page .tf-admin-header::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    width: 220px;
+    height: 220px;
+
+    right: 160px;
+    bottom: -175px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+}
+
+.catalog-management-page .tf-admin-header-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+}
+
+.catalog-management-page .tf-admin-eyebrow {
+    margin: 0 0 13px;
+
+    color: #f4c66e;
+    font-size: 0.72rem;
+    font-weight: 800;
+
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.catalog-management-page .tf-admin-header h1 {
+    margin: 0;
+
+    color: #ffffff;
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    font-weight: 800;
+    line-height: 1.14;
+
+    letter-spacing: -0.04em;
+}
+
+.catalog-management-page .tf-admin-description {
+    max-width: 620px;
+    margin: 16px 0 0;
+
+    color: #dce5f2;
+    font-size: 0.99rem;
+    line-height: 1.8;
+}
+
+.catalog-management-page .tf-admin-header-label {
+    position: relative;
+    z-index: 1;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 11px 16px;
+
+    color: #ffffff;
+    font-size: 0.79rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+}
+
+.catalog-management-page .tf-admin-status-dot {
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #e9ad42;
+
+    box-shadow: 0 0 0 4px rgba(233, 173, 66, 0.16);
+}
+
+
+/* -----------------------------------------------------
+   3. SECTION HEADINGS
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-overview {
+    margin-bottom: 42px;
+}
+
+.catalog-management-page .tf-admin-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.catalog-management-page .tf-admin-section-heading h2 {
+    margin: 0;
+
+    color: var(--text);
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+    font-weight: 800;
+
+    letter-spacing: -0.025em;
+}
+
+.catalog-management-page .tf-admin-section-heading p {
+    margin: 7px 0 0;
+
+    color: var(--muted);
+    font-size: 0.89rem;
+    line-height: 1.6;
+}
+
+
+/* -----------------------------------------------------
+   4. STATISTIC CARDS
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-stat-card {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    height: 100%;
+    min-height: 175px;
+
+    padding: 27px 28px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+
+    box-shadow: var(--shadow);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.catalog-management-page .tf-admin-stat-card::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: linear-gradient(
+        90deg,
+        var(--accent),
+        var(--primary-light)
+    );
+}
+
+.catalog-management-page .tf-admin-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(20, 33, 61, 0.12);
+}
+
+.catalog-management-page .tf-admin-stat-label {
+    color: var(--muted);
+    font-size: 0.81rem;
+    font-weight: 700;
+
+    letter-spacing: 0.015em;
+}
+
+.catalog-management-page .tf-admin-stat-value {
+    display: block;
+
+    margin: 12px 0 5px;
+
+    color: var(--text);
+    font-size: clamp(2.2rem, 3vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.045em;
+}
+
+.catalog-management-page .tf-admin-stat-description {
+    color: var(--muted);
+    font-size: 0.79rem;
+}
+
+
+/* -----------------------------------------------------
+   5. RECENT CATALOGUE PANEL
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-table-panel {
+    overflow: hidden;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.catalog-management-page .tf-admin-table-panel .table-responsive {
+    width: 100%;
+}
+
+.catalog-management-page .tf-admin-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text);
+    --bs-table-border-color: var(--border);
+    --bs-table-hover-color: var(--text);
+    --bs-table-hover-bg: transparent;
+
+    width: 100%;
+    margin: 0;
+
+    color: var(--text);
+    border-collapse: collapse;
+}
+
+.catalog-management-page .tf-admin-table thead {
+    background: var(--background);
+}
+
+.catalog-management-page .tf-admin-table th {
+    padding: 19px 24px;
+
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.catalog-management-page .tf-admin-table td {
+    padding: 21px 24px;
+
+    color: var(--text);
+    font-size: 0.89rem;
+
+    vertical-align: middle;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.catalog-management-page .tf-admin-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.catalog-management-page .tf-admin-table tbody tr {
+    transition: background-color 0.18s ease;
+}
+
+.catalog-management-page .tf-admin-table tbody tr:hover {
+    background: rgba(100, 116, 139, 0.045);
+}
+
+.catalog-management-page .tf-admin-table td:first-child {
+    font-weight: 700;
+}
+
+
+/* -----------------------------------------------------
+   6. EMPTY STATE
+   ----------------------------------------------------- */
+
+.catalog-management-page .tf-admin-empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 220px;
+    padding: 42px 24px;
+
+    text-align: center;
+}
+
+.catalog-management-page .tf-admin-empty-state::before {
+    content: "";
+
+    width: 42px;
+    height: 4px;
+
+    margin-bottom: 24px;
+
+    border-radius: 999px;
+    background: var(--accent);
+}
+
+.catalog-management-page .tf-admin-empty-state h3 {
+    margin: 0 0 10px;
+
+    color: var(--text);
+    font-size: 1.12rem;
+    font-weight: 800;
+}
+
+.catalog-management-page .tf-admin-empty-state p {
+    max-width: 410px;
+    margin: 0;
+
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+
+/* -----------------------------------------------------
+   7. DARK MODE
+   ----------------------------------------------------- */
+
+[data-theme="dark"] .catalog-management-page .tf-admin-header {
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .catalog-management-page .tf-admin-stat-card:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="dark"] .catalog-management-page .tf-admin-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+
+/* -----------------------------------------------------
+   8. RESPONSIVE DESIGN
+   ----------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+
+    .catalog-management-page .tf-admin-dashboard {
+        padding: 28px 18px 50px;
+    }
+
+    .catalog-management-page .tf-admin-header {
+        padding: 35px 30px;
+    }
+
+}
+
+@media (max-width: 575.98px) {
+
+    .catalog-management-page .tf-admin-dashboard {
+        padding: 18px 12px 40px;
+    }
+
+    .catalog-management-page .tf-admin-header {
+        padding: 30px 24px;
+        margin-bottom: 30px;
+
+        gap: 24px;
+        border-radius: 17px;
+    }
+
+    .catalog-management-page .tf-admin-header h1 {
+        font-size: 2rem;
+    }
+
+    .catalog-management-page .tf-admin-header-label {
+        white-space: normal;
+    }
+
+    .catalog-management-page .tf-admin-stat-card {
+        min-height: 155px;
+        padding: 24px;
+    }
+
+    .catalog-management-page .tf-admin-overview {
+        margin-bottom: 32px;
+    }
+
+    .catalog-management-page .tf-admin-table th,
+    .catalog-management-page .tf-admin-table td {
+        padding: 16px;
+    }
+
+}
+
+
+/* -----------------------------------------------------
+   9. ACCESSIBILITY
+   ----------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .catalog-management-page .tf-admin-stat-card,
+    .catalog-management-page .tf-admin-table tbody tr {
+        transition: none;
+    }
+
+    .catalog-management-page .tf-admin-stat-card:hover {
+        transform: none;
+    }
+
+}
