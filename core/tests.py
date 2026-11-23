@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import resolve_url
 from django.test import RequestFactory
 
+from django.urls import reverse
 from .permissions import role_required
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -155,3 +156,91 @@ class RolePermissionTests(TestCase):
         response = view(request)
 
         self.assertEqual(response.status_code, 200)
+
+class RoleAwareLoginTests(TestCase):
+    """
+    Verify role-aware login redirection
+    through TaskFlow's actual login URL.
+    """
+
+    def setUp(self):
+        self.password = "TestPassword123!"
+
+        self.user = get_user_model().objects.create_user(
+            username="login_redirect_test",
+            password=self.password
+        )
+
+    def set_role(self, role):
+        profile = self.user.profile
+        profile.role = role
+        profile.save()
+
+    def login(self, url=None):
+        return self.client.post(
+            url or reverse("login"),
+            {
+                "username": self.user.username,
+                "password": self.password
+            }
+        )
+
+    def test_admin_redirects_to_management_dashboard(self):
+        self.set_role(UserProfile.Role.ADMIN)
+
+        response = self.login()
+
+        self.assertRedirects(
+            response,
+            reverse("catalog_management:dashboard"),
+            fetch_redirect_response=False
+        )
+
+    def test_regular_user_redirects_to_projects(self):
+        response = self.login()
+
+        self.assertRedirects(
+            response,
+            reverse("projects:project_list"),
+            fetch_redirect_response=False
+        )
+
+    def test_power_user_redirects_to_projects(self):
+        self.set_role(UserProfile.Role.POWER)
+
+        response = self.login()
+
+        self.assertRedirects(
+            response,
+            reverse("projects:project_list"),
+            fetch_redirect_response=False
+        )
+
+    def test_safe_next_destination_is_respected(self):
+        self.set_role(UserProfile.Role.ADMIN)
+
+        destination = reverse("core:about")
+
+        response = self.login(
+            reverse("login") + "?next=" + destination
+        )
+
+        self.assertRedirects(
+            response,
+            destination,
+            fetch_redirect_response=False
+        )
+
+    def test_external_next_destination_is_rejected(self):
+        self.set_role(UserProfile.Role.ADMIN)
+
+        response = self.login(
+            reverse("login") +
+            "?next=https://untrusted.example/path"
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog_management:dashboard"),
+            fetch_redirect_response=False
+        )

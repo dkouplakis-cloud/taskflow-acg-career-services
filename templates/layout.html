@@ -297,6 +297,22 @@
 
                     <div class="account-menu-divider"></div>
 
+                    <!-- Administrator-only management navigation -->
+                    {% if user.profile.role == "admin" %}
+
+                        <a
+                            href="{% url 'catalog_management:dashboard' %}"
+                            class="navigation-logout-button account-menu-admin-link"
+                        >
+                            <span aria-hidden="true">
+                                &#9881;
+                            </span>
+
+                            Administration
+                        </a>
+
+                    {% endif %}
+
                     <!-- Preserve secure Django POST logout. -->
                     <form
                         method="post"

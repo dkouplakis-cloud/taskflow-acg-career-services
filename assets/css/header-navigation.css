@@ -261,3 +261,33 @@
     transition: none;
   }
 }
+
+/* ==========================================
+   ADMINISTRATOR ACCOUNT NAVIGATION
+   ========================================== */
+
+/*
+ * Match the existing account dropdown actions
+ * while preserving the semantics of a link.
+ */
+
+.site-header .account-menu-admin-link,
+.site-header .account-menu-admin-link:visited {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+
+    color: var(--text);
+    text-decoration: none;
+}
+
+.site-header .account-menu-admin-link:hover {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.site-header .account-menu-admin-link:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+}
