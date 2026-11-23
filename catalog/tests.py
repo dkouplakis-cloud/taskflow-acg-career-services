@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from .forms import CategoryForm
+from .models import Category
 from core.models import UserProfile
-
 
 class ManagementDashboardTests(TestCase):
     """
@@ -77,3 +78,126 @@ class ManagementDashboardTests(TestCase):
             response.status_code,
             403
         )
+
+class CategoryFormTests(TestCase):
+    """
+    Verify category creation, slug generation,
+    editing, and hierarchy validation.
+    """
+
+    def test_creating_top_level_category(self):
+        form = CategoryForm(
+            data={
+                "name": "Career Workshops",
+                "description": "Professional development",
+                "parent": "",
+                "is_active": "on",
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        category = form.save()
+
+        self.assertEqual(
+            category.slug,
+            "career-workshops"
+        )
+        self.assertIsNone(category.parent)
+        self.assertTrue(category.is_active)
+
+    def test_duplicate_names_generate_unique_slugs(self):
+        Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops"
+        )
+
+        form = CategoryForm(
+            data={
+                "name": "Career Workshops",
+                "description": "",
+                "parent": "",
+                "is_active": "on",
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        category = form.save()
+
+        self.assertEqual(
+            category.slug,
+            "career-workshops-2"
+        )
+
+    def test_existing_slug_is_preserved_when_editing(self):
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops"
+        )
+
+        form = CategoryForm(
+            data={
+                "name": "Updated Career Workshops",
+                "description": "",
+                "parent": "",
+                "is_active": "on",
+            },
+            instance=category
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        updated = form.save()
+
+        self.assertEqual(
+            updated.slug,
+            "career-workshops"
+        )
+
+    def test_subcategory_can_have_parent(self):
+        parent = Category.objects.create(
+            name="Career Services",
+            slug="career-services"
+        )
+
+        form = CategoryForm(
+            data={
+                "name": "Interview Preparation",
+                "description": "",
+                "parent": str(parent.pk),
+                "is_active": "on",
+            }
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        subcategory = form.save()
+
+        self.assertEqual(
+            subcategory.parent,
+            parent
+        )
+
+    def test_circular_category_relationship_is_rejected(self):
+        parent = Category.objects.create(
+            name="Career Services",
+            slug="career-services"
+        )
+
+        child = Category.objects.create(
+            name="Interview Preparation",
+            slug="interview-preparation",
+            parent=parent
+        )
+
+        # Attempt to make the parent a child
+        # of its own existing subcategory.
+        form = CategoryForm(
+            data={
+                "name": "Career Services",
+                "description": "",
+                "parent": str(child.pk),
+                "is_active": "on",
+            },
+            instance=parent
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("parent", form.errors)
