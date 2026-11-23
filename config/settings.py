@@ -47,7 +47,6 @@ DEBUG = True
 # DEBUG enabled and Django's default localhost handling.
 ALLOWED_HOSTS = []
 
-
 # ============================================================
 # 3. INSTALLED APPLICATIONS
 # ============================================================
@@ -70,7 +69,11 @@ INSTALLED_APPS = [
 
     # Tasks belong to projects and track individual activities.
     'tasks.apps.TasksConfig',
+
+    # Public Career Services catalogue.
+    'catalog.apps.CatalogConfig',
 ]
+
 
 # ============================================================
 # 4. MIDDLEWARE
