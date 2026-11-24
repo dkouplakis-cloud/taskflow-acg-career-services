@@ -1,0 +1,336 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Manage Catalogue Items | TaskFlow{% endblock %}
+
+{% block page_class %}catalog-management-page{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5 tf-category-list-page tf-item-list-page">
+
+  <!-- Administration navigation -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active" aria-current="page">
+        Catalogue Items
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Catalogue management header -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="catalogue-page-title"
+  >
+
+    <div class="tf-category-page-header__copy">
+
+      <p class="tf-category-page-header__eyebrow">
+        Catalogue Administration
+      </p>
+
+      <h1 id="catalogue-page-title">
+        Manage Catalogue Items
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Manage career workshops, events, and professional
+        development services available through TaskFlow.
+      </p>
+
+    </div>
+
+    <div class="tf-category-page-header__actions">
+
+      <a
+        href="{% url 'catalog_management:dashboard' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Dashboard
+      </a>
+
+      <a
+        href="{% url 'catalog_management:item_create' %}"
+        class="btn btn-primary fw-semibold"
+      >
+        <span aria-hidden="true">+</span>
+        Create Catalogue Item
+      </a>
+
+    </div>
+
+  </section>
+
+  <!-- Catalogue items directory -->
+  <section aria-labelledby="catalogue-directory-title">
+
+    <div class="card border shadow-sm">
+
+      <div class="card-header bg-transparent p-4">
+
+        <div
+          class="d-flex flex-column flex-sm-row
+                 justify-content-between align-items-sm-center gap-3"
+        >
+
+          <div>
+
+            <h2
+              id="catalogue-directory-title"
+              class="h5 fw-bold mb-1"
+            >
+              Catalogue Directory
+            </h2>
+
+            <p class="text-body-secondary mb-0">
+              {{ total_items }} catalogue item{{ total_items|pluralize }}
+              registered
+            </p>
+
+          </div>
+
+          <a
+            href="{% url 'catalog_management:category_list' %}"
+            class="btn btn-outline-secondary btn-sm fw-semibold"
+          >
+            Manage Categories
+          </a>
+
+        </div>
+
+      </div>
+
+      {% if items %}
+
+        <div class="table-responsive">
+
+          <table class="table table-hover align-middle mb-0">
+
+            <thead>
+              <tr>
+                <th scope="col" class="ps-4">
+                  Service
+                </th>
+
+                <th scope="col">
+                  Category
+                </th>
+
+                <th scope="col">
+                  Price
+                </th>
+
+                <th scope="col">
+                  Delivery
+                </th>
+
+                <th scope="col">
+                  Status
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {% for item in items %}
+
+                <tr>
+
+                  <!-- Service information -->
+                  <td class="ps-4">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                      {% if item.image %}
+
+                        <img
+                          src="{{ item.image.url }}"
+                          alt=""
+                          width="72"
+                          height="72"
+                          loading="lazy"
+                          class="tf-catalog-item-thumb rounded-3 border object-fit-cover"
+                        >
+
+                      {% else %}
+
+                        <div class="tf-catalog-item-placeholder">
+                          <span class="text-body-secondary small">
+                            No image
+                          </span>
+                        </div>
+
+                      {% endif %}
+
+                      <div>
+
+                        <div class="fw-semibold">
+                          {{ item.name }}
+                        </div>
+
+                        <p class="text-body-secondary small mb-0">
+                          {{ item.description|default:"No description provided."|truncatechars:95 }}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+                  <!-- Assigned category -->
+                  <td>
+                    {{ item.category.name }}
+                  </td>
+
+                  <!-- Simulated price -->
+                  <td class="fw-semibold">
+                    €{{ item.price|floatformat:2 }}
+                  </td>
+
+                  <!-- Delivery format -->
+                  <td>
+                    {{ item.get_delivery_format_display }}
+                  </td>
+
+                  <!-- Publication and availability -->
+                  <td>
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                      {% if item.is_active %}
+
+                        <span class="badge text-bg-success">
+                          Active
+                        </span>
+
+                      {% else %}
+
+                        <span class="badge text-bg-secondary">
+                          Inactive
+                        </span>
+
+                      {% endif %}
+
+                      {% if item.is_available %}
+
+                        <span class="badge text-bg-primary">
+                          Available
+                        </span>
+
+                      {% else %}
+
+                        <span class="badge text-bg-warning">
+                          Unavailable
+                        </span>
+
+                      {% endif %}
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              {% endfor %}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      {% else %}
+
+        <!-- Empty state -->
+        <div class="text-center px-4 py-5">
+
+          <h3 class="h5 fw-semibold">
+            No catalogue items yet
+          </h3>
+
+          <p class="text-body-secondary mb-4">
+            Create your first workshop, event, or career service
+            to start building the TaskFlow catalogue.
+          </p>
+
+          <a
+            href="{% url 'catalog_management:item_create' %}"
+            class="btn btn-primary fw-semibold"
+          >
+            Create Catalogue Item
+          </a>
+
+        </div>
+
+      {% endif %}
+
+      <!-- Pagination -->
+      {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="card-footer bg-transparent p-3">
+
+          <nav
+            aria-label="Catalogue directory pagination"
+            class="d-flex flex-wrap align-items-center
+                   justify-content-between gap-3"
+          >
+
+            <span class="text-body-secondary small">
+              Page {{ page_obj.number }}
+              of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            <div class="d-flex gap-2">
+
+              {% if page_obj.has_previous %}
+
+                <a
+                  href="?page={{ page_obj.previous_page_number }}"
+                  class="btn btn-outline-secondary btn-sm"
+                >
+                  Previous
+                </a>
+
+              {% endif %}
+
+              {% if page_obj.has_next %}
+
+                <a
+                  href="?page={{ page_obj.next_page_number }}"
+                  class="btn btn-outline-secondary btn-sm"
+                >
+                  Next
+                </a>
+
+              {% endif %}
+
+            </div>
+
+          </nav>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </section>
+
+</main>
+{% endblock %}

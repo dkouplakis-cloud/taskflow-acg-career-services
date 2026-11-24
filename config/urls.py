@@ -11,9 +11,13 @@ This file connects the application's components:
 Named URL patterns help maintain clean, reusable navigation.
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from core.auth_views import TaskFlowLoginView
+from django.contrib.auth.decorators import login_not_required
+from django.views.static import serve
 
 urlpatterns = [
     # Django's built-in administration interface.
@@ -46,3 +50,20 @@ urlpatterns = [
     # The empty prefix connects core's home view to "/".
     path("", include("core.urls")),
 ]
+
+# ---------------------------------------------------------
+# DEVELOPMENT MEDIA FILE SERVING
+# ---------------------------------------------------------
+
+# Allow Django to serve uploaded catalogue images
+# during local development only.
+#
+# Production media serving will be configured
+# separately when deploying TaskFlow over HTTPS.
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        view=login_not_required(serve),
+        document_root=settings.MEDIA_ROOT,
+    )

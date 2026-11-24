@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods
 
-from .forms import CategoryForm
+from .forms import CategoryForm, CatalogItemForm
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.db.models.deletion import ProtectedError
@@ -266,5 +266,142 @@ def category_delete(request, pk):
     return render(
         request,
         "catalog/management/category_confirm_delete.html",
+        context
+    )
+
+@role_required(UserProfile.Role.ADMIN)
+@require_http_methods(["GET", "POST"])
+def catalog_item_create(request):
+    """
+    Allow administrators to create catalogue items.
+
+    Validate submitted information and uploaded
+    images using CatalogItemForm.
+    """
+
+    # Bind submitted data and uploaded files.
+    form = CatalogItemForm(
+        request.POST if request.method == "POST" else None,
+        request.FILES if request.method == "POST" else None
+    )
+
+    # Validate the submitted form.
+    if request.method == "POST" and form.is_valid():
+
+        # Save the catalogue item to the database.
+        item = form.save()
+
+        # Notify the administrator.
+        messages.success(
+            request,
+            f'Catalogue item "{item.name}" created successfully.'
+        )
+
+        # Return to the existing administration dashboard.
+        return redirect(
+            "catalog_management:dashboard"
+        )
+
+    # Display the form or its validation errors.
+    context = {
+        "page_title": "Create Catalogue Item",
+        "form": form,
+        "is_edit": False,
+    }
+
+    return render(
+        request,
+        "catalog/management/item_form.html",
+        context
+    )
+
+@role_required(UserProfile.Role.ADMIN)
+@require_http_methods(["GET"])
+def catalog_item_list(request):
+    """
+    Display catalogue items in the custom
+    Administrator workspace.
+
+    Retrieve related categories efficiently
+    and paginate results for scalability.
+    """
+
+    # Retrieve catalogue items and their categories.
+    items = (
+        CatalogItem.objects
+        .select_related("category")
+        .order_by("name", "pk")
+    )
+
+    # Display ten catalogue items per page.
+    paginator = Paginator(items, 10)
+
+    page_obj = paginator.get_page(
+        request.GET.get("page")
+    )
+
+    # Prepare data for the management template.
+    context = {
+        "page_title": "Manage Catalogue Items",
+        "page_obj": page_obj,
+        "items": page_obj.object_list,
+        "total_items": paginator.count,
+    }
+
+    return render(
+        request,
+        "catalog/management/item_list.html",
+        context
+    )
+
+@role_required(UserProfile.Role.ADMIN)
+@require_http_methods(["GET", "POST"])
+def catalog_item_edit(request, pk):
+    """
+    Allow administrators to edit an existing
+    catalogue item through a dedicated form.
+
+    Preserve the current image unless the
+    administrator uploads a replacement.
+    """
+
+    # Retrieve the requested item or return 404.
+    item = get_object_or_404(
+        CatalogItem,
+        pk=pk
+    )
+
+    # Load existing values and bind submitted changes.
+    form = CatalogItemForm(
+        request.POST if request.method == "POST" else None,
+        request.FILES if request.method == "POST" else None,
+        instance=item
+    )
+
+    # Validate and save submitted changes.
+    if request.method == "POST" and form.is_valid():
+
+        updated_item = form.save()
+
+        messages.success(
+            request,
+            f'Catalogue item "{updated_item.name}" updated successfully.'
+        )
+
+        return redirect(
+            "catalog_management:item_list"
+        )
+
+    # Display the existing values or validation errors.
+    context = {
+        "page_title": "Edit Catalogue Item",
+        "form": form,
+        "item": item,
+        "is_edit": True,
+    }
+
+    return render(
+        request,
+        "catalog/management/item_form.html",
         context
     )

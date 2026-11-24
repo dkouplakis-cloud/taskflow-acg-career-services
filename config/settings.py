@@ -232,6 +232,16 @@ STATICFILES_DIRS = [
     BASE_DIR / 'assets',
 ]
 
+# ---------------------------------------------------------
+# USER-UPLOADED MEDIA FILES
+# ---------------------------------------------------------
+
+# URL prefix for uploaded images and other media.
+MEDIA_URL = '/media/'
+
+# Directory where uploaded media files are stored.
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # ============================================================
 # 12. DEFAULT PRIMARY KEY

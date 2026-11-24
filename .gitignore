@@ -35,3 +35,6 @@ db.sqlite3-journal
 
 # Django collected static files
 staticfiles/
+
+# Django user-uploaded media files
+media/
