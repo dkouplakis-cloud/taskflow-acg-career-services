@@ -1,0 +1,257 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Delete Category | TaskFlow{% endblock %}
+
+{% block page_class %}catalog-management-page{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5">
+
+  <!-- Breadcrumb navigation -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:category_list' %}">
+          Categories
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active" aria-current="page">
+        Delete Category
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page heading -->
+  <header class="mb-4">
+    <p class="text-uppercase small fw-semibold mb-2">
+      Catalogue Administration
+    </p>
+
+    <h1 class="fw-bold mb-2">
+      Delete Category
+    </h1>
+
+    <p class="text-secondary mb-0">
+      Review the category and its dependencies
+      before confirming this action.
+    </p>
+  </header>
+
+  <div class="row g-4">
+
+    <!-- Confirmation panel -->
+    <div class="col-lg-8">
+
+      <section
+        class="card border-0 shadow-sm"
+        aria-labelledby="delete-category-heading"
+      >
+
+        <div class="card-body p-4 p-lg-5">
+
+          {% if can_delete %}
+
+            <div class="alert alert-warning" role="status">
+              <strong>Permanent deletion</strong>
+
+              <p class="mb-0 mt-2">
+                This action cannot be undone.
+                Please confirm that you want to
+                permanently delete this category.
+              </p>
+            </div>
+
+          {% else %}
+
+            <div class="alert alert-danger" role="alert">
+              <strong>Deletion is unavailable</strong>
+
+              <p class="mb-0 mt-2">
+                This category contains catalogue
+                items or subcategories and cannot
+                be deleted until those dependencies
+                are resolved.
+              </p>
+            </div>
+
+          {% endif %}
+
+          <!-- Category information -->
+          <h2
+            id="delete-category-heading"
+            class="h4 fw-bold mt-4 mb-3"
+          >
+            {{ category.name }}
+          </h2>
+
+          {% if category.description %}
+            <p class="text-secondary mb-4">
+              {{ category.description }}
+            </p>
+          {% endif %}
+
+          <dl class="row g-3 mb-4">
+
+            <div class="col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Catalogue Items
+              </dt>
+
+              <dd class="fs-4 fw-bold mb-0">
+                {{ item_count }}
+              </dd>
+            </div>
+
+            <div class="col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Subcategories
+              </dt>
+
+              <dd class="fs-4 fw-bold mb-0">
+                {{ subcategory_count }}
+              </dd>
+            </div>
+
+            <div class="col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Parent Category
+              </dt>
+
+              <dd class="fw-semibold mb-0">
+                {% if category.parent %}
+                  {{ category.parent.name }}
+                {% else %}
+                  Top-level category
+                {% endif %}
+              </dd>
+            </div>
+
+            <div class="col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Current Status
+              </dt>
+
+              <dd class="mb-0">
+                {% if category.is_active %}
+                  <span class="badge bg-success-subtle
+                               text-success-emphasis">
+                    Active
+                  </span>
+                {% else %}
+                  <span class="badge bg-secondary-subtle
+                               text-secondary-emphasis">
+                    Inactive
+                  </span>
+                {% endif %}
+              </dd>
+            </div>
+
+          </dl>
+
+          <!-- Confirmation actions -->
+          <div class="border-top pt-4">
+
+            {% if can_delete %}
+
+              <form method="post">
+                {% csrf_token %}
+
+                <div class="d-flex flex-wrap gap-3">
+
+                  <button
+                    type="submit"
+                    class="btn btn-danger fw-semibold px-4"
+                  >
+                    Permanently Delete Category
+                  </button>
+
+                  <a
+                    href="{% url 'catalog_management:category_list' %}"
+                    class="btn btn-outline-secondary px-4"
+                  >
+                    Cancel
+                  </a>
+
+                </div>
+              </form>
+
+            {% else %}
+
+              <a
+                href="{% url 'catalog_management:category_list' %}"
+                class="btn btn-primary fw-semibold px-4"
+              >
+                Back to Categories
+              </a>
+
+            {% endif %}
+
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Contextual guidance -->
+    <aside class="col-lg-4">
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+          <h2 class="h5 fw-bold mb-3">
+            Before You Delete
+          </h2>
+
+          <p class="text-secondary small">
+            Category deletion is permanent.
+            TaskFlow protects categories that
+            are still referenced by other records.
+          </p>
+
+          <ul class="small ps-3 mb-0">
+            <li class="mb-3">
+              Review the category information.
+            </li>
+
+            <li class="mb-3">
+              Check whether catalogue items
+              belong to this category.
+            </li>
+
+            <li class="mb-3">
+              Check for dependent subcategories.
+            </li>
+
+            <li>
+              Consider deactivating the category
+              instead of deleting it permanently.
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+{% endblock %}

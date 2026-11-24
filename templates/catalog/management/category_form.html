@@ -1,0 +1,250 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | TaskFlow{% endblock %}
+
+{% block page_class %}catalog-management-page{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5">
+
+  <!-- Breadcrumb navigation -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:category_list' %}">
+          Categories
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ page_title }}
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Page heading -->
+  <header class="mb-4">
+    <p class="text-uppercase small fw-semibold mb-2">
+      Catalogue Administration
+    </p>
+
+    <h1 class="fw-bold mb-2">
+      {{ page_title }}
+    </h1>
+
+    <p class="text-secondary mb-0">
+      {% if is_edit %}
+        Update this category's details, parent,
+        and active status in TaskFlow's career
+        services catalogue.
+      {% else %}
+        Add a category or subcategory to organize
+        TaskFlow's career services catalogue.
+      {% endif %}
+    </p>
+  </header>
+
+  <div class="row g-4">
+
+    <!-- Main form -->
+    <div class="col-lg-8">
+
+      <section class="card border-0 shadow-sm"
+               aria-labelledby="category-form-heading">
+
+        <div class="card-header bg-transparent p-4">
+          <h2 id="category-form-heading"
+              class="h5 fw-bold mb-1">
+            Category Details
+          </h2>
+
+          <p class="text-secondary small mb-0">
+            Enter the information visitors will
+            use to browse career services.
+          </p>
+        </div>
+
+        <div class="card-body p-4">
+
+          <form method="post">
+            {% csrf_token %}
+
+            <!-- General form errors -->
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger" role="alert">
+                {% for error in form.non_field_errors %}
+                  <p class="mb-1">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Category name -->
+            <div class="mb-4">
+              <label for="{{ form.name.id_for_label }}"
+                     class="form-label fw-semibold">
+                Category Name
+                <span class="text-danger" aria-hidden="true">*</span>
+              </label>
+
+              {{ form.name }}
+
+              {% for error in form.name.errors %}
+                <div class="text-danger small mt-2">
+                  {{ error }}
+                </div>
+              {% endfor %}
+
+              <div class="form-text">
+                Choose a clear, descriptive name,
+                such as Career Workshops.
+              </div>
+            </div>
+
+            <!-- Category description -->
+            <div class="mb-4">
+              <label for="{{ form.description.id_for_label }}"
+                     class="form-label fw-semibold">
+                Description
+              </label>
+
+              {{ form.description }}
+
+              {% for error in form.description.errors %}
+                <div class="text-danger small mt-2">
+                  {{ error }}
+                </div>
+              {% endfor %}
+
+              <div class="form-text">
+                Briefly explain what this category contains.
+              </div>
+            </div>
+
+            <!-- Parent category -->
+            <div class="mb-4">
+              <label for="{{ form.parent.id_for_label }}"
+                     class="form-label fw-semibold">
+                Parent Category
+              </label>
+
+              {{ form.parent }}
+
+              {% for error in form.parent.errors %}
+                <div class="text-danger small mt-2">
+                  {{ error }}
+                </div>
+              {% endfor %}
+
+              <div class="form-text">
+                Leave this unselected for a top-level category,
+                or choose an existing category to create a subcategory.
+              </div>
+            </div>
+
+            <!-- Active status -->
+            <div class="mb-4">
+              <div class="form-check">
+                {{ form.is_active }}
+
+                <label
+                  for="{{ form.is_active.id_for_label }}"
+                  class="form-check-label fw-semibold"
+                >
+                  Active Category
+                </label>
+              </div>
+
+              {% for error in form.is_active.errors %}
+                <div class="text-danger small mt-2">
+                  {{ error }}
+                </div>
+              {% endfor %}
+
+              <div class="form-text">
+                Active categories can be made available
+                in the public catalogue.
+              </div>
+            </div>
+
+            <!-- Form actions -->
+            <div class="d-flex flex-wrap gap-3 pt-3 border-top">
+
+              <button type="submit" class="btn btn-primary px-4">
+                {% if is_edit %}
+                    Save Changes
+                {% else %}
+                    Create Category
+                {% endif %}
+              </button>
+
+              <a
+                href="{% url 'catalog_management:category_list' %}"
+                class="btn btn-outline-secondary px-4"
+              >
+                Cancel
+              </a>
+
+            </div>
+
+          </form>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Contextual information -->
+    <aside class="col-lg-4">
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+          <h2 class="h5 fw-bold mb-3">
+            Category Guidelines
+          </h2>
+
+          <p class="text-secondary small">
+            A well-organized catalogue helps visitors
+            discover relevant career services quickly.
+          </p>
+
+          <ul class="small ps-3 mb-0">
+            <li class="mb-3">
+              Use short, recognizable category names.
+            </li>
+            <li class="mb-3">
+              Add descriptions that explain the purpose
+              of each category.
+            </li>
+            <li class="mb-3">
+              Group related services under appropriate
+              parent categories.
+            </li>
+            <li>
+              Review the active status before saving.
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+{% endblock %}

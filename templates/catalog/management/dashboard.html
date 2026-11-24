@@ -19,8 +19,6 @@
 
 {% block content %}
 
-<div class="tf-admin-dashboard container-fluid">
-
     <!-- Administration page header -->
     <header class="tf-admin-header">
 
@@ -36,6 +34,27 @@
                 catalogue categories and platform activity
                 from one central workspace.
             </p>
+
+            <!-- Primary administration actions -->
+            <div class="catalog-admin-hero-actions d-flex flex-wrap gap-3 mt-4">
+
+            <a
+                href="{% url 'catalog_management:category_create' %}"
+                class="btn btn-warning fw-semibold px-4 py-2"
+            >
+                <span aria-hidden="true">+</span>
+                Create Category
+            </a>
+
+            <a
+                href="{% url 'catalog_management:category_list' %}"
+                class="btn btn-outline-light fw-semibold px-4 py-2"
+            >
+                Manage Categories
+            </a>
+
+            </div>
+
         </div>
 
         <div class="tf-admin-header-label">

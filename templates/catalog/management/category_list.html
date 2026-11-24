@@ -1,0 +1,274 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Manage Categories | TaskFlow{% endblock %}
+
+{% block page_class %}catalog-management-page{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5 tf-category-list-page">
+
+  <!-- Administration navigation -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Categories
+      </li>
+    </ol>
+  </nav>
+
+<!-- Category management page header -->
+<section
+  class="tf-category-page-header mb-4"
+  aria-labelledby="category-page-title"
+>
+
+  <div class="tf-category-page-header__copy">
+
+    <p class="tf-category-page-header__eyebrow">
+      Catalogue Administration
+    </p>
+
+    <h1 id="category-page-title">
+      Manage Categories
+    </h1>
+
+    <p class="tf-category-page-header__description">
+      Create and organize categories for career workshops,
+      events, and professional development resources.
+    </p>
+
+  </div>
+
+  <div class="tf-category-page-header__actions">
+
+    <a
+      href="{% url 'catalog_management:dashboard' %}"
+      class="btn btn-outline-secondary fw-semibold"
+    >
+      Back to Dashboard
+    </a>
+
+    <a
+      href="{% url 'catalog_management:category_create' %}"
+      class="btn btn-primary fw-semibold"
+    >
+      <span aria-hidden="true">+</span>
+      Create Category
+    </a>
+
+  </div>
+
+</section>
+
+
+  <!-- Categories directory -->
+  <section aria-labelledby="category-directory-title">
+      <div class="card-header bg-transparent border-bottom p-4">
+        <div class="d-flex flex-column flex-sm-row
+                    justify-content-between align-items-sm-center gap-3">
+
+            <div>
+            <h2 id="category-directory-title"
+                class="h5 fw-bold mb-1">
+                Category Directory
+            </h2>
+
+            <p class="text-secondary small mb-0">
+                Browse and manage your career services categories.
+            </p>
+            </div>
+
+            <div class="small fw-semibold text-secondary text-nowrap">
+            {{ total_categories }}
+            categor{{ total_categories|pluralize:"y,ies" }}
+            </div>
+
+        </div>
+      </div>
+
+
+      {% if categories %}
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+
+            <thead>
+              <tr>
+                <th scope="col" class="ps-4">Category</th>
+                <th scope="col">Parent Category</th>
+                <th scope="col">Catalogue Items</th>
+                <th scope="col">Subcategories</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="pe-4 text-end">
+                Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for category in categories %}
+                <tr>
+
+                  <td class="ps-4">
+                    <div class="fw-semibold">
+                      {{ category.name }}
+                    </div>
+
+                    {% if category.description %}
+                      <div class="text-secondary small mt-1">
+                        {{ category.description|truncatechars:90 }}
+                      </div>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {% if category.parent %}
+                      {{ category.parent.name }}
+                    {% else %}
+                      <span class="text-secondary">
+                        Top-level category
+                      </span>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {{ category.item_count }}
+                  </td>
+
+                  <td>
+                    {{ category.subcategory_count }}
+                  </td>
+
+                  <td class="pe-4">
+                    {% if category.is_active %}
+                      <span class="badge bg-success-subtle
+                                   text-success-emphasis">
+                        Active
+                      </span>
+                    {% else %}
+                      <span class="badge bg-secondary-subtle
+                                   text-secondary-emphasis">
+                        Inactive
+                      </span>
+                    {% endif %}
+                  </td>
+                  
+                <td class="pe-4 text-end">
+                    <div class="d-inline-flex flex-nowrap
+            align-items-center justify-content-end gap-2">
+
+                        <!-- Edit category -->
+                        <a
+                        href="{% url 'catalog_management:category_edit' category.pk %}"
+                        class="btn btn-sm btn-outline-primary fw-semibold text-nowrap"
+                        aria-label="Edit category {{ category.name }}"
+                        >
+                        Edit
+                        </a>
+
+                        <!-- Open deletion confirmation -->
+                        <a
+                        href="{% url 'catalog_management:category_delete' category.pk %}"
+                        class="btn btn-sm btn-outline-danger fw-semibold text-nowrap"
+                        aria-label="Delete category {{ category.name }}"
+                        >
+                        Delete
+                        </a>
+
+                    </div>
+                </td>
+
+                </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+          <nav class="p-4 border-top"
+               aria-label="Category pagination">
+
+            <ul class="pagination justify-content-center
+                       flex-wrap mb-0">
+
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ page_obj.previous_page_number }}">
+                    Previous
+                  </a>
+                </li>
+              {% endif %}
+
+              <li class="page-item active">
+                <span class="page-link" aria-current="page">
+                  {{ page_obj.number }}
+                  of {{ page_obj.paginator.num_pages }}
+                </span>
+              </li>
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ page_obj.next_page_number }}">
+                    Next
+                  </a>
+                </li>
+              {% endif %}
+
+            </ul>
+
+          </nav>
+        {% endif %}
+
+      {% else %}
+
+        <!-- Empty state -->
+        <div class="text-center px-4 py-5">
+
+          <div class="mx-auto" style="max-width: 440px;">
+
+            <h3 class="h5 fw-bold mb-3">
+              No Categories Yet
+            </h3>
+
+            <p class="text-secondary mb-3">
+              Categories help visitors discover career workshops,
+              events, and professional development services.
+            </p>
+            
+            <a
+            href="{% url 'catalog_management:category_create' %}"
+            class="btn btn-primary fw-semibold mt-2"
+            >
+            Create Your First Category
+            </a>
+
+          </div>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+  </section>
+
+</main>
+{% endblock %}

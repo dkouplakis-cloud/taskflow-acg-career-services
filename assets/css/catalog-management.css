@@ -481,3 +481,555 @@
     }
 
 }
+
+/* ==========================================================
+   TaskFlow Administration — Premium Hero Actions
+   ========================================================== */
+
+.catalog-admin-hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 2rem;
+}
+
+/* Shared action button styling */
+.catalog-admin-hero-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    min-height: 48px;
+    border-radius: 12px;
+
+    font-weight: 700;
+    font-size: 0.925rem;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* Primary gold action */
+.catalog-admin-hero-actions .btn-warning {
+    background: #e9ba65;
+    border: 1px solid #e9ba65;
+    color: #14233b;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.catalog-admin-hero-actions .btn-warning:hover {
+    background: #f2ca83;
+    border-color: #f2ca83;
+    color: #14233b;
+
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* Secondary translucent action */
+.catalog-admin-hero-actions .btn-outline-light {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+
+.catalog-admin-hero-actions .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.65);
+    color: #ffffff;
+
+    transform: translateY(-2px);
+}
+
+/* Accessible keyboard focus */
+.catalog-admin-hero-actions .btn:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 4px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 575.98px) {
+    .catalog-admin-hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .catalog-admin-hero-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .catalog-admin-hero-actions .btn {
+        transition: none;
+    }
+
+    .catalog-admin-hero-actions .btn:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================================
+   TASKFLOW — CATEGORY MANAGEMENT DARK MODE
+   Applies to category pages only.
+   ========================================================== */
+
+/* Theme variables */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) {
+    --cm-surface: #1c2a40;
+    --cm-input: #111d30;
+    --cm-border: #40516b;
+    --cm-text: #f0f5fc;
+    --cm-muted: #c5d0df;
+
+    color: var(--cm-text);
+    color-scheme: dark;
+}
+
+/* Dark administration cards */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .card {
+    background-color: var(--cm-surface);
+    color: var(--cm-text);
+
+    border: 1px solid var(--cm-border) !important;
+    border-radius: 18px;
+
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Card headers and separators */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .card-header {
+    background-color: transparent;
+    color: var(--cm-text);
+
+    border-color: var(--cm-border) !important;
+}
+
+/* Headings and secondary text */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .text-secondary,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-text {
+    color: var(--cm-muted) !important;
+}
+
+/* Input fields and dropdowns */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-control,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-select {
+    background-color: var(--cm-input);
+    color: var(--cm-text);
+
+    border: 1px solid var(--cm-border);
+    border-radius: 10px;
+}
+
+/* Placeholder contrast */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-control::placeholder {
+    color: #aab9cd;
+    opacity: 1;
+}
+
+/* Input focus */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-control:focus,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-select:focus {
+    background-color: var(--cm-input);
+    color: var(--cm-text);
+
+    border-color: #e9ba65;
+    box-shadow: 0 0 0 3px rgba(233, 186, 101, 0.18);
+}
+
+/* Checkbox appearance */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .form-check-input:not(:checked) {
+    background-color: var(--cm-input);
+    border-color: var(--cm-border);
+}
+
+/* Breadcrumb visibility */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .breadcrumb-item.active,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .breadcrumb-item::before {
+    color: var(--cm-muted);
+}
+
+/* Category table — future populated directory */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--cm-text);
+    --bs-table-border-color: var(--cm-border);
+    --bs-table-hover-bg: #283b57;
+    --bs-table-hover-color: var(--cm-text);
+}
+
+/* ==========================================================
+   TASKFLOW — CATEGORY DIRECTORY REFINEMENT
+   Scoped to the category listing page.
+   ========================================================== */
+
+
+/* CATEGORY DIRECTORY — LIGHT MODE DESIGN TOKENS */
+.catalog-management-page .tf-category-list-page {
+    --tf-cat-surface: #ffffff;
+    --tf-cat-surface-soft: #eaf1fa;
+    --tf-cat-border: #b8c9dd;
+    --tf-cat-heading: #14243d;
+    --tf-cat-muted: #465b75;
+    --tf-cat-hover: #e8f0fb;
+    --tf-cat-accent: #175ca8;
+}
+
+/* Dark-mode design tokens */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-category-list-page {
+    --tf-cat-surface: #1c2a40;
+    --tf-cat-surface-soft: #23334b;
+    --tf-cat-border: #40516b;
+    --tf-cat-heading: #f0f5fc;
+    --tf-cat-muted: #c5d0df;
+    --tf-cat-hover: #283b57;
+    --tf-cat-accent: #a9cfff;
+}
+
+/* Category directory panel */
+.catalog-management-page
+.tf-category-list-page
+section[aria-labelledby="category-directory-title"] > .card {
+    overflow: hidden;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border) !important;
+    border-radius: 18px;
+
+    box-shadow: 0 12px 35px rgba(20, 38, 65, 0.07) !important;
+}
+
+/* Directory heading */
+.catalog-management-page
+.tf-category-list-page
+.card-header {
+    padding: 26px 30px !important;
+
+    background: var(--tf-cat-surface-soft) !important;
+    border-bottom: 1px solid var(--tf-cat-border) !important;
+}
+
+.catalog-management-page
+.tf-category-list-page
+#category-directory-title {
+    color: var(--tf-cat-heading);
+    font-size: 1.2rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+/* Table foundation */
+.catalog-management-page
+.tf-category-list-page
+.table {
+    --bs-table-bg: var(--tf-cat-surface);
+    --bs-table-color: var(--tf-cat-heading);
+    --bs-table-border-color: var(--tf-cat-border);
+    --bs-table-hover-bg: var(--tf-cat-hover);
+    --bs-table-hover-color: var(--tf-cat-heading);
+
+    min-width: 940px;
+    margin-bottom: 0;
+}
+
+/* Table headings */
+.catalog-management-page
+.tf-category-list-page
+.table thead th {
+    padding: 18px 16px;
+
+    background: var(--tf-cat-surface-soft);
+    color: var(--tf-cat-muted);
+
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--tf-cat-border);
+}
+
+/* Table data cells */
+.catalog-management-page
+.tf-category-list-page
+.table tbody td {
+    padding: 22px 16px;
+    line-height: 1.55;
+    vertical-align: middle;
+
+    border-bottom: 1px solid var(--tf-cat-border);
+}
+
+/* Category name */
+.catalog-management-page
+.tf-category-list-page
+.table tbody td:first-child {
+    min-width: 320px;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.table tbody td:first-child .fw-semibold {
+    color: var(--tf-cat-heading);
+    font-size: 1rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+}
+
+/* Category description */
+.catalog-management-page
+.tf-category-list-page
+.table tbody td:first-child .small {
+    max-width: 440px;
+    color: var(--tf-cat-muted) !important;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+/* Status indicator */
+.catalog-management-page
+.tf-category-list-page
+.table .badge {
+    padding: 7px 11px;
+    border-radius: 999px;
+
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+
+/* Edit action */
+.catalog-management-page
+.tf-category-list-page
+.table .btn-outline-primary {
+    padding: 8px 16px;
+
+    color: var(--tf-cat-accent);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 9px;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.table .btn-outline-primary:hover {
+    background: var(--tf-cat-hover);
+    color: var(--tf-cat-accent);
+    border-color: var(--tf-cat-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .catalog-management-page
+    .tf-category-list-page
+    .table .btn-outline-primary {
+        transition: none;
+    }
+}
+
+/* ==========================================================
+   CATEGORY MANAGEMENT — PROFESSIONAL PAGE HEADER
+   Scoped to the directory only.
+   ========================================================== */
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 28px;
+
+    padding: 32px 36px;
+    overflow: hidden;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 18px;
+
+    box-shadow: 0 10px 30px rgba(15, 34, 65, 0.06);
+}
+
+/* Subtle brand accent */
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    width: 5px;
+    background: var(--tf-cat-accent);
+}
+
+/* Heading content */
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__copy {
+    min-width: 0;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__eyebrow {
+    margin: 0 0 12px;
+
+    color: var(--tf-cat-accent);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header h1 {
+    margin: 0 0 12px;
+
+    color: var(--tf-cat-heading);
+    font-size: clamp(2rem, 2.8vw, 2.65rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__description {
+    max-width: 650px;
+    margin: 0;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.96rem;
+    line-height: 1.7;
+}
+
+/* Page actions */
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__actions .btn {
+    padding: 11px 18px;
+    border-radius: 10px;
+
+    font-size: 0.88rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__actions .btn-outline-secondary {
+    color: var(--tf-cat-heading);
+    border-color: var(--tf-cat-border);
+}
+
+.catalog-management-page
+.tf-category-list-page
+.tf-category-page-header__actions .btn-outline-secondary:hover {
+    color: var(--tf-cat-heading);
+    background: var(--tf-cat-surface-soft);
+}
+
+/* Responsive layout */
+@media (max-width: 991.98px) {
+    .catalog-management-page
+    .tf-category-list-page
+    .tf-category-page-header {
+        grid-template-columns: 1fr;
+        padding: 28px;
+        gap: 22px;
+    }
+
+    .catalog-management-page
+    .tf-category-list-page
+    .tf-category-page-header__actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .catalog-management-page
+    .tf-category-list-page
+    .tf-category-page-header {
+        padding: 24px 20px;
+    }
+
+    .catalog-management-page
+    .tf-category-list-page
+    .tf-category-page-header__actions .btn {
+        flex: 1 1 100%;
+        white-space: normal;
+    }
+}
