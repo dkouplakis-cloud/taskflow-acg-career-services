@@ -1726,3 +1726,167 @@ class PublicCatalogViewTests(TestCase):
             combined_results,
             ["CV Writing Workshop"]
         )
+    
+    def test_catalogue_item_detail_page_and_link(self):
+        """
+        Available catalogue items must have a working
+        detail page linked from the public Catalogue.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_detail_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="cv-writing-workshop",
+            description="Learn how to create a professional CV.",
+            category=category,
+            image="catalog/items/test-detail.png",
+            duration_minutes=90,
+            delivery_format="in_person",
+            is_active=True,
+            is_available=True
+        )
+
+        detail_url = reverse(
+            "catalog:detail",
+            kwargs={"slug": item.slug}
+        )
+
+        # The Catalogue must link to the detail page.
+        catalogue_response = self.client.get(
+            reverse("catalog:list")
+        )
+
+        self.assertEqual(
+            catalogue_response.status_code,
+            200
+        )
+
+        self.assertContains(
+            catalogue_response,
+            f'href="{detail_url}"'
+        )
+
+        # The detail page must load successfully.
+        detail_response = self.client.get(detail_url)
+
+        self.assertEqual(
+            detail_response.status_code,
+            200
+        )
+
+        self.assertEqual(
+            detail_response.context["item"],
+            item
+        )
+
+        self.assertContains(
+            detail_response,
+            "CV Writing Workshop"
+        )
+
+        self.assertContains(
+            detail_response,
+            "Career Workshops"
+        )
+
+        self.assertContains(
+            detail_response,
+            "90 minutes"
+        )
+
+        self.assertContains(
+            detail_response,
+            "In Person"
+        )
+    
+    def test_catalogue_detail_rejects_hidden_and_missing_items(self):
+        """
+        Restricted and nonexistent catalogue items
+        must not be accessible through detail URLs.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_detail_security_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        active_category = Category.objects.create(
+            name="Active Workshops",
+            slug="active-workshops",
+            is_active=True
+        )
+
+        inactive_category = Category.objects.create(
+            name="Hidden Workshops",
+            slug="hidden-workshops",
+            is_active=False
+        )
+
+        # Inactive service.
+        CatalogItem.objects.create(
+            name="Inactive Workshop",
+            slug="inactive-workshop",
+            description="This service is inactive.",
+            category=active_category,
+            image="catalog/items/inactive-detail.png",
+            is_active=False,
+            is_available=True
+        )
+
+        # Unavailable service.
+        CatalogItem.objects.create(
+            name="Unavailable Workshop",
+            slug="unavailable-workshop",
+            description="This service is unavailable.",
+            category=active_category,
+            image="catalog/items/unavailable-detail.png",
+            is_active=True,
+            is_available=False
+        )
+
+        # Service belonging to an inactive category.
+        CatalogItem.objects.create(
+            name="Hidden Category Workshop",
+            slug="hidden-category-workshop",
+            description="This category is inactive.",
+            category=inactive_category,
+            image="catalog/items/hidden-detail.png",
+            is_active=True,
+            is_available=True
+        )
+
+        restricted_slugs = [
+            "inactive-workshop",
+            "unavailable-workshop",
+            "hidden-category-workshop",
+            "nonexistent-workshop"
+        ]
+
+        # Every restricted URL must return HTTP 404.
+        for slug in restricted_slugs:
+            with self.subTest(slug=slug):
+                response = self.client.get(
+                    reverse(
+                        "catalog:detail",
+                        kwargs={"slug": slug}
+                    )
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    404
+                )

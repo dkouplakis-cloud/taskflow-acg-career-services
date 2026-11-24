@@ -1,0 +1,260 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block page_class %}tf-public-catalog tf-catalog-detail-page{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/catalog-public.css' %}">
+    <link rel="stylesheet" href="{% static 'css/catalog-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="tf-detail" aria-labelledby="service-title">
+
+    <div class="container">
+
+        <!-- Breadcrumb navigation -->
+        <nav class="tf-detail__breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'catalog:list' %}">
+                Career Services
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <span aria-current="page">
+                {{ item.name }}
+            </span>
+        </nav>
+
+        <!-- Service introduction -->
+        <header class="tf-detail__header">
+
+            <div class="tf-detail__eyebrow">
+                <span class="tf-detail__eyebrow-dot"
+                      aria-hidden="true"></span>
+                ACG Career Services
+            </div>
+
+            <div class="tf-detail__heading-row">
+
+                <div class="tf-detail__heading-content">
+
+                    <span class="tf-detail__category">
+                        {{ item.category.name }}
+                    </span>
+
+                    <h1 id="service-title" class="tf-detail__title">
+                        {{ item.name }}
+                    </h1>
+
+                    <p class="tf-detail__subtitle">
+                        Discover everything you need to know
+                        about this career opportunity.
+                    </p>
+
+                </div>
+
+                <span class="tf-detail__status">
+                    <span class="tf-detail__status-dot"
+                          aria-hidden="true"></span>
+                    Available
+                </span>
+
+            </div>
+
+        </header>
+
+        <!-- Main detail layout -->
+        <div class="tf-detail__layout">
+
+            <!-- Main content -->
+            <article class="tf-detail__main">
+
+                <div class="tf-detail__image-wrapper">
+
+                    {% if item.image %}
+                        <img
+                            src="{{ item.image.url }}"
+                            alt="{{ item.name }}"
+                            class="tf-detail__image"
+                        >
+                    {% else %}
+                        <div class="tf-detail__image-placeholder">
+                            Career Services
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <section class="tf-detail__section"
+                         aria-labelledby="about-service-heading">
+
+                    <div class="tf-detail__section-heading">
+
+                        <span class="tf-detail__section-number">
+                            01
+                        </span>
+
+                        <h2 id="about-service-heading">
+                            About this opportunity
+                        </h2>
+
+                    </div>
+
+                    <div class="tf-detail__description">
+                        {{ item.description|linebreaks }}
+                    </div>
+
+                </section>
+
+                {% if item.target_audience %}
+
+                    <section class="tf-detail__section"
+                             aria-labelledby="audience-heading">
+
+                        <div class="tf-detail__section-heading">
+
+                            <span class="tf-detail__section-number">
+                                02
+                            </span>
+
+                            <h2 id="audience-heading">
+                                Who is this for?
+                            </h2>
+
+                        </div>
+
+                        <p class="tf-detail__audience">
+                            {{ item.target_audience }}
+                        </p>
+
+                    </section>
+
+                {% endif %}
+
+            </article>
+
+            <!-- Service information panel -->
+            <aside class="tf-detail__sidebar"
+                   aria-label="Service information">
+
+                <div class="tf-detail__info-card">
+
+                    <div class="tf-detail__info-header">
+
+                        <span class="tf-detail__info-label">
+                            Opportunity details
+                        </span>
+
+                        <div class="tf-detail__price">
+
+                            {% if item.price %}
+                                €{{ item.price|floatformat:2 }}
+                            {% else %}
+                                Free
+                            {% endif %}
+
+                        </div>
+
+                        <p class="tf-detail__price-note">
+                            {% if item.price %}
+                                Simulated catalogue price
+                            {% else %}
+                                No participation fee
+                            {% endif %}
+                        </p>
+
+                    </div>
+
+                    <div class="tf-detail__info-body">
+
+                        <div class="tf-detail__info-item">
+
+                            <span class="tf-detail__info-name">
+                                Category
+                            </span>
+
+                            <strong>
+                                {{ item.category.name }}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-detail__info-item">
+
+                            <span class="tf-detail__info-name">
+                                Delivery format
+                            </span>
+
+                            <strong>
+                                {{ item.get_delivery_format_display }}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-detail__info-item">
+
+                            <span class="tf-detail__info-name">
+                                Duration
+                            </span>
+
+                            <strong>
+                                {% if item.duration_minutes %}
+                                    {{ item.duration_minutes }} minutes
+                                {% else %}
+                                    Varies
+                                {% endif %}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-detail__info-item">
+
+                            <span class="tf-detail__info-name">
+                                Availability
+                            </span>
+
+                            <strong class="tf-detail__available">
+                                Available
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="tf-detail__info-footer">
+
+                        <a href="{% url 'catalog:list' %}"
+                           class="btn btn-outline-primary tf-detail__back-button">
+                            Explore more services
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <div class="tf-detail__help-card">
+
+                    <span class="tf-detail__help-label">
+                        ACG CAREER SERVICES
+                    </span>
+
+                    <p>
+                        Supporting your professional growth
+                        through career-focused opportunities.
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

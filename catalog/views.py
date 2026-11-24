@@ -8,7 +8,7 @@ and professional development services.
 
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from .models import CatalogItem, Category
 
@@ -82,5 +82,32 @@ def catalog_list(request):
     return render(
         request,
         "catalog/catalog_list.html",
+        context
+    )
+
+def catalog_detail(request, slug):
+    """
+    Display the complete details of a career service.
+
+    Only active and available services belonging
+    to active categories may be accessed.
+    """
+
+    item = get_object_or_404(
+        CatalogItem.objects.select_related("category"),
+        slug=slug,
+        is_active=True,
+        is_available=True,
+        category__is_active=True
+    )
+
+    context = {
+        "page_title": item.name,
+        "item": item,
+    }
+
+    return render(
+        request,
+        "catalog/catalog_detail.html",
         context
     )
