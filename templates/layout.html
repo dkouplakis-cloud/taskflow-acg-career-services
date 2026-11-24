@@ -179,6 +179,16 @@
                 Contact
             </a>
 
+            <!-- User-facing Career Services Catalogue -->
+            <a
+                href="{% url 'catalog:list' %}"
+                {% if request.resolver_match.view_name == 'catalog:list' %}
+                    aria-current="page"
+                {% endif %}
+            >
+                Career Services
+            </a>
+
             {% if user.is_authenticated %}
 
                     <!--

@@ -46,6 +46,13 @@ urlpatterns = [
     # Project management: listing and creating projects.
     path("projects/", include("projects.urls")),
 
+    # User-facing career services catalogue.
+    # Separate from the administrator management interface.
+    path(
+        "catalog/",
+        include("catalog.urls")
+    ),
+
     # Original TaskFlow homepage and future shared pages.
     # The empty prefix connects core's home view to "/".
     path("", include("core.urls")),

@@ -1,0 +1,364 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+Explore Career Services | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+tf-public-catalog
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-public.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+
+<div class="tf-catalog">
+
+  <!-- ========================================
+       CATALOGUE INTRODUCTION
+       ======================================== -->
+
+  <section
+    class="tf-catalog-hero"
+    aria-labelledby="catalog-heading"
+  >
+
+    <div class="tf-catalog-hero__content">
+
+      <p class="tf-catalog-eyebrow">
+        ACG Career Services
+      </p>
+
+      <h1 id="catalog-heading">
+        Your next career move starts here.
+      </h1>
+
+      <p class="tf-catalog-hero__description">
+        Discover practical workshops, career development
+        opportunities, and professional resources designed
+        to help you prepare for what's next.
+      </p>
+
+      <a
+        href="#catalog-services"
+        class="btn btn-primary tf-catalog-hero__action"
+      >
+        Explore Opportunities
+      </a>
+
+    </div>
+
+    <div class="tf-catalog-hero__highlight">
+
+      <span class="tf-catalog-hero__highlight-label">
+        Your career development hub
+      </span>
+
+      <h2>
+        Learn. Prepare. Grow.
+      </h2>
+
+      <p>
+        Build valuable skills, strengthen your professional
+        profile, and discover opportunities for your future.
+      </p>
+
+      <div class="tf-catalog-hero__highlight-footer">
+        <span aria-hidden="true">✦</span>
+        Supporting your professional journey
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ========================================
+       AVAILABLE CAREER SERVICES
+       ======================================== -->
+
+  <section
+    id="catalog-services"
+    class="tf-catalog-services"
+    aria-labelledby="catalog-services-heading"
+  >
+
+    <div class="tf-catalog-section-heading">
+
+      <div>
+
+        <p class="tf-catalog-eyebrow">
+          Explore what's available
+        </p>
+
+        <h2 id="catalog-services-heading">
+          Career Opportunities
+        </h2>
+
+        <p class="tf-catalog-section-description">
+          Browse workshops and services available through
+          ACG Career Services.
+        </p>
+
+      </div>
+
+      <div class="tf-catalog-results-count">
+        {{ total_items }}
+        available offering{{ total_items|pluralize }}
+      </div>
+
+    </div>
+
+
+<!-- ========================================
+     CATALOGUE SEARCH
+     ======================================== -->
+
+    <form
+      method="get"
+      action="{% url 'catalog:list' %}"
+      role="search"
+      class="tf-catalog-search"
+    >
+
+      <div class="tf-catalog-search__field">
+
+        <label
+          for="catalog-search-input"
+          class="tf-catalog-search__label"
+        >
+          Search career opportunities
+        </label>
+
+        <input
+          type="search"
+          id="catalog-search-input"
+          name="q"
+          class="tf-catalog-search__input"
+          placeholder="Search workshops, events, or career services..."
+          value="{{ search_query }}"
+          maxlength="100"
+        >
+
+      </div>
+
+      <div class="tf-catalog-search__actions">
+
+        <button
+          type="submit"
+          class="btn btn-primary tf-catalog-search__submit"
+        >
+          Search
+        </button>
+
+        {% if search_query %}
+
+          <a
+            href="{% url 'catalog:list' %}"
+            class="btn btn-outline-secondary tf-catalog-search__clear"
+          >
+            Clear
+          </a>
+
+        {% endif %}
+
+      </div>
+
+    </form>
+
+    {% if items %}
+
+      <div class="tf-catalog-grid">
+
+        {% for item in items %}
+
+          <article class="tf-catalog-card">
+
+            <!-- Service image -->
+            <div class="tf-catalog-card__media">
+
+              {% if item.image %}
+
+                <img
+                  src="{{ item.image.url }}"
+                  alt=""
+                  loading="lazy"
+                  class="tf-catalog-card__image"
+                >
+
+              {% else %}
+
+                <div class="tf-catalog-card__placeholder">
+                  <span>
+                    Career Development
+                  </span>
+                </div>
+
+              {% endif %}
+
+              <span class="tf-catalog-card__category">
+                {{ item.category.name }}
+              </span>
+
+            </div>
+
+
+            <!-- Service information -->
+            <div class="tf-catalog-card__body">
+
+              <div class="tf-catalog-card__meta">
+
+                <span>
+                  {{ item.get_delivery_format_display }}
+                </span>
+
+                {% if item.duration_minutes %}
+
+                  <span aria-hidden="true">•</span>
+
+                  <span>
+                    {{ item.duration_minutes }} min
+                  </span>
+
+                {% endif %}
+
+              </div>
+
+              <h3 class="tf-catalog-card__title">
+                {{ item.name }}
+              </h3>
+
+              <p class="tf-catalog-card__description">
+                {{ item.description|truncatewords:32 }}
+              </p>
+
+              {% if item.target_audience %}
+
+                <p class="tf-catalog-card__audience">
+                  <strong>For:</strong>
+                  {{ item.target_audience }}
+                </p>
+
+              {% endif %}
+
+            </div>
+
+
+            <!-- Price information -->
+            <div class="tf-catalog-card__footer">
+
+              <div>
+
+                <span class="tf-catalog-card__price-label">
+                  Participation
+                </span>
+
+                <span class="tf-catalog-card__price">
+                  {% if item.price == 0 %}
+                    Free
+                  {% else %}
+                    €{{ item.price|floatformat:2 }}
+                  {% endif %}
+                </span>
+
+              </div>
+
+              <span class="tf-catalog-card__availability">
+                Available
+              </span>
+
+            </div>
+
+          </article>
+
+        {% endfor %}
+
+      </div>
+
+
+      <!-- ====================================
+           PAGINATION
+           ==================================== -->
+
+      {% if page_obj.paginator.num_pages > 1 %}
+
+        <nav
+          class="tf-catalog-pagination"
+          aria-label="Catalogue pagination"
+        >
+
+          <span>
+            Page {{ page_obj.number }}
+            of {{ page_obj.paginator.num_pages }}
+          </span>
+
+          <div class="tf-catalog-pagination__actions">
+
+            {% if page_obj.has_previous %}
+
+              <a
+                href="?page={{ page_obj.previous_page_number }}"
+                class="btn btn-outline-secondary"
+              >
+                Previous
+              </a>
+
+            {% endif %}
+
+            {% if page_obj.has_next %}
+
+              <a
+                href="?page={{ page_obj.next_page_number }}"
+                class="btn btn-outline-secondary"
+              >
+                Next
+              </a>
+
+            {% endif %}
+
+          </div>
+
+        </nav>
+
+      {% endif %}
+
+
+    {% else %}
+
+      <!-- ====================================
+           EMPTY STATE
+           ==================================== -->
+
+      <div class="tf-catalog-empty">
+
+        <div class="tf-catalog-empty__symbol" aria-hidden="true">
+          ✦
+        </div>
+
+        <h3>
+          New opportunities are on the way.
+        </h3>
+
+        <p>
+          There are currently no available career services
+          to display. Please check back for upcoming
+          workshops and opportunities.
+        </p>
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</div>
+
+{% endblock %}

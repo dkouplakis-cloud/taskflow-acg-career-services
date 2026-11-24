@@ -1,0 +1,911 @@
+
+/* ==========================================================
+   TASKFLOW | ACG CAREER SERVICES
+   USER-FACING CATALOGUE
+
+   Professional, responsive Light/Dark Mode design.
+   All rules are scoped to the Catalogue page.
+   ========================================================== */
+
+
+/* ==========================================================
+   1. DESIGN TOKENS — LIGHT MODE
+   ========================================================== */
+
+.tf-public-catalog {
+    --catalog-bg: #f5f7fb;
+    --catalog-surface: #ffffff;
+    --catalog-surface-soft: #eef3fa;
+
+    --catalog-heading: #16243b;
+    --catalog-text: #34445c;
+    --catalog-muted: #61718a;
+
+    --catalog-border: #dce4ef;
+    --catalog-accent: #175eb2;
+    --catalog-accent-hover: #104b92;
+
+    --catalog-chip-bg: #e8f1fd;
+    --catalog-chip-text: #18559a;
+
+    --catalog-success-bg: #e4f7ed;
+    --catalog-success-text: #176444;
+
+    --catalog-shadow:
+        0 12px 34px rgba(22, 40, 70, 0.06);
+
+    --catalog-shadow-hover:
+        0 22px 48px rgba(22, 40, 70, 0.13);
+
+    color: var(--catalog-text);
+}
+
+
+/* ==========================================================
+   2. DESIGN TOKENS — DARK MODE
+   ========================================================== */
+
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) {
+    --catalog-bg: #111923;
+    --catalog-surface: #1b2532;
+    --catalog-surface-soft: #253244;
+
+    --catalog-heading: #f3f6fb;
+    --catalog-text: #dce5f0;
+    --catalog-muted: #b3c1d2;
+
+    --catalog-border: #35465b;
+    --catalog-accent: #a8cdff;
+    --catalog-accent-hover: #d0e3ff;
+
+    --catalog-chip-bg: #263f5b;
+    --catalog-chip-text: #c0ddff;
+
+    --catalog-success-bg: #203d36;
+    --catalog-success-text: #a5ebcd;
+
+    --catalog-shadow:
+        0 12px 34px rgba(0, 0, 0, 0.18);
+
+    --catalog-shadow-hover:
+        0 22px 48px rgba(0, 0, 0, 0.30);
+
+    color-scheme: dark;
+}
+
+
+/* ==========================================================
+   3. PAGE LAYOUT
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog {
+    width: min(100% - 32px, 1240px);
+    margin-inline: auto;
+    padding-block: 42px 88px;
+}
+
+.tf-public-catalog .tf-catalog *,
+.tf-public-catalog .tf-catalog *::before,
+.tf-public-catalog .tf-catalog *::after {
+    box-sizing: border-box;
+}
+
+.tf-public-catalog .tf-catalog-eyebrow {
+    margin: 0 0 14px;
+
+    color: var(--catalog-accent);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+
+/* ==========================================================
+   4. HERO SECTION
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr);
+    align-items: stretch;
+    gap: 32px;
+
+    padding: clamp(28px, 4.5vw, 64px);
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 88% 10%,
+            rgba(64, 132, 208, 0.11),
+            transparent 42%
+        ),
+        var(--catalog-surface);
+
+    border: 1px solid var(--catalog-border);
+    border-radius: 26px;
+    box-shadow: var(--catalog-shadow);
+}
+
+.tf-public-catalog .tf-catalog-hero__content {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+}
+
+.tf-public-catalog .tf-catalog-hero h1 {
+    max-width: 720px;
+    margin: 0 0 22px;
+
+    color: var(--catalog-heading);
+    font-size: clamp(2.35rem, 4.4vw, 4.3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.045em;
+}
+
+.tf-public-catalog .tf-catalog-hero__description {
+    max-width: 610px;
+    margin: 0 0 30px;
+
+    color: var(--catalog-muted);
+    font-size: 1.04rem;
+    line-height: 1.85;
+}
+
+.tf-public-catalog .tf-catalog-hero__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 48px;
+    padding: 12px 24px;
+
+    background: #175eb2;
+    color: #ffffff;
+
+    border: 1px solid #175eb2;
+    border-radius: 12px;
+
+    font-size: 0.94rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.tf-public-catalog .tf-catalog-hero__action:hover {
+    background: #104b92;
+    border-color: #104b92;
+    color: #ffffff;
+
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(23, 94, 178, 0.22);
+}
+
+
+/* ==========================================================
+   5. HERO HIGHLIGHT PANEL
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-hero__highlight {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+
+    min-height: 310px;
+    padding: clamp(26px, 3vw, 40px);
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(130, 191, 255, 0.22),
+            transparent 58%
+        ),
+        linear-gradient(145deg, #173961, #112640);
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+
+    color: #ffffff;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight::after {
+    content: "";
+    position: absolute;
+
+    width: 190px;
+    height: 190px;
+    right: -72px;
+    bottom: -85px;
+
+    border: 32px solid rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight-label {
+    display: inline-block;
+    margin-bottom: 26px;
+    padding: 9px 13px;
+
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+
+    color: #e5f1ff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight h2 {
+    margin: 0 0 16px;
+
+    color: #ffffff;
+    font-size: clamp(1.7rem, 2.6vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight p {
+    max-width: 320px;
+    margin: 0;
+
+    color: #d7e7fa;
+    font-size: 0.94rem;
+    line-height: 1.75;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 32px;
+
+    color: #c5defa;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.tf-public-catalog .tf-catalog-hero__highlight-footer span {
+    color: #9ed6ff;
+    font-size: 1.25rem;
+}
+
+
+/* ==========================================================
+   6. CATALOGUE SECTION HEADING
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-services {
+    margin-top: 68px;
+    scroll-margin-top: 110px;
+}
+
+.tf-public-catalog .tf-catalog-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 24px;
+
+    margin-bottom: 30px;
+}
+
+.tf-public-catalog .tf-catalog-section-heading h2 {
+    margin: 0 0 12px;
+
+    color: var(--catalog-heading);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.tf-public-catalog .tf-catalog-section-description {
+    max-width: 600px;
+    margin: 0;
+
+    color: var(--catalog-muted);
+    font-size: 0.97rem;
+    line-height: 1.7;
+}
+
+.tf-public-catalog .tf-catalog-results-count {
+    padding: 10px 16px;
+
+    background: var(--catalog-surface);
+    color: var(--catalog-text);
+
+    border: 1px solid var(--catalog-border);
+    border-radius: 999px;
+
+    font-size: 0.83rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   7. SERVICE CARD GRID
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px;
+}
+
+.tf-public-catalog .tf-catalog-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+
+    background: var(--catalog-surface);
+    border: 1px solid var(--catalog-border);
+    border-radius: 19px;
+    box-shadow: var(--catalog-shadow);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+@media (hover: hover) {
+    .tf-public-catalog .tf-catalog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--catalog-shadow-hover);
+        border-color: var(--catalog-accent);
+    }
+}
+
+
+/* ==========================================================
+   8. SERVICE IMAGES AND CATEGORY LABEL
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+
+    background: var(--catalog-surface-soft);
+}
+
+.tf-public-catalog .tf-catalog-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transition: transform 0.35s ease;
+}
+
+@media (hover: hover) {
+    .tf-public-catalog
+    .tf-catalog-card:hover
+    .tf-catalog-card__image {
+        transform: scale(1.035);
+    }
+}
+
+.tf-public-catalog .tf-catalog-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+
+    color: var(--catalog-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.tf-public-catalog .tf-catalog-card__category {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+
+    max-width: calc(100% - 32px);
+    padding: 8px 12px;
+
+    background: #ffffff;
+    color: #194e88;
+
+    border: 1px solid rgba(20, 65, 115, 0.10);
+    border-radius: 9px;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10);
+
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   9. SERVICE CARD CONTENT
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-card__body {
+    flex: 1;
+    padding: 25px 25px 22px;
+}
+
+.tf-public-catalog .tf-catalog-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 16px;
+
+    color: var(--catalog-accent);
+    font-size: 0.78rem;
+    font-weight: 750;
+}
+
+.tf-public-catalog .tf-catalog-card__title {
+    margin: 0 0 13px;
+
+    color: var(--catalog-heading);
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.35;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+}
+
+.tf-public-catalog .tf-catalog-card__description {
+    margin: 0 0 19px;
+
+    color: var(--catalog-muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.tf-public-catalog .tf-catalog-card__audience {
+    margin: 0;
+
+    color: var(--catalog-text);
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+.tf-public-catalog .tf-catalog-card__audience strong {
+    color: var(--catalog-heading);
+}
+
+
+/* ==========================================================
+   10. SERVICE CARD FOOTER
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+
+    padding: 19px 25px 22px;
+
+    border-top: 1px solid var(--catalog-border);
+}
+
+.tf-public-catalog .tf-catalog-card__price-label {
+    display: block;
+    margin-bottom: 5px;
+
+    color: var(--catalog-muted);
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.tf-public-catalog .tf-catalog-card__price {
+    display: block;
+
+    color: var(--catalog-heading);
+    font-size: 1.22rem;
+    font-weight: 800;
+}
+
+.tf-public-catalog .tf-catalog-card__availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 8px 11px;
+
+    background: var(--catalog-success-bg);
+    color: var(--catalog-success-text);
+
+    border-radius: 999px;
+
+    font-size: 0.74rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.tf-public-catalog .tf-catalog-card__availability::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+
+    background: currentColor;
+    border-radius: 50%;
+}
+
+
+/* ==========================================================
+   11. PAGINATION
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    margin-top: 36px;
+    padding-top: 25px;
+
+    border-top: 1px solid var(--catalog-border);
+
+    color: var(--catalog-muted);
+    font-size: 0.9rem;
+}
+
+.tf-public-catalog .tf-catalog-pagination__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tf-public-catalog .tf-catalog-pagination .btn {
+    border-color: var(--catalog-border);
+    color: var(--catalog-heading);
+    background: var(--catalog-surface);
+
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.tf-public-catalog .tf-catalog-pagination .btn:hover {
+    background: var(--catalog-surface-soft);
+    color: var(--catalog-heading);
+}
+
+
+/* ==========================================================
+   12. EMPTY STATE
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 76px 28px;
+
+    background: var(--catalog-surface);
+    border: 1px dashed var(--catalog-border);
+    border-radius: 20px;
+
+    text-align: center;
+}
+
+.tf-public-catalog .tf-catalog-empty__symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 66px;
+    height: 66px;
+    margin-bottom: 24px;
+
+    background: var(--catalog-surface-soft);
+    color: var(--catalog-accent);
+    border-radius: 19px;
+
+    font-size: 2rem;
+}
+
+.tf-public-catalog .tf-catalog-empty h3 {
+    margin: 0 0 14px;
+
+    color: var(--catalog-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.tf-public-catalog .tf-catalog-empty p {
+    max-width: 520px;
+    margin: 0;
+
+    color: var(--catalog-muted);
+    line-height: 1.75;
+}
+
+
+/* ==========================================================
+   13. KEYBOARD ACCESSIBILITY
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog a:focus-visible {
+    outline: 3px solid var(--catalog-accent);
+    outline-offset: 4px;
+}
+
+
+/* ==========================================================
+   14. RESPONSIVE DESIGN
+   ========================================================== */
+
+@media (max-width: 1100px) {
+    .tf-public-catalog .tf-catalog-hero {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    }
+
+    .tf-public-catalog .tf-catalog-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tf-public-catalog .tf-catalog {
+        padding-block: 24px 64px;
+    }
+
+    .tf-public-catalog .tf-catalog-hero {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 28px;
+        border-radius: 20px;
+    }
+
+    .tf-public-catalog .tf-catalog-hero__highlight {
+        min-height: 230px;
+    }
+
+    .tf-public-catalog .tf-catalog-services {
+        margin-top: 52px;
+    }
+
+    .tf-public-catalog .tf-catalog-section-heading {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .tf-public-catalog .tf-catalog {
+        width: min(100% - 24px, 1240px);
+    }
+
+    .tf-public-catalog .tf-catalog-hero {
+        padding: 24px 20px;
+    }
+
+    .tf-public-catalog .tf-catalog-hero h1 {
+        font-size: clamp(2rem, 9vw, 2.7rem);
+    }
+
+    .tf-public-catalog .tf-catalog-hero__highlight {
+        padding: 26px 22px;
+    }
+
+    .tf-public-catalog .tf-catalog-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .tf-public-catalog .tf-catalog-card__body {
+        padding: 22px;
+    }
+
+    .tf-public-catalog .tf-catalog-card__footer {
+        padding: 18px 22px 20px;
+    }
+}
+
+
+/* ==========================================================
+   15. REDUCED MOTION
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-public-catalog .tf-catalog-card,
+    .tf-public-catalog .tf-catalog-card__image,
+    .tf-public-catalog .tf-catalog-hero__action {
+        transition: none;
+    }
+}
+
+/* ==========================================================
+   16. CATALOGUE SEARCH
+   Responsive search interface with Light/Dark Mode.
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-search {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+
+    margin-bottom: 32px;
+    padding: 24px 28px;
+
+    background: var(--catalog-surface);
+    border: 1px solid var(--catalog-border);
+    border-radius: 16px;
+    box-shadow: var(--catalog-shadow);
+}
+
+/* Search input container */
+.tf-public-catalog .tf-catalog-search__field {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Accessible field label */
+.tf-public-catalog .tf-catalog-search__label {
+    display: block;
+    margin-bottom: 10px;
+
+    color: var(--catalog-heading);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+/* Search input */
+.tf-public-catalog .tf-catalog-search__input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+
+    padding: 12px 16px;
+
+    background: var(--catalog-surface-soft);
+    color: var(--catalog-heading);
+
+    border: 1px solid var(--catalog-border);
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 0.94rem;
+    line-height: 1.5;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+/* Placeholder */
+.tf-public-catalog .tf-catalog-search__input::placeholder {
+    color: var(--catalog-muted);
+    opacity: 1;
+}
+
+/* Focus state */
+.tf-public-catalog .tf-catalog-search__input:focus {
+    outline: none;
+    background: var(--catalog-surface);
+    border-color: var(--catalog-accent);
+
+    box-shadow:
+        0 0 0 3px rgba(66, 142, 225, 0.20);
+}
+
+/* Search and Clear buttons */
+.tf-public-catalog .tf-catalog-search__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tf-public-catalog .tf-catalog-search__submit,
+.tf-public-catalog .tf-catalog-search__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 48px;
+    padding: 12px 22px;
+
+    border-radius: 10px;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Primary action */
+.tf-public-catalog .tf-catalog-search__submit {
+    background: #175eb2;
+    color: #ffffff;
+    border: 1px solid #175eb2;
+}
+
+.tf-public-catalog .tf-catalog-search__submit:hover {
+    background: #104b92;
+    color: #ffffff;
+    border-color: #104b92;
+}
+
+/* Secondary action */
+.tf-public-catalog .tf-catalog-search__clear {
+    background: transparent;
+    color: var(--catalog-heading);
+    border: 1px solid var(--catalog-border);
+}
+
+.tf-public-catalog .tf-catalog-search__clear:hover {
+    background: var(--catalog-surface-soft);
+    color: var(--catalog-heading);
+    border-color: var(--catalog-accent);
+}
+
+/* Keyboard accessibility */
+.tf-public-catalog .tf-catalog-search__submit:focus-visible,
+.tf-public-catalog .tf-catalog-search__clear:focus-visible {
+    outline: 3px solid var(--catalog-accent);
+    outline-offset: 3px;
+}
+
+/* Tablet and mobile layouts */
+@media (max-width: 767.98px) {
+    .tf-public-catalog .tf-catalog-search {
+        flex-direction: column;
+        align-items: stretch;
+
+        padding: 20px;
+        gap: 18px;
+    }
+
+    .tf-public-catalog .tf-catalog-search__field {
+        width: 100%;
+    }
+
+    .tf-public-catalog .tf-catalog-search__actions {
+        width: 100%;
+    }
+
+    .tf-public-catalog .tf-catalog-search__submit {
+        flex: 1;
+    }
+}
+
+@media (max-width: 400px) {
+    .tf-public-catalog .tf-catalog-search__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tf-public-catalog .tf-catalog-search__submit,
+    .tf-public-catalog .tf-catalog-search__clear {
+        width: 100%;
+    }
+}
