@@ -6,7 +6,7 @@ from django.shortcuts import resolve_url
 from .forms import CategoryForm
 from .models import Category, CatalogItem
 from core.models import UserProfile
-
+from decimal import Decimal
 from io import BytesIO
 from tempfile import TemporaryDirectory
 
@@ -1890,3 +1890,120 @@ class PublicCatalogViewTests(TestCase):
                     response.status_code,
                     404
                 )
+    
+    def test_add_to_cart_and_display_cart(self):
+        """
+        Adding a service must update the session and
+        display the correct quantity and total.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_integration_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="Professional CV Workshop",
+            slug="professional-cv-workshop",
+            description="Develop professional CV skills.",
+            category=category,
+            image="catalog/items/test-cart.png",
+            price="12.50",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the service using an HTTP POST request.
+        response = self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        # Verify the service is stored in the session.
+        cart = self.client.session.get("catalog_cart")
+
+        self.assertEqual(
+            cart,
+            {str(item.pk): 1}
+        )
+
+        # Open the shopping-cart page.
+        response = self.client.get(
+            reverse("catalog:cart")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the selected service is displayed.
+        self.assertContains(
+            response,
+            "Professional CV Workshop"
+        )
+
+        # Verify quantity and calculated total.
+        self.assertEqual(
+            response.context["total_quantity"],
+            1
+        )
+
+        self.assertEqual(
+            response.context["total_amount"],
+            Decimal("12.50")
+        )
+    
+    def test_add_to_cart_rejects_get_requests(self):
+        """
+        A GET request must not modify
+        the authenticated user's shopping cart.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_get_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Preparation Workshop",
+            slug="cv-preparation-workshop",
+            description="Learn professional CV writing.",
+            category=category,
+            image="catalog/items/test-get.png",
+            is_active=True,
+            is_available=True
+        )
+
+        url = reverse(
+            "catalog:add_to_cart",
+            kwargs={"slug": item.slug}
+        )
+
+        # GET must be rejected.
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 405)
+
+        # The session cart must remain empty.
+        self.assertEqual(
+            self.client.session.get("catalog_cart", {}),
+            {}
+        )

@@ -1,0 +1,550 @@
+
+/* ==========================================================
+   TASKFLOW | ACG CAREER SERVICES
+   SHOPPING CART
+
+   Responsive cart layout with Light/Dark Mode support.
+   ========================================================== */
+
+
+/* 1. DESIGN TOKENS */
+
+.tf-cart-page {
+    --cart-surface: var(--catalog-surface, #ffffff);
+    --cart-soft: var(--catalog-surface-soft, #f3f6fb);
+    --cart-border: var(--catalog-border, #dce4ef);
+    --cart-heading: var(--catalog-heading, #14243d);
+    --cart-accent: var(--catalog-accent, #2563eb);
+    --cart-muted: #536581;
+    --cart-shadow: 0 18px 48px rgba(19, 45, 82, 0.08);
+
+    color: var(--cart-heading);
+}
+
+[data-theme="dark"] .tf-cart-page {
+    --cart-muted: #b7c5da;
+    --cart-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+}
+
+
+/* 2. PAGE CONTAINER */
+
+.tf-cart-page .tf-cart {
+    position: relative;
+    padding: clamp(30px, 4vw, 56px) 0 90px;
+}
+
+.tf-cart-page .tf-cart__breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-bottom: 36px;
+
+    color: var(--cart-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.tf-cart-page .tf-cart__breadcrumb a {
+    color: var(--cart-accent);
+    text-decoration: none;
+}
+
+.tf-cart-page .tf-cart__breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+
+/* 3. PAGE HEADING */
+
+.tf-cart-page .tf-cart__header {
+    margin-bottom: 38px;
+}
+
+.tf-cart-page .tf-cart__eyebrow {
+    margin-bottom: 14px;
+
+    color: var(--cart-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.tf-cart-page .tf-cart__title {
+    margin: 0;
+
+    color: var(--cart-heading);
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+}
+
+.tf-cart-page .tf-cart__subtitle {
+    max-width: 650px;
+    margin: 16px 0 0;
+
+    color: var(--cart-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+}
+
+
+/* 4. CART LAYOUT */
+
+.tf-cart-page .tf-cart__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(285px, 350px);
+    align-items: start;
+    gap: clamp(24px, 3vw, 38px);
+}
+
+.tf-cart-page .tf-cart__items,
+.tf-cart-page .tf-cart__summary {
+    min-width: 0;
+}
+
+.tf-cart-page .tf-cart__items-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    margin-bottom: 22px;
+}
+
+.tf-cart-page .tf-cart__items-heading h2 {
+    margin: 0;
+
+    color: var(--cart-heading);
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
+    font-weight: 750;
+}
+
+.tf-cart-page .tf-cart__count {
+    padding: 8px 13px;
+
+    border: 1px solid var(--cart-border);
+    border-radius: 999px;
+    background: var(--cart-soft);
+
+    color: var(--cart-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+
+/* 5. SELECTED SERVICE CARDS */
+
+.tf-cart-page .tf-cart__item {
+    display: grid;
+    grid-template-columns: 185px minmax(0, 1fr);
+    gap: 24px;
+
+    margin-bottom: 18px;
+    padding: 20px;
+
+    border: 1px solid var(--cart-border);
+    border-radius: 18px;
+
+    background: var(--cart-surface);
+    box-shadow: var(--cart-shadow);
+}
+
+.tf-cart-page .tf-cart__item-media {
+    overflow: hidden;
+
+    width: 100%;
+    aspect-ratio: 4 / 3;
+
+    border-radius: 12px;
+    background: var(--cart-soft);
+}
+
+.tf-cart-page .tf-cart__item-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tf-cart-page .tf-cart__item-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+
+    color: var(--cart-muted);
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.tf-cart-page .tf-cart__item-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tf-cart-page .tf-cart__item-category {
+    align-self: flex-start;
+
+    margin-bottom: 10px;
+    padding: 5px 10px;
+
+    border-radius: 7px;
+    background: var(--cart-soft);
+
+    color: var(--cart-accent);
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.tf-cart-page .tf-cart__item-title {
+    margin: 0 0 10px;
+
+    font-size: 1.22rem;
+    font-weight: 750;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.tf-cart-page .tf-cart__item-title a {
+    color: var(--cart-heading);
+    text-decoration: none;
+}
+
+.tf-cart-page .tf-cart__item-title a:hover {
+    color: var(--cart-accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.tf-cart-page .tf-cart__item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    color: var(--cart-muted);
+    font-size: 0.85rem;
+}
+
+.tf-cart-page .tf-cart__item-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    margin-top: auto;
+    padding-top: 16px;
+
+    border-top: 1px solid var(--cart-border);
+}
+
+.tf-cart-page .tf-cart__item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: var(--cart-muted);
+    font-size: 0.85rem;
+}
+
+.tf-cart-page .tf-cart__item-quantity strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 40px;
+    min-height: 36px;
+
+    border: 1px solid var(--cart-border);
+    border-radius: 9px;
+    background: var(--cart-soft);
+
+    color: var(--cart-heading);
+    font-size: 0.95rem;
+}
+
+.tf-cart-page .tf-cart__item-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+}
+
+.tf-cart-page .tf-cart__unit-price {
+    color: var(--cart-muted);
+    font-size: 0.79rem;
+}
+
+.tf-cart-page .tf-cart__subtotal {
+    color: var(--cart-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.tf-cart-page .tf-cart__continue-link {
+    display: inline-flex;
+    align-items: center;
+
+    margin-top: 16px;
+
+    color: var(--cart-accent);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.tf-cart-page .tf-cart__continue-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+
+/* 6. ORDER SUMMARY */
+
+.tf-cart-page .tf-cart__summary {
+    position: sticky;
+    top: 100px;
+}
+
+.tf-cart-page .tf-cart__summary-card {
+    overflow: hidden;
+
+    border: 1px solid var(--cart-border);
+    border-radius: 19px;
+
+    background: var(--cart-surface);
+    box-shadow: var(--cart-shadow);
+}
+
+.tf-cart-page .tf-cart__summary-header {
+    padding: 28px;
+
+    border-bottom: 1px solid var(--cart-border);
+
+    background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.10),
+        transparent
+    );
+}
+
+.tf-cart-page .tf-cart__summary-eyebrow {
+    display: block;
+    margin-bottom: 12px;
+
+    color: var(--cart-accent);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.tf-cart-page .tf-cart__summary-header h2 {
+    margin: 0;
+
+    color: var(--cart-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.tf-cart-page .tf-cart__summary-header p {
+    margin: 10px 0 0;
+
+    color: var(--cart-muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.tf-cart-page .tf-cart__summary-body {
+    padding: 12px 28px 28px;
+}
+
+.tf-cart-page .tf-cart__summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    padding: 20px 0;
+
+    color: var(--cart-muted);
+    font-size: 0.9rem;
+}
+
+.tf-cart-page .tf-cart__summary-row strong {
+    color: var(--cart-heading);
+    font-weight: 750;
+}
+
+.tf-cart-page .tf-cart__summary-total {
+    margin-top: 2px;
+
+    border-top: 1px solid var(--cart-border);
+
+    color: var(--cart-heading);
+    font-size: 1.05rem;
+    font-weight: 750;
+}
+
+.tf-cart-page .tf-cart__summary-total strong {
+    color: var(--cart-heading);
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+}
+
+.tf-cart-page .tf-cart__summary-note {
+    margin: 10px 0 0;
+    padding: 14px 16px;
+
+    border-radius: 10px;
+    background: var(--cart-soft);
+
+    color: var(--cart-muted);
+    font-size: 0.82rem;
+    line-height: 1.7;
+}
+
+
+/* 7. EMPTY CART */
+
+.tf-cart-page .tf-cart__empty {
+    max-width: 680px;
+    margin: 20px auto 0;
+    padding: clamp(36px, 6vw, 70px) 28px;
+
+    border: 1px solid var(--cart-border);
+    border-radius: 22px;
+
+    background: var(--cart-surface);
+    box-shadow: var(--cart-shadow);
+
+    text-align: center;
+}
+
+.tf-cart-page .tf-cart__empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 24px;
+
+    border-radius: 20px;
+    background: var(--cart-soft);
+
+    color: var(--cart-accent);
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.tf-cart-page .tf-cart__empty h2 {
+    margin-bottom: 14px;
+
+    color: var(--cart-heading);
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 800;
+}
+
+.tf-cart-page .tf-cart__empty p {
+    max-width: 440px;
+    margin: 0 auto 26px;
+
+    color: var(--cart-muted);
+    line-height: 1.8;
+}
+
+.tf-cart-page .tf-cart__empty-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 48px;
+    padding: 12px 22px;
+
+    border-radius: 11px;
+    font-weight: 700;
+}
+
+
+/* 8. ACCESSIBILITY */
+
+.tf-cart-page a:focus-visible {
+    outline: 3px solid var(--cart-accent);
+    outline-offset: 4px;
+}
+
+
+/* 9. RESPONSIVE LAYOUT */
+
+@media (max-width: 991.98px) {
+    .tf-cart-page .tf-cart__layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-cart-page .tf-cart__summary {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .tf-cart-page .tf-cart {
+        padding: 28px 0 60px;
+    }
+
+    .tf-cart-page .tf-cart__item {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .tf-cart-page .tf-cart__item-media {
+        aspect-ratio: 16 / 9;
+    }
+
+    .tf-cart-page .tf-cart__item-bottom {
+        align-items: flex-start;
+    }
+
+    .tf-cart-page .tf-cart__summary-header {
+        padding: 24px;
+    }
+
+    .tf-cart-page .tf-cart__summary-body {
+        padding: 12px 24px 24px;
+    }
+}
+
+@media (max-width: 380px) {
+    .tf-cart-page .tf-cart__item-pricing {
+        text-align: left;
+    }
+
+    .tf-cart-page .tf-cart__item-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* 10. REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-cart-page *,
+    .tf-cart-page *::before,
+    .tf-cart-page *::after {
+        scroll-behavior: auto;
+    }
+}

@@ -224,11 +224,30 @@
                         </div>
 
                     </div>
-
+         
                     <div class="tf-detail__info-footer">
 
-                        <a href="{% url 'catalog:list' %}"
-                           class="btn btn-outline-primary tf-detail__back-button">
+                        <!-- Add the current service to the shopping cart -->
+                        <form
+                            method="post"
+                            action="{% url 'catalog:add_to_cart' slug=item.slug %}"
+                            class="tf-detail__cart-form"
+                        >
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary w-100 tf-detail__add-button"
+                            >
+                                Add to Cart
+                            </button>
+                        </form>
+
+                        <!-- Return to the Career Services catalogue -->
+                        <a
+                            href="{% url 'catalog:list' %}"
+                            class="btn btn-outline-primary tf-detail__back-button"
+                        >
                             Explore more services
                         </a>
 
