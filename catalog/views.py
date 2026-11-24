@@ -10,7 +10,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
 
-from .models import CatalogItem
+from .models import CatalogItem, Category
 
 
 def catalog_list(request):
@@ -24,6 +24,19 @@ def catalog_list(request):
     search_query = (
         request.GET.get("q") or ""
     ).strip()[:100]
+
+
+    # Read the selected catalogue category.
+    selected_category = (
+        request.GET.get("category") or ""
+    ).strip()[:120]
+
+    # Only active categories should be offered.
+    categories = (
+        Category.objects
+        .filter(is_active=True)
+        .order_by("name", "pk")
+    )
 
     items = (
         CatalogItem.objects
@@ -42,6 +55,13 @@ def catalog_list(request):
             Q(name__icontains=search_query)
             | Q(description__icontains=search_query)
         )
+    
+    # Filter catalogue items by category slug.
+    # This can be combined with the text search.
+    if selected_category:
+        items = items.filter(
+            category__slug=selected_category
+        )
 
     paginator = Paginator(items, 9)
 
@@ -55,6 +75,8 @@ def catalog_list(request):
         "items": page_obj.object_list,
         "total_items": paginator.count,
         "search_query": search_query,
+        "categories": categories,
+        "selected_category": selected_category,
     }
 
     return render(

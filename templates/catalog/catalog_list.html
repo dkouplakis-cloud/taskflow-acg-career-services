@@ -150,6 +150,43 @@ tf-public-catalog
 
       </div>
 
+      <!-- Category filtering -->
+      <div class="tf-catalog-search__category">
+
+        <label
+          for="catalog-category-select"
+          class="tf-catalog-search__label"
+        >
+          Category
+        </label>
+
+        <select
+          id="catalog-category-select"
+          name="category"
+          class="tf-catalog-search__select"
+        >
+
+          <option value="">
+            All Categories
+          </option>
+
+          {% for category in categories %}
+
+            <option
+              value="{{ category.slug }}"
+              {% if selected_category == category.slug %}
+                selected
+              {% endif %}
+            >
+              {{ category.name }}
+            </option>
+
+          {% endfor %}
+
+        </select>
+
+      </div>
+
       <div class="tf-catalog-search__actions">
 
         <button
@@ -159,7 +196,7 @@ tf-public-catalog
           Search
         </button>
 
-        {% if search_query %}
+        {% if search_query or selected_category %}
 
           <a
             href="{% url 'catalog:list' %}"
@@ -305,7 +342,7 @@ tf-public-catalog
             {% if page_obj.has_previous %}
 
               <a
-                href="?page={{ page_obj.previous_page_number }}"
+                href="?page={{ page_obj.previous_page_number }}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}{% if selected_category %}&amp;category={{ selected_category|urlencode }}{% endif %}"
                 class="btn btn-outline-secondary"
               >
                 Previous
@@ -316,7 +353,7 @@ tf-public-catalog
             {% if page_obj.has_next %}
 
               <a
-                href="?page={{ page_obj.next_page_number }}"
+                href="?page={{ page_obj.next_page_number }}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}{% if selected_category %}&amp;category={{ selected_category|urlencode }}{% endif %}"
                 class="btn btn-outline-secondary"
               >
                 Next
@@ -342,6 +379,28 @@ tf-public-catalog
         <div class="tf-catalog-empty__symbol" aria-hidden="true">
           ✦
         </div>
+      
+      {% if search_query or selected_category %}
+
+        <h3>
+          No matching career services found.
+        </h3>
+
+        <p>
+          {% if search_query and selected_category %}
+            No opportunities match your search and selected category.
+          {% elif search_query %}
+            We couldn't find any opportunities matching
+            "{{ search_query }}".
+          {% else %}
+            No opportunities match the selected category.
+          {% endif %}
+
+          Try adjusting your filters or use the Clear
+          button to explore all available services.
+        </p>
+
+      {% else %}
 
         <h3>
           New opportunities are on the way.
@@ -352,6 +411,8 @@ tf-public-catalog
           to display. Please check back for upcoming
           workshops and opportunities.
         </p>
+
+      {% endif %}
 
       </div>
 

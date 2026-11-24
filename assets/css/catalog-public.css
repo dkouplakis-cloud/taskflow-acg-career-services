@@ -909,3 +909,97 @@
         width: 100%;
     }
 }
+
+/* ==========================================================
+   17. CATALOGUE CATEGORY FILTER
+   Professional, responsive dropdown styling.
+   ========================================================== */
+
+/* Category field container */
+.tf-public-catalog .tf-catalog-search__category {
+    flex: 0 1 250px;
+    min-width: 180px;
+}
+
+/* Category dropdown */
+.tf-public-catalog .tf-catalog-search__select {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+
+    padding: 12px 40px 12px 16px;
+
+    background-color: var(--catalog-surface-soft);
+    color: var(--catalog-heading);
+
+    border: 1px solid var(--catalog-border);
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 500;
+    line-height: 1.5;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+/* Dropdown interaction */
+.tf-public-catalog .tf-catalog-search__select:hover {
+    border-color: var(--catalog-accent);
+}
+
+.tf-public-catalog .tf-catalog-search__select:focus {
+    outline: none;
+
+    background-color: var(--catalog-surface);
+    border-color: var(--catalog-accent);
+
+    box-shadow:
+        0 0 0 3px rgba(66, 142, 225, 0.20);
+}
+
+/* Light Mode native dropdown options */
+.tf-public-catalog .tf-catalog-search__select {
+    color-scheme: light;
+}
+
+.tf-public-catalog .tf-catalog-search__select option {
+    background-color: var(--catalog-surface);
+    color: var(--catalog-heading);
+}
+
+/* Dark Mode native dropdown appearance */
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) .tf-catalog-search__select {
+    color-scheme: dark;
+}
+
+/* Tablet and mobile */
+@media (max-width: 767.98px) {
+    .tf-public-catalog .tf-catalog-search__category {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Very narrow screens */
+@media (max-width: 400px) {
+    .tf-public-catalog .tf-catalog-search__select {
+        font-size: 0.9rem;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .tf-public-catalog .tf-catalog-search__select {
+        transition: none;
+    }
+}

@@ -1312,3 +1312,417 @@ class CatalogItemManagementViewTests(TestCase):
                     CatalogItem.objects.count(),
                     1
                 )
+
+class PublicCatalogViewTests(TestCase):
+    """
+    Test the user-facing Career Services Catalogue,
+    including filtering, pagination, and visibility.
+    """
+
+    def test_pagination_preserves_search_and_category(self):
+        """
+        Pagination links must preserve both the
+        search query and selected category.
+        """
+
+        # Create a regular user.
+        user = get_user_model().objects.create_user(
+            username="public_catalog_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        # Create an active category.
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        # Create ten temporary catalogue items.
+        for index in range(10):
+            CatalogItem.objects.create(
+                name=f"CV Workshop {index}",
+                slug=f"cv-workshop-{index}",
+                description="CV preparation workshop.",
+                category=category,
+                image=f"catalog/items/test-{index}.png",
+                price="0.00",
+                delivery_format="in_person",
+                is_active=True,
+                is_available=True
+            )
+
+        # Request the Catalogue with both filters.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={
+                "q": "CV",
+                "category": "career-workshops"
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Ten results should require a second page.
+        self.assertEqual(
+            response.context["total_items"],
+            10
+        )
+
+        self.assertTrue(
+            response.context["page_obj"].has_next()
+        )
+
+        # The Next link must retain both filters.
+        self.assertContains(
+            response,
+            "?page=2&amp;q=CV&amp;category=career-workshops"
+        )
+
+    def test_second_page_preserves_filters(self):
+        """
+        The second Catalogue page must display
+        the remaining item and preserve filters
+        in the Previous pagination link.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_second_page_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        # Create ten matching catalogue items.
+        for index in range(10):
+            CatalogItem.objects.create(
+                name=f"CV Workshop {index}",
+                slug=f"cv-workshop-{index}",
+                description="CV preparation workshop.",
+                category=category,
+                image=f"catalog/items/page-test-{index}.png",
+                price="0.00",
+                delivery_format="in_person",
+                is_active=True,
+                is_available=True
+            )
+
+        # Request the second page with both filters.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={
+                "page": "2",
+                "q": "CV",
+                "category": "career-workshops"
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        page_obj = response.context["page_obj"]
+
+        self.assertEqual(page_obj.number, 2)
+        self.assertEqual(len(page_obj.object_list), 1)
+
+        # The tenth item must appear.
+        self.assertContains(response, "CV Workshop 9")
+
+        # Previous must preserve search and category.
+        self.assertContains(
+            response,
+            "?page=1&amp;q=CV&amp;category=career-workshops"
+        )
+    
+    def test_catalogue_excludes_inactive_and_unavailable_items(self):
+        """
+        The public Catalogue must display only
+        active and available items belonging
+        to active categories.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_visibility_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        active_category = Category.objects.create(
+            name="Active Workshops",
+            slug="active-workshops",
+            is_active=True
+        )
+
+        inactive_category = Category.objects.create(
+            name="Hidden Workshops",
+            slug="hidden-workshops",
+            is_active=False
+        )
+
+        # An item that should be visible.
+        CatalogItem.objects.create(
+            name="Visible Career Workshop",
+            slug="visible-career-workshop",
+            category=active_category,
+            image="catalog/items/visible-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # An inactive item.
+        CatalogItem.objects.create(
+            name="Inactive Career Workshop",
+            slug="inactive-career-workshop",
+            category=active_category,
+            image="catalog/items/inactive-test.png",
+            is_active=False,
+            is_available=True
+        )
+
+        # An unavailable item.
+        CatalogItem.objects.create(
+            name="Unavailable Career Workshop",
+            slug="unavailable-career-workshop",
+            category=active_category,
+            image="catalog/items/unavailable-test.png",
+            is_active=True,
+            is_available=False
+        )
+
+        # An item belonging to an inactive category.
+        CatalogItem.objects.create(
+            name="Hidden Category Workshop",
+            slug="hidden-category-workshop",
+            category=inactive_category,
+            image="catalog/items/hidden-category-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        response = self.client.get(
+            reverse("catalog:list")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Only one item should be visible.
+        self.assertEqual(
+            response.context["total_items"],
+            1
+        )
+
+        self.assertContains(
+            response,
+            "Visible Career Workshop"
+        )
+
+        self.assertNotContains(
+            response,
+            "Inactive Career Workshop"
+        )
+
+        self.assertNotContains(
+            response,
+            "Unavailable Career Workshop"
+        )
+
+        self.assertNotContains(
+            response,
+            "Hidden Category Workshop"
+        )
+    
+    def test_catalogue_search_matches_name_and_description(self):
+        """
+        Search must match service names and descriptions,
+        regardless of capitalization.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_search_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        # Matches by name.
+        CatalogItem.objects.create(
+            name="CV Coaching Session",
+            slug="cv-coaching-session",
+            description="Individual career coaching.",
+            category=category,
+            image="catalog/items/cv-coaching-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Matches by description.
+        CatalogItem.objects.create(
+            name="Career Preparation Clinic",
+            slug="career-preparation-clinic",
+            description="Improve your CV before applying.",
+            category=category,
+            image="catalog/items/career-clinic-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Should not match.
+        CatalogItem.objects.create(
+            name="Networking Event",
+            slug="networking-event",
+            description="Meet employers and graduates.",
+            category=category,
+            image="catalog/items/networking-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={"q": "  cv  "}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Search input should be trimmed.
+        self.assertEqual(
+            response.context["search_query"],
+            "cv"
+        )
+
+        # Both matching services should be returned.
+        self.assertEqual(
+            response.context["total_items"],
+            2
+        )
+
+        result_names = {
+            item.name
+            for item in response.context["items"]
+        }
+
+        self.assertEqual(
+            result_names,
+            {
+                "CV Coaching Session",
+                "Career Preparation Clinic"
+            }
+        )
+    
+    def test_catalogue_filters_by_category_and_search(self):
+        """
+        Category filtering must return only items in
+        the selected category and work alongside search.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="catalog_category_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        workshops = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        events = Category.objects.create(
+            name="Career Events",
+            slug="career-events",
+            is_active=True
+        )
+
+        CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="cv-writing-workshop",
+            description="Learn to prepare a professional CV.",
+            category=workshops,
+            is_active=True,
+            is_available=True
+        )
+
+        CatalogItem.objects.create(
+            name="Interview Preparation Workshop",
+            slug="interview-preparation-workshop",
+            description="Develop your interview skills.",
+            category=workshops,
+            is_active=True,
+            is_available=True
+        )
+
+        CatalogItem.objects.create(
+            name="CV Networking Event",
+            slug="cv-networking-event",
+            description="Meet career professionals.",
+            category=events,
+            is_active=True,
+            is_available=True
+        )
+
+        # Test 1: Category filtering without search.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={"category": "career-workshops"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_items"], 2)
+
+        category_results = {
+            item.name for item in response.context["items"]
+        }
+
+        self.assertEqual(
+            category_results,
+            {
+                "CV Writing Workshop",
+                "Interview Preparation Workshop"
+            }
+        )
+
+        # Test 2: Category filtering combined with search.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={
+                "q": "CV",
+                "category": "career-workshops"
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_items"], 1)
+
+        self.assertEqual(
+            response.context["search_query"],
+            "CV"
+        )
+
+        self.assertEqual(
+            response.context["selected_category"],
+            "career-workshops"
+        )
+
+        combined_results = [
+            item.name for item in response.context["items"]
+        ]
+
+        self.assertEqual(
+            combined_results,
+            ["CV Writing Workshop"]
+        )
