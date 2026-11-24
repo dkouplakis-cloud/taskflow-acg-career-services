@@ -124,3 +124,99 @@ def cart_detail(request):
         "catalog/cart_detail.html",
         context
     )
+
+@login_required
+@require_POST
+def update_cart_quantity(request, slug):
+    """
+    Update the quantity of a service already in the cart.
+
+    Only quantities between 1 and the configured
+    maximum are accepted.
+    """
+
+    item = get_object_or_404(
+        CatalogItem,
+        slug=slug,
+        is_active=True,
+        is_available=True,
+        category__is_active=True,
+    )
+
+    cart = load_cart(request)
+    item_id = str(item.pk)
+
+    # Only existing cart items can be updated.
+    if item_id not in cart:
+        messages.warning(
+            request,
+            "This service is not in your cart."
+        )
+        return redirect("catalog:cart")
+
+    quantity_text = request.POST.get("quantity", "")
+
+    # Accept only canonical integer values from 1 to 10.
+    valid_quantities = {
+        str(number)
+        for number in range(1, MAX_QUANTITY_PER_ITEM + 1)
+    }
+
+    if quantity_text not in valid_quantities:
+        messages.error(
+            request,
+            "Please choose a quantity between "
+            f"1 and {MAX_QUANTITY_PER_ITEM}."
+        )
+        return redirect("catalog:cart")
+
+    cart[item_id] = int(quantity_text)
+    save_cart(request, cart)
+
+    messages.success(
+        request,
+        f"Quantity updated for {item.name}."
+    )
+
+    return redirect("catalog:cart")
+
+@login_required
+@require_POST
+def remove_from_cart(request, slug):
+    """
+    Remove an existing catalogue item from the
+    authenticated user's session cart.
+
+    Removal is permitted even if the service
+    has become inactive or unavailable.
+    """
+
+    item = get_object_or_404(
+        CatalogItem,
+        slug=slug
+    )
+
+    cart = load_cart(request)
+    item_id = str(item.pk)
+
+    # Check whether the item exists in the cart.
+    if item_id not in cart:
+        messages.warning(
+            request,
+            "This service is not in your cart."
+        )
+
+        return redirect("catalog:cart")
+
+    # Remove the selected item.
+    del cart[item_id]
+
+    # Persist the updated session.
+    save_cart(request, cart)
+
+    messages.success(
+        request,
+        f"{item.name} was removed from your cart."
+    )
+
+    return redirect("catalog:cart")

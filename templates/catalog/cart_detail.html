@@ -128,13 +128,46 @@
                                 </p>
 
                                 <div class="tf-cart__item-bottom">
+                                                                        
+                                    <!-- Update the quantity of this cart item -->
+                                    <form
+                                        method="post"
+                                        action="{% url 'catalog:update_cart_quantity' slug=line.item.slug %}"
+                                        class="tf-cart__item-quantity tf-cart__quantity-form"
+                                    >
+                                        {% csrf_token %}
 
-                                    <div class="tf-cart__item-quantity">
-                                        <span>Quantity</span>
-                                        <strong>
-                                            {{ line.quantity }}
-                                        </strong>
-                                    </div>
+                                        <label
+                                            for="cart-quantity-{{ line.item.pk }}"
+                                            class="tf-cart__quantity-label"
+                                        >
+                                            Quantity
+                                        </label>
+
+                                        <select
+                                            id="cart-quantity-{{ line.item.pk }}"
+                                            name="quantity"
+                                            class="tf-cart__quantity-select"
+                                        >
+                                            <option value="1" {% if line.quantity == 1 %}selected{% endif %}>1</option>
+                                            <option value="2" {% if line.quantity == 2 %}selected{% endif %}>2</option>
+                                            <option value="3" {% if line.quantity == 3 %}selected{% endif %}>3</option>
+                                            <option value="4" {% if line.quantity == 4 %}selected{% endif %}>4</option>
+                                            <option value="5" {% if line.quantity == 5 %}selected{% endif %}>5</option>
+                                            <option value="6" {% if line.quantity == 6 %}selected{% endif %}>6</option>
+                                            <option value="7" {% if line.quantity == 7 %}selected{% endif %}>7</option>
+                                            <option value="8" {% if line.quantity == 8 %}selected{% endif %}>8</option>
+                                            <option value="9" {% if line.quantity == 9 %}selected{% endif %}>9</option>
+                                            <option value="10" {% if line.quantity == 10 %}selected{% endif %}>10</option>
+                                        </select>
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-outline-primary btn-sm tf-cart__quantity-button"
+                                        >
+                                            Update
+                                        </button>
+                                    </form>
 
                                     <div class="tf-cart__item-pricing">
 
@@ -158,6 +191,23 @@
                                     </div>
 
                                 </div>
+
+                                <!-- Remove this service from the shopping cart -->
+                                <form
+                                    method="post"
+                                    action="{% url 'catalog:remove_from_cart' slug=line.item.slug %}"
+                                    class="tf-cart__remove-form"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="tf-cart__remove-button"
+                                        aria-label="Remove {{ line.item.name }} from cart"
+                                    >
+                                        Remove from cart
+                                    </button>
+                                </form>
 
                             </div>
 

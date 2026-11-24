@@ -2007,3 +2007,375 @@ class PublicCatalogViewTests(TestCase):
             self.client.session.get("catalog_cart", {}),
             {}
         )
+    
+    def test_update_cart_quantity_recalculates_total(self):
+        """
+        Updating a cart item's quantity must persist
+        in the session and recalculate the cart total.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_quantity_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="Professional CV Workshop",
+            slug="quantity-test-workshop",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/quantity-test.png",
+            price="12.50",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the workshop to the cart.
+        self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        # Update the quantity from 1 to 2.
+        response = self.client.post(
+            reverse(
+                "catalog:update_cart_quantity",
+                kwargs={"slug": item.slug}
+            ),
+            data={"quantity": "2"}
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        # The session must contain quantity 2.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {str(item.pk): 2}
+        )
+
+        # The cart must reflect the new quantity.
+        response = self.client.get(
+            reverse("catalog:cart")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context["total_quantity"],
+            2
+        )
+
+        # Two services costing €12.50 each = €25.00.
+        self.assertEqual(
+            response.context["total_amount"],
+            Decimal("25.00")
+        )
+    
+    def test_update_cart_quantity_rejects_invalid_values(self):
+        """
+        Invalid quantities must be rejected without
+        modifying the existing shopping cart.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_invalid_quantity_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Skills Workshop",
+            slug="invalid-quantity-workshop",
+            description="Develop professional CV skills.",
+            category=category,
+            image="catalog/items/invalid-quantity-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add one service to the shopping cart.
+        self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        update_url = reverse(
+            "catalog:update_cart_quantity",
+            kwargs={"slug": item.slug}
+        )
+
+        invalid_quantities = [
+            "0",
+            "-1",
+            "11",
+            "100",
+            "abc",
+            "1.5",
+            "01",
+            ""
+        ]
+
+        for invalid_quantity in invalid_quantities:
+
+            with self.subTest(quantity=invalid_quantity):
+
+                response = self.client.post(
+                    update_url,
+                    data={"quantity": invalid_quantity}
+                )
+
+                # Invalid requests redirect to My Cart.
+                self.assertRedirects(
+                    response,
+                    reverse("catalog:cart")
+                )
+
+                # The original quantity must remain 1.
+                self.assertEqual(
+                    self.client.session["catalog_cart"],
+                    {str(item.pk): 1}
+                )
+    
+    def test_remove_from_cart_clears_item_and_shows_empty_state(self):
+        """
+        Removing an item must delete it from the session
+        and display the empty-cart state.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_removal_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="cv-removal-test",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/removal-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the workshop to the cart.
+        self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        # Set the quantity to 2.
+        self.client.post(
+            reverse(
+                "catalog:update_cart_quantity",
+                kwargs={"slug": item.slug}
+            ),
+            data={"quantity": "2"}
+        )
+
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {str(item.pk): 2}
+        )
+
+        # Remove the workshop.
+        response = self.client.post(
+            reverse(
+                "catalog:remove_from_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:cart")
+        )
+
+        # The session cart must now be empty.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {}
+        )
+
+        # Verify the empty-cart page.
+        response = self.client.get(
+            reverse("catalog:cart")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context["total_quantity"],
+            0
+        )
+
+        self.assertEqual(
+            response.context["cart_lines"],
+            []
+        )
+
+        self.assertContains(
+            response,
+            "Your cart is empty"
+        )
+    
+    def test_repeated_cart_removal_is_safe(self):
+        """
+        Removing an item twice must not cause errors
+        or modify other shopping-cart data.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_repeated_removal_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Preparation Workshop",
+            slug="repeated-removal-test",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/repeated-removal.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the service to the cart.
+        self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        remove_url = reverse(
+            "catalog:remove_from_cart",
+            kwargs={"slug": item.slug}
+        )
+
+        # First removal should empty the cart.
+        first_response = self.client.post(remove_url)
+
+        self.assertRedirects(
+            first_response,
+            reverse("catalog:cart")
+        )
+
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {}
+        )
+
+        # Attempt to remove the same item again.
+        second_response = self.client.post(remove_url)
+
+        self.assertRedirects(
+            second_response,
+            reverse("catalog:cart")
+        )
+
+        # The cart must remain empty.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {}
+        )
+    
+    def test_remove_from_cart_rejects_get_requests(self):
+        """
+        GET requests must not remove items
+        from the authenticated user's cart.
+        """
+
+        user = get_user_model().objects.create_user(
+            username="cart_removal_get_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="removal-get-test",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/removal-get-test.png",
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the service to the cart.
+        self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        # Verify the cart initially contains the item.
+        expected_cart = {str(item.pk): 1}
+
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            expected_cart
+        )
+
+        remove_url = reverse(
+            "catalog:remove_from_cart",
+            kwargs={"slug": item.slug}
+        )
+
+        # A GET request must be rejected.
+        response = self.client.get(remove_url)
+
+        self.assertEqual(
+            response.status_code,
+            405
+        )
+
+        # The service must remain in the cart.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            expected_cart
+        )

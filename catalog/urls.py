@@ -9,7 +9,13 @@ custom Administrator catalogue interface.
 
 from django.urls import path
 
-from .cart_views import add_to_cart, cart_detail
+from .cart_views import (
+    add_to_cart,
+    cart_detail,
+    remove_from_cart,
+    update_cart_quantity,
+)
+
 from .views import catalog_detail, catalog_list
 
 
@@ -35,6 +41,20 @@ urlpatterns = [
         "<slug:slug>/add-to-cart/",
         add_to_cart,
         name="add_to_cart"
+    ),
+
+    # Update the quantity of a cart item.
+    path(
+        "<slug:slug>/update-quantity/",
+        update_cart_quantity,
+        name="update_cart_quantity"
+    ),
+
+    # Remove a service from the cart.
+    path(
+        "<slug:slug>/remove-from-cart/",
+        remove_from_cart,
+        name="remove_from_cart"
     ),
 
     # View an individual career service.
