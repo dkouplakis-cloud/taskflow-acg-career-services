@@ -405,3 +405,62 @@ def catalog_item_edit(request, pk):
         "catalog/management/item_form.html",
         context
     )
+
+@role_required(UserProfile.Role.ADMIN)
+@require_http_methods(["GET", "POST"])
+def catalog_item_delete(request, pk):
+    """
+    Allow administrators to delete a catalogue
+    item only after explicit confirmation.
+
+    GET displays the confirmation page.
+    POST performs the deletion.
+    """
+
+    # Retrieve the item or return a 404 response.
+    item = get_object_or_404(
+        CatalogItem,
+        pk=pk
+    )
+
+    if request.method == "POST":
+
+        # Preserve the name for the success message.
+        item_name = item.name
+
+        try:
+            item.delete()
+
+        except ProtectedError:
+            # Prevent deletion if protected records
+            # depend on this catalogue item.
+            messages.error(
+                request,
+                "This catalogue item cannot be deleted "
+                "because other records depend on it."
+            )
+
+            return redirect(
+                "catalog_management:item_list"
+            )
+
+        messages.success(
+            request,
+            f'Catalogue item "{item_name}" deleted successfully.'
+        )
+
+        return redirect(
+            "catalog_management:item_list"
+        )
+
+    # GET displays confirmation without deleting.
+    context = {
+        "page_title": "Delete Catalogue Item",
+        "item": item,
+    }
+
+    return render(
+        request,
+        "catalog/management/item_confirm_delete.html",
+        context
+    )

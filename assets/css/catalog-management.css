@@ -1033,3 +1033,129 @@ section[aria-labelledby="category-directory-title"] > .card {
         white-space: normal;
     }
 }
+
+/* ==========================================================
+   TASKFLOW — CATALOGUE ITEM DELETE CONFIRMATION
+   Professional Dark Mode refinement.
+
+   Scoped exclusively to the item deletion page.
+   Does not affect Light Mode or other admin pages.
+   ========================================================== */
+
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page {
+    --tf-delete-surface: #1b2432;
+    --tf-delete-border: #39475a;
+    --tf-delete-text: #f3f6fb;
+    --tf-delete-muted: #bdc9d9;
+}
+
+/* Neutral charcoal confirmation and sidebar cards */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .card {
+    background: var(--tf-delete-surface) !important;
+    color: var(--tf-delete-text);
+    border-color: var(--tf-delete-border) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20) !important;
+}
+
+/* Clear headings and primary information */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .card h2,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .card dd {
+    color: var(--tf-delete-text);
+}
+
+/* Accessible secondary text and descriptions */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .text-body-secondary,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .text-secondary {
+    color: var(--tf-delete-muted) !important;
+}
+
+/* Dark red permanent-deletion warning */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .alert-danger {
+    --bs-alert-color: #ffe0e4;
+    --bs-alert-bg: #39242d;
+    --bs-alert-border-color: #94505d;
+
+    background-color: var(--bs-alert-bg) !important;
+    border: 1px solid var(--bs-alert-border-color) !important;
+    color: var(--bs-alert-color) !important;
+    border-radius: 12px;
+}
+
+/* Ensure all warning content remains legible */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .alert-danger strong,
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .alert-danger p {
+    color: #ffe0e4 !important;
+}
+
+/* Subtle section separators */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page hr {
+    border-color: var(--tf-delete-border);
+    opacity: 1;
+}
+
+/* Accessible secondary actions */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .btn-outline-secondary {
+    color: #e2eaf5;
+    border-color: #8798ac;
+}
+
+/* Improved Cancel button hover state */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .btn-outline-secondary:hover {
+    background-color: #344154;
+    border-color: #a7b5c7;
+    color: #ffffff;
+}
+
+/* Improved Edit Instead link */
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .btn-outline-primary {
+    color: #a9cfff;
+    border-color: #648fc4;
+}
+
+:is(
+    [data-theme="dark"] .catalog-management-page,
+    .catalog-management-page[data-theme="dark"]
+) .tf-item-delete-page .btn-outline-primary:hover {
+    background-color: #29496d;
+    border-color: #a9cfff;
+    color: #ffffff;
+}

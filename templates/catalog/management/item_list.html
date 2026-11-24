@@ -142,6 +142,10 @@
                 <th scope="col">
                   Status
                 </th>
+
+                <th scope="col" class="text-end pe-4">
+                  Actions
+                </th>
               </tr>
             </thead>
 
@@ -240,6 +244,31 @@
                         </span>
 
                       {% endif %}
+
+                    </div>
+
+                  </td>
+                   
+                  <!-- Catalogue item management actions -->
+                  <td class="text-end pe-4">
+
+                    <div class="d-inline-flex align-items-center gap-2">
+
+                      <a
+                        href="{% url 'catalog_management:item_edit' item.pk %}"
+                        class="btn btn-outline-primary btn-sm fw-semibold"
+                        aria-label="Edit {{ item.name }}"
+                      >
+                        Edit
+                      </a>
+
+                      <a
+                        href="{% url 'catalog_management:item_delete' item.pk %}"
+                        class="btn btn-outline-danger btn-sm fw-semibold"
+                        aria-label="Delete {{ item.name }}"
+                      >
+                        Delete
+                      </a>
 
                     </div>
 

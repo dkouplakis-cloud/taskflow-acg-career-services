@@ -1,0 +1,266 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Delete Catalogue Item | TaskFlow{% endblock %}
+
+{% block page_class %}catalog-management-page{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5 tf-item-delete-page">
+
+  <!-- Breadcrumb navigation -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:item_list' %}">
+          Catalogue Items
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active" aria-current="page">
+        Delete Catalogue Item
+      </li>
+
+    </ol>
+  </nav>
+
+  <!-- Page heading -->
+  <header class="mb-4">
+
+    <p class="text-uppercase small fw-semibold mb-2">
+      Catalogue Administration
+    </p>
+
+    <h1 class="fw-bold mb-2">
+      Delete Catalogue Item
+    </h1>
+
+    <p class="text-body-secondary mb-0">
+      Review the selected service before confirming
+      its removal from the catalogue.
+    </p>
+
+  </header>
+
+  <div class="row g-4">
+
+    <!-- Confirmation panel -->
+    <div class="col-lg-8">
+
+      <section
+        class="card border-0 shadow-sm"
+        aria-labelledby="delete-item-heading"
+      >
+
+        <div class="card-body p-4 p-lg-5">
+
+          <!-- Deletion warning -->
+          <div class="alert alert-danger" role="alert">
+
+            <strong>
+              Permanent deletion
+            </strong>
+
+            <p class="mb-0 mt-2">
+              You are about to remove this catalogue item
+              from TaskFlow. This action cannot be undone
+              through the administration interface.
+            </p>
+
+          </div>
+
+          <!-- Item information -->
+          <div class="d-flex align-items-start gap-3 mt-4 mb-4">
+
+            {% if item.image %}
+
+              <img
+                src="{{ item.image.url }}"
+                alt=""
+                width="96"
+                height="96"
+                class="rounded-3 border object-fit-cover"
+              >
+
+            {% endif %}
+
+            <div>
+
+              <h2
+                id="delete-item-heading"
+                class="h4 fw-bold mb-2"
+              >
+                {{ item.name }}
+              </h2>
+
+              <p class="text-body-secondary mb-0">
+                {{ item.description|truncatechars:180 }}
+              </p>
+
+            </div>
+
+          </div>
+
+          <!-- Service details -->
+          <dl class="row g-3 mb-4">
+
+            <div class="col-sm-6">
+
+              <dt class="text-body-secondary small mb-1">
+                Category
+              </dt>
+
+              <dd class="fw-semibold mb-0">
+                {{ item.category.name }}
+              </dd>
+
+            </div>
+
+            <div class="col-sm-6">
+
+              <dt class="text-body-secondary small mb-1">
+                Simulated Price
+              </dt>
+
+              <dd class="fw-semibold mb-0">
+                €{{ item.price|floatformat:2 }}
+              </dd>
+
+            </div>
+
+            <div class="col-sm-6">
+
+              <dt class="text-body-secondary small mb-1">
+                Delivery Format
+              </dt>
+
+              <dd class="fw-semibold mb-0">
+                {{ item.get_delivery_format_display }}
+              </dd>
+
+            </div>
+
+            <div class="col-sm-6">
+
+              <dt class="text-body-secondary small mb-1">
+                Publication Status
+              </dt>
+
+              <dd class="mb-0">
+                {% if item.is_active %}
+                  <span class="badge text-bg-success">
+                    Active
+                  </span>
+                {% else %}
+                  <span class="badge text-bg-secondary">
+                    Inactive
+                  </span>
+                {% endif %}
+              </dd>
+
+            </div>
+
+          </dl>
+
+          <hr class="my-4">
+
+          <!-- Explicit POST confirmation -->
+          <form
+            method="post"
+            action="{% url 'catalog_management:item_delete' item.pk %}"
+          >
+
+            {% csrf_token %}
+
+            <p class="fw-semibold mb-3">
+              Are you sure you want to delete
+              "{{ item.name }}"?
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+
+              <a
+                href="{% url 'catalog_management:item_list' %}"
+                class="btn btn-outline-secondary fw-semibold"
+              >
+                Cancel
+              </a>
+
+              <button
+                type="submit"
+                class="btn btn-danger fw-semibold"
+              >
+                Delete Catalogue Item
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Supporting information -->
+    <aside class="col-lg-4">
+
+      <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-4">
+
+          <h2 class="h5 fw-bold mb-3">
+            Before You Delete
+          </h2>
+
+          <p class="text-body-secondary">
+            Deleting a catalogue item removes its
+            database record and its listing from
+            the TaskFlow catalogue.
+          </p>
+
+          <p class="text-body-secondary">
+            If other protected records depend on
+            this service, deletion may be blocked.
+          </p>
+
+          <p class="text-body-secondary mb-0">
+            If the service is temporarily unavailable,
+            consider editing its availability or
+            publication status instead.
+          </p>
+
+        </div>
+
+      </div>
+
+      <a
+        href="{% url 'catalog_management:item_edit' item.pk %}"
+        class="btn btn-outline-primary w-100 fw-semibold mt-3"
+      >
+        Edit Instead
+      </a>
+
+    </aside>
+
+  </div>
+
+</main>
+{% endblock %}

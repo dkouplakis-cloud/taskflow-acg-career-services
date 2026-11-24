@@ -4,8 +4,16 @@ from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import resolve_url
 from .forms import CategoryForm
-from .models import Category
+from .models import Category, CatalogItem
 from core.models import UserProfile
+
+from io import BytesIO
+from tempfile import TemporaryDirectory
+
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
+
 
 class ManagementDashboardTests(TestCase):
     """
@@ -750,3 +758,557 @@ class CategoryManagementViewTests(TestCase):
             Category.objects.count(),
             1
         )
+
+class CatalogItemManagementViewTests(TestCase):
+    """
+    Test Catalogue Item Management operations
+    and administrator access permissions.
+    """
+
+    def setUp(self):
+        """
+        Create an administrator in Django's
+        isolated test database.
+        """
+
+        self.admin_user = get_user_model().objects.create_user(
+            username="catalog_item_admin_test",
+            password="TestPassword123!"
+        )
+
+        profile = self.admin_user.profile
+        profile.role = UserProfile.Role.ADMIN
+        profile.save()
+
+        self.client.force_login(self.admin_user)
+
+    def test_administrator_can_access_item_directory(self):
+        """
+        Administrators must be able to access
+        the Catalogue Items Directory.
+        """
+
+        response = self.client.get(
+            reverse("catalog_management:item_list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "catalog/management/item_list.html"
+        )
+
+        self.assertContains(
+            response,
+            "Catalogue Directory"
+        )
+    
+    def test_regular_user_cannot_access_item_directory(self):
+        """
+        Regular users must not access the
+        administrator's Catalogue Items Directory.
+        """
+
+        # Create a regular user in the test database.
+        regular_user = get_user_model().objects.create_user(
+            username="catalog_item_regular_test",
+            password="TestPassword123!"
+        )
+
+        # Confirm the default role.
+        self.assertEqual(
+            regular_user.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        # Authenticate as the regular user.
+        self.client.force_login(regular_user)
+
+        # Attempt to access the administrator directory.
+        response = self.client.get(
+            reverse("catalog_management:item_list")
+        )
+
+        # Access must be forbidden.
+        self.assertEqual(
+            response.status_code,
+            403
+        )
+    
+    def test_regular_user_cannot_access_item_creation(self):
+        """
+        Regular users must not be able to access
+        the administrator-only item creation form.
+        """
+
+        regular_user = get_user_model().objects.create_user(
+            username="catalog_item_create_regular_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(regular_user)
+
+        response = self.client.get(
+            reverse("catalog_management:item_create")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            403
+        )
+    
+
+    def test_regular_user_cannot_create_item_via_post(self):
+        """
+        Regular users must not create catalogue
+        items through direct POST requests.
+        """
+
+        # Create a regular user.
+        regular_user = get_user_model().objects.create_user(
+            username="catalog_item_post_regular_test",
+            password="TestPassword123!"
+        )
+
+        # Create a category in the isolated test database.
+        category = Category.objects.create(
+            name="Test Workshops",
+            slug="test-workshops"
+        )
+
+        self.client.force_login(regular_user)
+
+        # Attempt to bypass the creation interface.
+        response = self.client.post(
+            reverse("catalog_management:item_create"),
+            data={
+                "name": "Unauthorized Workshop",
+                "description": "Unauthorized creation attempt.",
+                "category": str(category.pk),
+                "price": "0.00",
+                "delivery_format": "in_person",
+                "duration_minutes": "30",
+                "is_active": "on",
+                "is_available": "on",
+            }
+        )
+
+        # The server must reject the request.
+        self.assertEqual(response.status_code, 403)
+
+        # No unauthorized item may be created.
+        self.assertFalse(
+            CatalogItem.objects.filter(
+                name="Unauthorized Workshop"
+            ).exists()
+        )
+    
+    def test_regular_user_cannot_edit_item_via_post(self):
+        """
+        Regular users must not modify existing
+        catalogue items through direct POST requests.
+        """
+
+        category = Category.objects.create(
+            name="Protected Workshops",
+            slug="protected-workshops"
+        )
+
+        item = CatalogItem.objects.create(
+            name="Protected Workshop",
+            slug="protected-workshop",
+            description="Original description",
+            category=category,
+            image="catalog/items/test-protected.png",
+            price="0.00",
+            delivery_format="in_person",
+            duration_minutes=90
+        )
+
+        regular_user = get_user_model().objects.create_user(
+            username="catalog_item_edit_regular_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(regular_user)
+
+        response = self.client.post(
+            reverse(
+                "catalog_management:item_edit",
+                args=[item.pk]
+            ),
+            data={
+                "name": "Unauthorized Modification",
+                "description": "Modified without permission.",
+                "category": str(category.pk),
+                "price": "0.00",
+                "delivery_format": "online",
+                "duration_minutes": "30",
+            }
+        )
+
+        # The request must be rejected.
+        self.assertEqual(response.status_code, 403)
+
+        # The original database record must remain unchanged.
+        item.refresh_from_db()
+
+        self.assertEqual(item.name, "Protected Workshop")
+        self.assertEqual(item.description, "Original description")
+        self.assertEqual(item.duration_minutes, 90)
+    
+    def test_regular_user_cannot_delete_item_via_post(self):
+        """
+        Regular users must not delete catalogue
+        items through direct POST requests.
+        """
+
+        category = Category.objects.create(
+            name="Protected Workshops",
+            slug="protected-workshops"
+        )
+
+        item = CatalogItem.objects.create(
+            name="Protected Workshop",
+            slug="protected-workshop",
+            description="This item must not be deleted.",
+            category=category,
+            image="catalog/items/test-protected.png",
+            price="0.00",
+            delivery_format="in_person",
+            duration_minutes=90
+        )
+
+        regular_user = get_user_model().objects.create_user(
+            username="catalog_item_delete_regular_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(regular_user)
+
+        response = self.client.post(
+            reverse(
+                "catalog_management:item_delete",
+                args=[item.pk]
+            )
+        )
+
+        # Unauthorized deletion must be rejected.
+        self.assertEqual(response.status_code, 403)
+
+        # Verify the original item still exists.
+        self.assertTrue(
+            CatalogItem.objects.filter(
+                pk=item.pk,
+                name="Protected Workshop"
+            ).exists()
+        )
+    
+    def test_get_request_does_not_delete_catalog_item(self):
+        """
+        Opening the deletion confirmation page
+        must not remove the catalogue item.
+        """
+
+        category = Category.objects.create(
+            name="Deletion Safety Workshops",
+            slug="deletion-safety-workshops"
+        )
+
+        item = CatalogItem.objects.create(
+            name="Deletion Safety Test Item",
+            slug="deletion-safety-test-item",
+            description="Must survive a GET request.",
+            category=category,
+            image="catalog/items/test-safety.png",
+            price="0.00",
+            delivery_format="in_person",
+            duration_minutes=30
+        )
+
+        response = self.client.get(
+            reverse(
+                "catalog_management:item_delete",
+                args=[item.pk]
+            )
+        )
+
+        # The confirmation page should load.
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(
+            response,
+            "catalog/management/item_confirm_delete.html"
+        )
+
+        # GET must not delete the database record.
+        self.assertTrue(
+            CatalogItem.objects.filter(pk=item.pk).exists()
+        )
+    
+    def test_catalog_item_delete_requires_csrf_token(self):
+        """
+        Deleting a catalogue item through POST
+        must require a valid CSRF token.
+        """
+
+        # Create a category in the isolated test database.
+        category = Category.objects.create(
+            name="CSRF Test Workshops",
+            slug="csrf-test-workshops"
+        )
+
+        # Create a temporary catalogue item.
+        item = CatalogItem.objects.create(
+            name="CSRF Protected Workshop",
+            slug="csrf-protected-workshop",
+            description="This item must survive an invalid request.",
+            category=category,
+            image="catalog/items/csrf-test.png",
+            price="0.00",
+            delivery_format="in_person",
+            duration_minutes=30
+        )
+
+        # Enable actual CSRF enforcement.
+        csrf_client = Client(
+            enforce_csrf_checks=True
+        )
+
+        # Authenticate as an administrator.
+        csrf_client.force_login(self.admin_user)
+
+        # Submit deletion without a CSRF token.
+        response = csrf_client.post(
+            reverse(
+                "catalog_management:item_delete",
+                args=[item.pk]
+            )
+        )
+
+        # Django must reject the request.
+        self.assertEqual(
+            response.status_code,
+            403
+        )
+
+        # The catalogue item must remain intact.
+        self.assertTrue(
+            CatalogItem.objects.filter(
+                pk=item.pk
+            ).exists()
+        )
+    
+    def test_administrator_can_delete_catalog_item(self):
+        """
+        Administrators can delete catalogue items
+        through a confirmed POST request.
+        """
+
+        category = Category.objects.create(
+            name="Deletion Test Workshops",
+            slug="deletion-test-workshops"
+        )
+
+        item = CatalogItem.objects.create(
+            name="Temporary Deletion Workshop",
+            slug="temporary-deletion-workshop",
+            description="Temporary test record.",
+            category=category,
+            image="catalog/items/deletion-test.png",
+            price="0.00",
+            delivery_format="in_person",
+            duration_minutes=30
+        )
+
+        # Submit the deletion request as an administrator.
+        response = self.client.post(
+            reverse(
+                "catalog_management:item_delete",
+                args=[item.pk]
+            )
+        )
+
+        # Administrator returns to the directory.
+        self.assertRedirects(
+            response,
+            reverse("catalog_management:item_list")
+        )
+
+        # The selected item must no longer exist.
+        self.assertFalse(
+            CatalogItem.objects.filter(pk=item.pk).exists()
+        )
+    
+    def test_administrator_can_create_catalog_item(self):
+        """
+        Verify that an administrator can create
+        a catalogue item with a valid uploaded image.
+        """
+
+        category = Category.objects.create(
+            name="Creation Test Workshops",
+            slug="creation-test-workshops"
+        )
+
+        # Generate a genuine PNG image in memory.
+        image_buffer = BytesIO()
+
+        Image.new(
+            "RGB",
+            (10, 10),
+            color="white"
+        ).save(image_buffer, format="PNG")
+
+        uploaded_image = SimpleUploadedFile(
+            "test-workshop.png",
+            image_buffer.getvalue(),
+            content_type="image/png"
+        )
+
+        # Keep uploaded test files separate from real media.
+        with TemporaryDirectory() as media_directory:
+            with override_settings(MEDIA_ROOT=media_directory):
+
+                response = self.client.post(
+                    reverse("catalog_management:item_create"),
+                    data={
+                        "name": "Automated Test Workshop",
+                        "description": "Created by an automated test.",
+                        "category": str(category.pk),
+                        "image": uploaded_image,
+                        "price": "0.00",
+                        "delivery_format": "in_person",
+                        "target_audience": "Students",
+                        "duration_minutes": "60",
+                        "is_active": "on",
+                        "is_available": "on",
+                    }
+                )
+
+                self.assertRedirects(
+                    response,
+                    reverse("catalog_management:dashboard")
+                )
+
+                item = CatalogItem.objects.get(
+                    name="Automated Test Workshop"
+                )
+
+                self.assertEqual(item.category, category)
+                self.assertEqual(item.duration_minutes, 60)
+                self.assertTrue(item.is_active)
+                self.assertTrue(item.is_available)
+                self.assertTrue(item.image.storage.exists(item.image.name))
+    
+    def test_administrator_can_edit_catalog_item(self):
+        """
+        Administrators can update an existing
+        catalogue item without creating a duplicate
+        or losing its uploaded image.
+        """
+
+        category = Category.objects.create(
+            name="Editing Test Workshops",
+            slug="editing-test-workshops"
+        )
+
+        # Generate a genuine PNG image.
+        image_buffer = BytesIO()
+
+        Image.new(
+            "RGB",
+            (10, 10),
+            color="white"
+        ).save(image_buffer, format="PNG")
+
+        uploaded_image = SimpleUploadedFile(
+            "edit-test.png",
+            image_buffer.getvalue(),
+            content_type="image/png"
+        )
+
+        # Isolate uploaded files from real media.
+        with TemporaryDirectory() as media_directory:
+            with override_settings(MEDIA_ROOT=media_directory):
+
+                # Create an existing catalogue item.
+                item = CatalogItem.objects.create(
+                    name="Edit Test Workshop",
+                    slug="edit-test-workshop",
+                    description="Original description",
+                    category=category,
+                    image=uploaded_image,
+                    price="0.00",
+                    delivery_format="in_person",
+                    target_audience="Students",
+                    duration_minutes=90,
+                    is_active=True,
+                    is_available=True
+                )
+
+                original_id = item.pk
+                original_image = item.image.name
+
+                # Submit updated information without
+                # uploading a replacement image.
+                response = self.client.post(
+                    reverse(
+                        "catalog_management:item_edit",
+                        args=[item.pk]
+                    ),
+                    data={
+                        "name": "Updated Edit Test Workshop",
+                        "description": "Updated description",
+                        "category": str(category.pk),
+                        "price": "12.50",
+                        "delivery_format": "online",
+                        "target_audience": "ACG students",
+                        "duration_minutes": "95",
+                        "is_active": "on",
+                        "is_available": "on",
+                    }
+                )
+
+                # Verify the expected redirect.
+                self.assertRedirects(
+                    response,
+                    reverse("catalog_management:item_list")
+                )
+
+                # Retrieve the updated database record.
+                item.refresh_from_db()
+
+                # Confirm that the existing record changed.
+                self.assertEqual(item.pk, original_id)
+                self.assertEqual(
+                    item.name,
+                    "Updated Edit Test Workshop"
+                )
+                self.assertEqual(
+                    item.description,
+                    "Updated description"
+                )
+                self.assertEqual(item.duration_minutes, 95)
+                self.assertEqual(item.delivery_format, "online")
+                self.assertEqual(str(item.price), "12.50")
+
+                # Existing slug and image are preserved.
+                self.assertEqual(
+                    item.slug,
+                    "edit-test-workshop"
+                )
+                self.assertEqual(item.image.name, original_image)
+                self.assertTrue(
+                    item.image.storage.exists(item.image.name)
+                )
+
+                # Editing must not create a duplicate.
+                self.assertEqual(
+                    CatalogItem.objects.count(),
+                    1
+                )
