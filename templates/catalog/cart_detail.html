@@ -56,7 +56,7 @@
 
         </header>
 
-        {% if cart_lines %}
+        {% if cart_lines or missing_item_ids %}
 
             <!-- Populated shopping cart -->
             <div class="tf-cart__layout">
@@ -110,6 +110,16 @@
                                     {{ line.item.category.name }}
                                 </span>
 
+                                {% if not line.can_checkout %}
+                                    <p
+                                        class="tf-cart__unavailable"
+                                        role="status"
+                                    >
+                                        This service is no longer available for checkout.
+                                        Please remove it from your cart to continue.
+                                    </p>
+                                {% endif %}
+
                                 <h3 class="tf-cart__item-title">
 
                                     <a href="{% url 'catalog:detail' slug=line.item.slug %}">
@@ -128,7 +138,9 @@
                                 </p>
 
                                 <div class="tf-cart__item-bottom">
-                                                                        
+
+                                    {% if line.can_checkout %}
+
                                     <!-- Update the quantity of this cart item -->
                                     <form
                                         method="post"
@@ -169,6 +181,16 @@
                                         </button>
                                     </form>
 
+                                    {% else %}
+
+                                        <!-- Read-only quantity for unavailable services -->
+                                        <div class="tf-cart__item-quantity">
+                                            <span>Quantity</span>
+                                            <strong>{{ line.quantity }}</strong>
+                                        </div>
+
+                                    {% endif %}
+
                                     <div class="tf-cart__item-pricing">
 
                                         <span class="tf-cart__unit-price">
@@ -206,6 +228,45 @@
                                         aria-label="Remove {{ line.item.name }} from cart"
                                     >
                                         Remove from cart
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                    {% for item_id in missing_item_ids %}
+
+                        <article class="tf-cart__item tf-cart__item--missing">
+
+                            <div class="tf-cart__item-details">
+
+                                <span class="tf-cart__item-category">
+                                    Removed from catalogue
+                                </span>
+
+                                <h3 class="tf-cart__item-title">
+                                    Deleted Service #{{ item_id }}
+                                </h3>
+
+                                <p class="tf-cart__unavailable" role="status">
+                                    This service no longer exists in the catalogue.
+                                    Please remove it from your cart before checkout.
+                                </p>
+
+                                <form
+                                    method="post"
+                                    action="{% url 'catalog:remove_missing_cart_item' item_id=item_id %}"
+                                >
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-danger"
+                                    >
+                                        Remove deleted service
                                     </button>
                                 </form>
 
@@ -283,6 +344,47 @@
                                 simulated. No real payments are
                                 processed.
                             </p>
+
+                            <!-- Simulated checkout -->
+
+                            {% if has_unavailable_items %}
+
+                                <p
+                                    id="cart-checkout-warning"
+                                    class="tf-cart__checkout-warning"
+                                    role="status"
+                                >
+                                    Checkout is currently unavailable because
+                                    your cart contains an unavailable or missing
+                                    service. Please resolve these selections
+                                    before placing your order.
+                                </p>
+
+                            {% endif %}
+
+                            <form
+                                method="post"
+                                action="{% url 'catalog:place_order' %}"
+                                class="tf-cart__checkout-form"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary tf-cart__checkout-button"
+                                    {% if has_unavailable_items %}
+                                        disabled
+                                        aria-describedby="cart-checkout-warning"
+                                    {% endif %}
+                                >
+                                    {% if has_unavailable_items %}
+                                        Checkout Unavailable
+                                    {% else %}
+                                        Place Order
+                                    {% endif %}
+                                </button>
+
+                            </form>
 
                         </div>
 

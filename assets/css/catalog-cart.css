@@ -733,3 +733,151 @@
         transition: none;
     }
 }
+
+/* ==========================================================
+   CART — SIMULATED CHECKOUT
+   ========================================================== */
+
+/* Checkout form */
+.tf-cart-page .tf-cart__checkout-form {
+    width: 100%;
+    margin: 20px 0 0;
+}
+
+/* Primary checkout button */
+.tf-cart-page .tf-cart__checkout-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 52px;
+    padding: 13px 20px;
+
+    border-radius: 11px;
+
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 700;
+    text-align: center;
+
+    /* Explicit Bootstrap colors for both themes */
+    --bs-btn-bg: #1d4ed8;
+    --bs-btn-border-color: #1d4ed8;
+    --bs-btn-color: #ffffff;
+
+    --bs-btn-hover-bg: #1e40af;
+    --bs-btn-hover-border-color: #1e40af;
+    --bs-btn-hover-color: #ffffff;
+
+    --bs-btn-active-bg: #1e3a8a;
+    --bs-btn-active-border-color: #1e3a8a;
+    --bs-btn-active-color: #ffffff;
+
+    --bs-btn-disabled-bg: #64748b;
+    --bs-btn-disabled-border-color: #64748b;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* Hover interaction */
+.tf-cart-page .tf-cart__checkout-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(29, 78, 216, 0.22);
+}
+
+/* Keyboard accessibility */
+.tf-cart-page .tf-cart__checkout-button:focus-visible {
+    outline: 3px solid var(--cart-accent);
+    outline-offset: 4px;
+}
+
+/* Reduced-motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .tf-cart-page .tf-cart__checkout-button {
+        transition: none;
+    }
+
+    .tf-cart-page .tf-cart__checkout-button:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================================
+   CART — UNAVAILABLE SERVICES AND CHECKOUT STATES
+   ========================================================== */
+
+/* Warning displayed on an unavailable service card */
+.tf-cart-page .tf-cart__unavailable {
+    margin: 8px 0 16px;
+    padding: 12px 15px;
+
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-left: 3px solid #dc2626;
+    border-radius: 9px;
+
+    background-color: rgba(220, 38, 38, 0.07);
+    color: #991b1b;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+/* Warning displayed above the checkout button */
+.tf-cart-page .tf-cart__checkout-warning {
+    margin: 20px 0 12px;
+    padding: 15px 17px;
+
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 10px;
+
+    background-color: rgba(220, 38, 38, 0.07);
+    color: #991b1b;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.7;
+}
+
+/* Dark Mode warning contrast */
+[data-theme="dark"] .tf-cart-page .tf-cart__unavailable,
+[data-theme="dark"] .tf-cart-page .tf-cart__checkout-warning {
+    background-color: rgba(248, 113, 113, 0.10);
+    border-color: rgba(248, 113, 113, 0.30);
+    color: #fecaca;
+}
+
+[data-theme="dark"] .tf-cart-page .tf-cart__unavailable {
+    border-left-color: #f87171;
+}
+
+/* Disabled checkout button */
+.tf-cart-page .tf-cart__checkout-button:disabled {
+    --bs-btn-disabled-bg: #64748b;
+    --bs-btn-disabled-border-color: #64748b;
+    --bs-btn-disabled-color: #ffffff;
+
+    background-color: #64748b;
+    border-color: #64748b;
+    color: #ffffff;
+
+    opacity: 1;
+    cursor: not-allowed;
+
+    transform: none;
+    box-shadow: none;
+}
+
+/* No hover animation when checkout is unavailable */
+.tf-cart-page .tf-cart__checkout-button:disabled:hover {
+    background-color: #64748b;
+    border-color: #64748b;
+
+    transform: none;
+    box-shadow: none;
+}

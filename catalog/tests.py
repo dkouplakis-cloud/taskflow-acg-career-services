@@ -58,7 +58,7 @@ class ManagementDashboardTests(TestCase):
             response,
             "Catalogue Overview"
         )
-    
+
     def test_regular_user_cannot_access_dashboard(self):
         """
         Regular Users must not access the
@@ -268,7 +268,7 @@ class CategoryManagementViewTests(TestCase):
 
         self.assertIsNone(category.parent)
         self.assertTrue(category.is_active)
-    
+
     def test_administrator_can_edit_category(self):
         """
         Verify that an administrator can update
@@ -328,7 +328,7 @@ class CategoryManagementViewTests(TestCase):
             Category.objects.count(),
             1
         )
-    
+
     def test_administrator_can_delete_empty_category(self):
         """
         Verify that an administrator can delete
@@ -369,7 +369,7 @@ class CategoryManagementViewTests(TestCase):
             Category.objects.count(),
             0
         )
-    
+
     def test_cannot_delete_category_with_subcategories(self):
         """
         Verify that a parent category cannot be
@@ -420,7 +420,7 @@ class CategoryManagementViewTests(TestCase):
             child.parent_id,
             parent.pk
         )
-    
+
     def test_regular_user_cannot_access_category_management(self):
         """
         Verify that regular users cannot access
@@ -469,7 +469,7 @@ class CategoryManagementViewTests(TestCase):
                     response.status_code,
                     403
                 )
-    
+
     def test_regular_user_cannot_modify_categories_via_post(self):
         """
         Verify that regular users cannot create,
@@ -553,7 +553,7 @@ class CategoryManagementViewTests(TestCase):
             Category.objects.count(),
             1
         )
-    
+
     def test_get_request_does_not_delete_category(self):
         """
         Verify that visiting the deletion
@@ -595,7 +595,7 @@ class CategoryManagementViewTests(TestCase):
             response,
             "Safe Category"
         )
-    
+
     def test_category_delete_requires_csrf_token(self):
         """
         Verify that deleting a category through POST
@@ -631,7 +631,7 @@ class CategoryManagementViewTests(TestCase):
         self.assertTrue(
             Category.objects.filter(pk=category.pk).exists()
         )
-    
+
     def test_unauthenticated_user_redirected_to_login(self):
         """
         Verify that anonymous visitors are redirected
@@ -806,7 +806,7 @@ class CatalogItemManagementViewTests(TestCase):
             response,
             "Catalogue Directory"
         )
-    
+
     def test_regular_user_cannot_access_item_directory(self):
         """
         Regular users must not access the
@@ -838,7 +838,7 @@ class CatalogItemManagementViewTests(TestCase):
             response.status_code,
             403
         )
-    
+
     def test_regular_user_cannot_access_item_creation(self):
         """
         Regular users must not be able to access
@@ -860,7 +860,7 @@ class CatalogItemManagementViewTests(TestCase):
             response.status_code,
             403
         )
-    
+
 
     def test_regular_user_cannot_create_item_via_post(self):
         """
@@ -906,7 +906,7 @@ class CatalogItemManagementViewTests(TestCase):
                 name="Unauthorized Workshop"
             ).exists()
         )
-    
+
     def test_regular_user_cannot_edit_item_via_post(self):
         """
         Regular users must not modify existing
@@ -960,7 +960,7 @@ class CatalogItemManagementViewTests(TestCase):
         self.assertEqual(item.name, "Protected Workshop")
         self.assertEqual(item.description, "Original description")
         self.assertEqual(item.duration_minutes, 90)
-    
+
     def test_regular_user_cannot_delete_item_via_post(self):
         """
         Regular users must not delete catalogue
@@ -1007,7 +1007,7 @@ class CatalogItemManagementViewTests(TestCase):
                 name="Protected Workshop"
             ).exists()
         )
-    
+
     def test_get_request_does_not_delete_catalog_item(self):
         """
         Opening the deletion confirmation page
@@ -1049,7 +1049,7 @@ class CatalogItemManagementViewTests(TestCase):
         self.assertTrue(
             CatalogItem.objects.filter(pk=item.pk).exists()
         )
-    
+
     def test_catalog_item_delete_requires_csrf_token(self):
         """
         Deleting a catalogue item through POST
@@ -1102,7 +1102,7 @@ class CatalogItemManagementViewTests(TestCase):
                 pk=item.pk
             ).exists()
         )
-    
+
     def test_administrator_can_delete_catalog_item(self):
         """
         Administrators can delete catalogue items
@@ -1143,7 +1143,7 @@ class CatalogItemManagementViewTests(TestCase):
         self.assertFalse(
             CatalogItem.objects.filter(pk=item.pk).exists()
         )
-    
+
     def test_administrator_can_create_catalog_item(self):
         """
         Verify that an administrator can create
@@ -1204,7 +1204,7 @@ class CatalogItemManagementViewTests(TestCase):
                 self.assertTrue(item.is_active)
                 self.assertTrue(item.is_available)
                 self.assertTrue(item.image.storage.exists(item.image.name))
-    
+
     def test_administrator_can_edit_catalog_item(self):
         """
         Administrators can update an existing
@@ -1440,7 +1440,7 @@ class PublicCatalogViewTests(TestCase):
             response,
             "?page=1&amp;q=CV&amp;category=career-workshops"
         )
-    
+
     def test_catalogue_excludes_inactive_and_unavailable_items(self):
         """
         The public Catalogue must display only
@@ -1538,7 +1538,7 @@ class PublicCatalogViewTests(TestCase):
             response,
             "Hidden Category Workshop"
         )
-    
+
     def test_catalogue_search_matches_name_and_description(self):
         """
         Search must match service names and descriptions,
@@ -1622,7 +1622,7 @@ class PublicCatalogViewTests(TestCase):
                 "Career Preparation Clinic"
             }
         )
-    
+
     def test_catalogue_filters_by_category_and_search(self):
         """
         Category filtering must return only items in
@@ -1726,7 +1726,7 @@ class PublicCatalogViewTests(TestCase):
             combined_results,
             ["CV Writing Workshop"]
         )
-    
+
     def test_catalogue_item_detail_page_and_link(self):
         """
         Available catalogue items must have a working
@@ -1810,7 +1810,7 @@ class PublicCatalogViewTests(TestCase):
             detail_response,
             "In Person"
         )
-    
+
     def test_catalogue_detail_rejects_hidden_and_missing_items(self):
         """
         Restricted and nonexistent catalogue items
@@ -1890,7 +1890,7 @@ class PublicCatalogViewTests(TestCase):
                     response.status_code,
                     404
                 )
-    
+
     def test_add_to_cart_and_display_cart(self):
         """
         Adding a service must update the session and
@@ -1962,7 +1962,7 @@ class PublicCatalogViewTests(TestCase):
             response.context["total_amount"],
             Decimal("12.50")
         )
-    
+
     def test_add_to_cart_rejects_get_requests(self):
         """
         A GET request must not modify
@@ -2007,7 +2007,7 @@ class PublicCatalogViewTests(TestCase):
             self.client.session.get("catalog_cart", {}),
             {}
         )
-    
+
     def test_update_cart_quantity_recalculates_total(self):
         """
         Updating a cart item's quantity must persist
@@ -2080,7 +2080,7 @@ class PublicCatalogViewTests(TestCase):
             response.context["total_amount"],
             Decimal("25.00")
         )
-    
+
     def test_update_cart_quantity_rejects_invalid_values(self):
         """
         Invalid quantities must be rejected without
@@ -2154,7 +2154,7 @@ class PublicCatalogViewTests(TestCase):
                     self.client.session["catalog_cart"],
                     {str(item.pk): 1}
                 )
-    
+
     def test_remove_from_cart_clears_item_and_shows_empty_state(self):
         """
         Removing an item must delete it from the session
@@ -2246,7 +2246,7 @@ class PublicCatalogViewTests(TestCase):
             response,
             "Your cart is empty"
         )
-    
+
     def test_repeated_cart_removal_is_safe(self):
         """
         Removing an item twice must not cause errors
@@ -2315,7 +2315,7 @@ class PublicCatalogViewTests(TestCase):
             self.client.session["catalog_cart"],
             {}
         )
-    
+
     def test_remove_from_cart_rejects_get_requests(self):
         """
         GET requests must not remove items
@@ -2379,3 +2379,642 @@ class PublicCatalogViewTests(TestCase):
             self.client.session["catalog_cart"],
             expected_cart
         )
+
+class CheckoutServiceTests(TestCase):
+    """
+    Test simulated order creation and checkout
+    business logic.
+    """
+
+    def test_checkout_creates_order_with_correct_totals(self):
+        """
+        Checkout must create an order with the correct
+        user, items, quantities, prices, and total.
+        """
+
+        from decimal import Decimal
+
+        from .checkout_service import create_order_from_cart
+        from .models import Order, OrderItem
+
+        # Create a test user.
+        user = get_user_model().objects.create_user(
+            username="checkout_test_user",
+            password="TestPassword123!"
+        )
+
+        # Create an active category.
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        # First catalogue service.
+        workshop = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="checkout-cv-workshop",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/checkout-cv.png",
+            price=Decimal("12.50"),
+            is_active=True,
+            is_available=True
+        )
+
+        # Second catalogue service.
+        seminar = CatalogItem.objects.create(
+            name="Career Development Seminar",
+            slug="checkout-career-seminar",
+            description="Career development guidance.",
+            category=category,
+            image="catalog/items/checkout-seminar.png",
+            price=Decimal("5.25"),
+            is_active=True,
+            is_available=True
+        )
+
+        # Simulate a cart containing three units.
+        cart = {
+            str(workshop.pk): 2,
+            str(seminar.pk): 1
+        }
+
+        # Create the simulated order.
+        order = create_order_from_cart(user, cart)
+
+        # Verify that exactly one order was created.
+        self.assertEqual(Order.objects.count(), 1)
+
+        self.assertEqual(order.user, user)
+
+        self.assertEqual(
+            order.status,
+            Order.OrderStatus.PLACED
+        )
+
+        # 2 × €12.50 + 1 × €5.25 = €30.25
+        self.assertEqual(
+            order.total_amount,
+            Decimal("30.25")
+        )
+
+        # Verify both order items were saved.
+        self.assertEqual(
+            OrderItem.objects.filter(order=order).count(),
+            2
+        )
+
+        order_lines = {
+            line.catalog_item_id: line
+            for line in order.items.all()
+        }
+
+        # Verify the first item's historical snapshot.
+        cv_line = order_lines[workshop.pk]
+
+        self.assertEqual(
+            cv_line.item_name,
+            "CV Writing Workshop"
+        )
+
+        self.assertEqual(cv_line.quantity, 2)
+
+        self.assertEqual(
+            cv_line.unit_price,
+            Decimal("12.50")
+        )
+
+        self.assertEqual(
+            cv_line.subtotal,
+            Decimal("25.00")
+        )
+
+        # Verify the second item.
+        seminar_line = order_lines[seminar.pk]
+
+        self.assertEqual(seminar_line.quantity, 1)
+
+        self.assertEqual(
+            seminar_line.unit_price,
+            Decimal("5.25")
+        )
+
+        self.assertEqual(
+            seminar_line.subtotal,
+            Decimal("5.25")
+        )
+
+    def test_checkout_rejects_empty_cart(self):
+        """
+        Checkout must reject an empty cart without
+        creating any order or order-item records.
+        """
+
+        from .checkout_service import (
+            CheckoutError,
+            create_order_from_cart,
+        )
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_empty_cart_test",
+            password="TestPassword123!"
+        )
+
+        # Attempt checkout with an empty cart.
+        with self.assertRaises(CheckoutError) as context:
+            create_order_from_cart(user, {})
+
+        # Verify the expected error message.
+        self.assertEqual(
+            str(context.exception),
+            "Your cart is empty."
+        )
+
+        # No orders or order items must be created.
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(OrderItem.objects.count(), 0)
+
+    def test_checkout_rejects_unavailable_service(self):
+        """
+        Checkout must reject the entire cart if
+        any selected service becomes unavailable.
+        """
+
+        from .checkout_service import (
+            CheckoutError,
+            create_order_from_cart,
+        )
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_unavailable_test",
+            password="TestPassword123!"
+        )
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        # First workshop remains available.
+        available_item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="checkout-available-cv",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/available-test.png",
+            price=Decimal("10.00"),
+            is_active=True,
+            is_available=True
+        )
+
+        # Second workshop has become unavailable.
+        unavailable_item = CatalogItem.objects.create(
+            name="Interview Preparation Workshop",
+            slug="checkout-unavailable-interview",
+            description="Improve interview skills.",
+            category=category,
+            image="catalog/items/unavailable-test.png",
+            price=Decimal("15.00"),
+            is_active=True,
+            is_available=False
+        )
+
+        cart = {
+            str(available_item.pk): 1,
+            str(unavailable_item.pk): 1
+        }
+
+        # Checkout must reject the entire cart.
+        with self.assertRaises(CheckoutError) as context:
+            create_order_from_cart(user, cart)
+
+        self.assertIn(
+            "no longer available",
+            str(context.exception)
+        )
+
+        # Neither service should be ordered.
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(OrderItem.objects.count(), 0)
+
+    def test_checkout_rolls_back_on_order_item_failure(self):
+        """
+        If saving order items fails, the entire
+        checkout transaction must be rolled back.
+        """
+
+        from decimal import Decimal
+        from unittest.mock import patch
+
+        from .checkout_service import create_order_from_cart
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_rollback_test",
+            password="TestPassword123!"
+        )
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="checkout-rollback-workshop",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/rollback-test.png",
+            price=Decimal("12.50"),
+            is_active=True,
+            is_available=True
+        )
+
+        cart = {
+            str(item.pk): 1
+        }
+
+        # Simulate a failure when saving order items.
+        with patch(
+            "catalog.checkout_service.OrderItem.objects.bulk_create",
+            side_effect=RuntimeError(
+                "Simulated order-item failure"
+            )
+        ):
+            with self.assertRaisesRegex(
+                RuntimeError,
+                "Simulated order-item failure"
+            ):
+                create_order_from_cart(user, cart)
+
+        # The order created before the failure
+        # must have been rolled back.
+        self.assertEqual(
+            Order.objects.count(),
+            0
+        )
+
+        # No order items should remain.
+        self.assertEqual(
+            OrderItem.objects.count(),
+            0
+        )
+
+class CheckoutViewTests(TestCase):
+    """
+    Test the simulated checkout HTTP workflow,
+    including session handling and redirects.
+    """
+
+    def test_successful_checkout_clears_cart(self):
+        """
+        Successful checkout must create an order,
+        clear the session cart, and redirect to
+        the correct confirmation page.
+        """
+
+        from decimal import Decimal
+
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_view_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="checkout-view-workshop",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/checkout-view-test.png",
+            price=Decimal("12.50"),
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the service through the actual endpoint.
+        add_response = self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        self.assertEqual(add_response.status_code, 302)
+
+        # Verify that the cart contains one item.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {str(item.pk): 1}
+        )
+
+        # Submit the simulated checkout.
+        response = self.client.post(
+            reverse("catalog:place_order")
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        # Exactly one order must be created.
+        self.assertEqual(Order.objects.count(), 1)
+
+        order = Order.objects.get()
+
+        self.assertEqual(order.user, user)
+
+        self.assertEqual(
+            order.total_amount,
+            Decimal("12.50")
+        )
+
+        self.assertEqual(
+            order.status,
+            Order.OrderStatus.PLACED
+        )
+
+        # Verify the historical order item.
+        self.assertEqual(
+            OrderItem.objects.filter(order=order).count(),
+            1
+        )
+
+        order_item = order.items.get()
+
+        self.assertEqual(
+            order_item.item_name,
+            "CV Writing Workshop"
+        )
+
+        self.assertEqual(order_item.quantity, 1)
+
+        self.assertEqual(
+            order_item.unit_price,
+            Decimal("12.50")
+        )
+
+        # The cart must be cleared after checkout.
+        self.assertEqual(
+            self.client.session.get("catalog_cart", {}),
+            {}
+        )
+
+        # The user must reach the correct confirmation.
+        confirmation_url = reverse(
+            "catalog:order_confirmation",
+            kwargs={"order_id": order.pk}
+        )
+
+        self.assertRedirects(
+            response,
+            confirmation_url
+        )
+
+    def test_order_confirmation_enforces_ownership(self):
+        """
+        Users may view their own orders, but
+        another user's order must return HTTP 404.
+        """
+
+        from decimal import Decimal
+
+        from .models import Order
+
+        # Create two separate users.
+        owner = get_user_model().objects.create_user(
+            username="order_owner_test",
+            password="TestPassword123!"
+        )
+
+        other_user = get_user_model().objects.create_user(
+            username="other_order_user_test",
+            password="TestPassword123!"
+        )
+
+        # Create an order belonging to the first user.
+        order = Order.objects.create(
+            user=owner,
+            total_amount=Decimal("12.50"),
+            status=Order.OrderStatus.PLACED
+        )
+
+        confirmation_url = reverse(
+            "catalog:order_confirmation",
+            kwargs={"order_id": order.pk}
+        )
+
+        # The owner must be able to view their order.
+        self.client.force_login(owner)
+
+        response = self.client.get(confirmation_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["order"], order)
+
+        # Another authenticated user must be denied.
+        self.client.force_login(other_user)
+
+        response = self.client.get(confirmation_url)
+
+        self.assertEqual(response.status_code, 404)
+
+        # Nonexistent orders must also return HTTP 404.
+        nonexistent_url = reverse(
+            "catalog:order_confirmation",
+            kwargs={"order_id": order.pk + 1000}
+        )
+
+        response = self.client.get(nonexistent_url)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_failed_checkout_preserves_cart(self):
+        """
+        If a selected service becomes unavailable,
+        checkout must fail without clearing the cart
+        or creating an order.
+        """
+
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_failure_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="checkout-failure-workshop",
+            description="Professional CV preparation.",
+            category=category,
+            image="catalog/items/checkout-failure.png",
+            price=Decimal("12.50"),
+            is_active=True,
+            is_available=True
+        )
+
+        # Add the available service to the cart.
+        response = self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": item.slug}
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        expected_cart = {str(item.pk): 1}
+
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            expected_cart
+        )
+
+        # Simulate an administrator disabling the service.
+        item.is_available = False
+        item.save(update_fields=["is_available"])
+
+        # Attempt checkout.
+        response = self.client.post(
+            reverse("catalog:place_order")
+        )
+
+        # Checkout should redirect to My Cart.
+        self.assertRedirects(
+            response,
+            reverse("catalog:cart")
+        )
+
+        # The cart must not be cleared.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            expected_cart
+        )
+
+        # No partial orders should exist.
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(OrderItem.objects.count(), 0)
+
+    def test_deleted_service_can_be_removed_from_cart(self):
+        """
+        A deleted catalogue service must remain visible
+        and removable without affecting other cart items.
+        """
+
+        from django.contrib.auth import get_user_model
+        from django.urls import reverse
+
+        user = get_user_model().objects.create_user(
+            username="deleted_cart_item_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        # Simulate two services that were deleted
+        # after being added to the shopping cart.
+        session = self.client.session
+        session["catalog_cart"] = {
+            "999999991": 2,
+            "999999992": 1,
+        }
+        session.save()
+
+        cart_url = reverse("catalog:cart")
+
+        # Both missing services must remain visible.
+        response = self.client.get(cart_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Deleted Service #999999991"
+        )
+        self.assertContains(
+            response,
+            "Deleted Service #999999992"
+        )
+
+        # Checkout must be blocked.
+        self.assertContains(
+            response,
+            "Checkout Unavailable"
+        )
+
+        # Remove only the first deleted service.
+        removal_url = reverse(
+            "catalog:remove_missing_cart_item",
+            kwargs={"item_id": 999999991}
+        )
+
+        response = self.client.post(
+            removal_url,
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # The other selection must be preserved.
+        self.assertEqual(
+            self.client.session["catalog_cart"],
+            {"999999992": 1}
+        )
+
+        # The removed service must disappear.
+        self.assertNotContains(
+            response,
+            "Deleted Service #999999991"
+        )
+
+        # The remaining service must still be visible.
+        self.assertContains(
+            response,
+            "Deleted Service #999999992"
+        )
+
+    def test_checkout_rejects_get_requests(self):
+        """
+        Checkout must not create orders through GET requests.
+        """
+
+        from .models import Order, OrderItem
+
+        user = get_user_model().objects.create_user(
+            username="checkout_get_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(user)
+
+        checkout_url = reverse("catalog:place_order")
+
+        # Attempt to place an order using HTTP GET.
+        response = self.client.get(checkout_url)
+
+        # Checkout must accept POST requests only.
+        self.assertEqual(response.status_code, 405)
+
+        # No order records should be created.
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertEqual(OrderItem.objects.count(), 0)

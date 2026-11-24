@@ -13,7 +13,13 @@ from .cart_views import (
     add_to_cart,
     cart_detail,
     remove_from_cart,
+    remove_missing_cart_item,
     update_cart_quantity,
+)
+
+from .checkout_views import (
+    order_confirmation,
+    place_order,
 )
 
 from .views import catalog_detail, catalog_list
@@ -34,6 +40,27 @@ urlpatterns = [
         "cart/",
         cart_detail,
         name="cart"
+    ),
+
+    # Remove a deleted service from the session cart.
+    path(
+        "cart/remove-missing/<int:item_id>/",
+        remove_missing_cart_item,
+        name="remove_missing_cart_item"
+    ),
+
+    # Submit a simulated checkout.
+    path(
+        "checkout/",
+        place_order,
+        name="place_order"
+    ),
+
+    # View an order confirmation.
+    path(
+        "orders/<int:order_id>/confirmation/",
+        order_confirmation,
+        name="order_confirmation"
     ),
 
     # Add an available service to the cart.

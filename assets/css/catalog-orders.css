@@ -1,0 +1,584 @@
+
+/* ==========================================================
+   TASKFLOW | ACG CAREER SERVICES
+   ORDER CONFIRMATION
+
+   Responsive design with Light/Dark Mode support.
+   ========================================================== */
+
+
+/* 1. DESIGN TOKENS */
+
+.tf-order-page {
+    --order-surface: var(--catalog-surface, #ffffff);
+    --order-soft: var(--catalog-surface-soft, #f3f6fb);
+    --order-border: var(--catalog-border, #dce4ef);
+    --order-heading: var(--catalog-heading, #14243d);
+    --order-accent: var(--catalog-accent, #2563eb);
+    --order-muted: #536581;
+    --order-success: #15803d;
+    --order-success-soft: rgba(22, 163, 74, 0.10);
+    --order-shadow: 0 18px 48px rgba(19, 45, 82, 0.08);
+
+    color: var(--order-heading);
+}
+
+[data-theme="dark"] .tf-order-page {
+    --order-muted: #b7c5da;
+    --order-success: #86efac;
+    --order-success-soft: rgba(74, 222, 128, 0.12);
+    --order-shadow: 0 18px 48px rgba(0, 0, 0, 0.20);
+}
+
+
+/* 2. PAGE STRUCTURE */
+
+.tf-order-page .tf-order {
+    position: relative;
+    padding: clamp(30px, 4vw, 56px) 0 96px;
+}
+
+.tf-order-page .tf-order > .container {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* 3. BREADCRUMBS */
+
+.tf-order-page .tf-order__breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-bottom: 38px;
+
+    color: var(--order-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.tf-order-page .tf-order__breadcrumb a {
+    color: var(--order-accent);
+    text-decoration: none;
+}
+
+.tf-order-page .tf-order__breadcrumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+
+/* 4. CONFIRMATION HEADER */
+
+.tf-order-page .tf-order__header {
+    max-width: 800px;
+    margin: 0 auto 48px;
+    text-align: center;
+}
+
+.tf-order-page .tf-order__success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 78px;
+    height: 78px;
+    margin: 0 auto 24px;
+
+    border: 1px solid rgba(22, 163, 74, 0.20);
+    border-radius: 50%;
+
+    background: var(--order-success-soft);
+    color: var(--order-success);
+
+    font-size: 2.3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.tf-order-page .tf-order__eyebrow {
+    display: block;
+    margin-bottom: 14px;
+
+    color: var(--order-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.tf-order-page .tf-order__title {
+    margin: 0;
+
+    color: var(--order-heading);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.16;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+}
+
+.tf-order-page .tf-order__subtitle {
+    max-width: 610px;
+    margin: 18px auto 24px;
+
+    color: var(--order-muted);
+    font-size: 1.04rem;
+    line-height: 1.8;
+}
+
+.tf-order-page .tf-order__reference {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 18px;
+
+    border: 1px solid var(--order-border);
+    border-radius: 999px;
+
+    background: var(--order-soft);
+    color: var(--order-heading);
+
+    font-size: 0.88rem;
+    font-weight: 750;
+}
+
+
+/* 5. TWO-COLUMN LAYOUT */
+
+.tf-order-page .tf-order__layout {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(285px, 350px);
+    align-items: start;
+    gap: clamp(24px, 3vw, 38px);
+}
+
+.tf-order-page .tf-order__main,
+.tf-order-page .tf-order__sidebar {
+    min-width: 0;
+}
+
+
+/* 6. ORDER CONTENT CARDS */
+
+.tf-order-page .tf-order__card {
+    overflow: hidden;
+    margin-bottom: 24px;
+
+    border: 1px solid var(--order-border);
+    border-radius: 20px;
+
+    background: var(--order-surface);
+    box-shadow: var(--order-shadow);
+}
+
+.tf-order-page .tf-order__card-header {
+    padding: 26px 30px;
+
+    border-bottom: 1px solid var(--order-border);
+}
+
+.tf-order-page .tf-order__section-label {
+    display: block;
+    margin-bottom: 12px;
+
+    color: var(--order-accent);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.tf-order-page .tf-order__card-header h2 {
+    margin: 0;
+
+    color: var(--order-heading);
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+
+/* 7. ORDER OVERVIEW GRID */
+
+.tf-order-page .tf-order__details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+
+    padding: 30px;
+}
+
+.tf-order-page .tf-order__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+}
+
+.tf-order-page .tf-order__detail-label {
+    color: var(--order-muted);
+    font-size: 0.83rem;
+    font-weight: 500;
+}
+
+.tf-order-page .tf-order__detail strong {
+    color: var(--order-heading);
+    font-size: 1rem;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.tf-order-page .tf-order__detail .tf-order__status {
+    align-self: flex-start;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+    background: var(--order-success-soft);
+    color: var(--order-success);
+
+    font-size: 0.83rem;
+}
+
+
+/* 8. ORDERED SERVICES */
+
+.tf-order-page .tf-order__items {
+    padding: 4px 30px;
+}
+
+.tf-order-page .tf-order__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+
+    padding: 25px 0;
+
+    border-bottom: 1px solid var(--order-border);
+}
+
+.tf-order-page .tf-order__item:last-child {
+    border-bottom: none;
+}
+
+.tf-order-page .tf-order__item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.tf-order-page .tf-order__item-number {
+    display: block;
+    margin-bottom: 9px;
+
+    color: var(--order-accent);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tf-order-page .tf-order__item-name {
+    margin: 0 0 11px;
+
+    color: var(--order-heading);
+    font-size: 1.12rem;
+    font-weight: 750;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.tf-order-page .tf-order__item-quantity {
+    margin: 0;
+
+    color: var(--order-muted);
+    font-size: 0.86rem;
+}
+
+.tf-order-page .tf-order__item-quantity strong {
+    color: var(--order-heading);
+}
+
+.tf-order-page .tf-order__item-pricing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.tf-order-page .tf-order__unit-price {
+    color: var(--order-muted);
+    font-size: 0.83rem;
+}
+
+.tf-order-page .tf-order__subtotal {
+    color: var(--order-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.tf-order-page .tf-order__no-items {
+    padding: 24px 0;
+    color: var(--order-muted);
+    line-height: 1.7;
+}
+
+
+/* 9. SIMULATED TRANSACTION NOTICE */
+
+.tf-order-page .tf-order__notice {
+    padding: 22px 26px;
+
+    border: 1px solid var(--order-border);
+    border-left: 4px solid var(--order-accent);
+    border-radius: 13px;
+
+    background: var(--order-soft);
+}
+
+.tf-order-page .tf-order__notice strong {
+    display: block;
+    margin-bottom: 9px;
+
+    color: var(--order-heading);
+    font-size: 0.94rem;
+    font-weight: 800;
+}
+
+.tf-order-page .tf-order__notice p {
+    margin: 0;
+
+    color: var(--order-muted);
+    font-size: 0.88rem;
+    line-height: 1.8;
+}
+
+
+/* 10. ORDER SUMMARY SIDEBAR */
+
+.tf-order-page .tf-order__sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.tf-order-page .tf-order__summary-card {
+    overflow: hidden;
+
+    border: 1px solid var(--order-border);
+    border-radius: 20px;
+
+    background: var(--order-surface);
+    box-shadow: var(--order-shadow);
+}
+
+.tf-order-page .tf-order__summary-header {
+    padding: 28px;
+
+    border-bottom: 1px solid var(--order-border);
+
+    background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.10),
+        transparent
+    );
+}
+
+.tf-order-page .tf-order__summary-header h2 {
+    margin: 0;
+
+    color: var(--order-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.tf-order-page .tf-order__summary-header p {
+    margin: 12px 0 0;
+
+    color: var(--order-muted);
+    font-size: 0.87rem;
+    line-height: 1.7;
+}
+
+.tf-order-page .tf-order__summary-body {
+    padding: 12px 28px 28px;
+}
+
+.tf-order-page .tf-order__summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 20px 0;
+
+    color: var(--order-muted);
+    font-size: 0.9rem;
+}
+
+.tf-order-page .tf-order__summary-row strong {
+    color: var(--order-heading);
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.tf-order-page .tf-order__summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-top: 4px;
+    padding: 25px 0 18px;
+
+    border-top: 1px solid var(--order-border);
+
+    color: var(--order-heading);
+    font-size: 1rem;
+    font-weight: 750;
+}
+
+.tf-order-page .tf-order__summary-total strong {
+    color: var(--order-heading);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 800;
+}
+
+.tf-order-page .tf-order__payment-note {
+    margin: 0 0 25px;
+    padding: 13px 15px;
+
+    border-radius: 9px;
+    background: var(--order-soft);
+
+    color: var(--order-muted);
+    font-size: 0.81rem;
+    line-height: 1.6;
+}
+
+.tf-order-page .tf-order__continue-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 18px;
+
+    border-radius: 11px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+
+    --bs-btn-bg: #1d4ed8;
+    --bs-btn-border-color: #1d4ed8;
+    --bs-btn-color: #ffffff;
+    --bs-btn-hover-bg: #1e40af;
+    --bs-btn-hover-border-color: #1e40af;
+    --bs-btn-hover-color: #ffffff;
+}
+
+
+/* 11. ACCESSIBILITY */
+
+.tf-order-page a:focus-visible {
+    outline: 3px solid var(--order-accent);
+    outline-offset: 4px;
+}
+
+
+/* 12. TABLET */
+
+@media (max-width: 991.98px) {
+    .tf-order-page .tf-order__layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-order-page .tf-order__sidebar {
+        position: static;
+    }
+}
+
+
+/* 13. MOBILE */
+
+@media (max-width: 600px) {
+    .tf-order-page .tf-order {
+        padding: 28px 0 64px;
+    }
+
+    .tf-order-page .tf-order__header {
+        margin-bottom: 32px;
+    }
+
+    .tf-order-page .tf-order__success-icon {
+        width: 66px;
+        height: 66px;
+        font-size: 2rem;
+    }
+
+    .tf-order-page .tf-order__card {
+        border-radius: 15px;
+    }
+
+    .tf-order-page .tf-order__card-header,
+    .tf-order-page .tf-order__details-grid {
+        padding: 23px;
+    }
+
+    .tf-order-page .tf-order__details-grid {
+        gap: 22px;
+    }
+
+    .tf-order-page .tf-order__items {
+        padding: 4px 23px;
+    }
+
+    .tf-order-page .tf-order__item {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .tf-order-page .tf-order__item-pricing {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .tf-order-page .tf-order__summary-header {
+        padding: 24px;
+    }
+
+    .tf-order-page .tf-order__summary-body {
+        padding: 12px 24px 24px;
+    }
+}
+
+
+/* 14. VERY SMALL SCREENS */
+
+@media (max-width: 380px) {
+    .tf-order-page .tf-order__details-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-order-page .tf-order__summary-total {
+        flex-wrap: wrap;
+    }
+}
+
+
+/* 15. REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+    .tf-order-page *,
+    .tf-order-page *::before,
+    .tf-order-page *::after {
+        scroll-behavior: auto;
+    }
+}

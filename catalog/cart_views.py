@@ -77,20 +77,19 @@ def cart_detail(request):
     """
     Display the authenticated user's shopping cart.
 
-    Retrieve current catalogue information and prices
-    from the database rather than trusting session data.
+    Include unavailable services so users can
+    identify and remove them.
+
+    Prices are retrieved from the database.
     """
 
     cart = load_cart(request)
 
+    # Retrieve all existing cart items, including
+    # services that have become unavailable.
     items = (
         CatalogItem.objects
-        .filter(
-            pk__in=cart.keys(),
-            is_active=True,
-            is_available=True,
-            category__is_active=True
-        )
+        .filter(pk__in=cart.keys())
         .select_related("category")
         .order_by("name", "pk")
     )
@@ -98,25 +97,54 @@ def cart_detail(request):
     cart_lines = []
     total_amount = Decimal("0.00")
     total_quantity = 0
+    has_unavailable_items = False
+
+    # Track which cart items still exist in the database.
+    existing_item_ids = set()
 
     for item in items:
+        existing_item_ids.add(str(item.pk))
         quantity = cart[str(item.pk)]
         subtotal = item.price * quantity
+
+        # Check whether this service can be ordered.
+        can_checkout = (
+            item.is_active
+            and item.is_available
+            and item.category.is_active
+        )
+
+        if not can_checkout:
+            has_unavailable_items = True
 
         cart_lines.append({
             "item": item,
             "quantity": quantity,
             "subtotal": subtotal,
+            "can_checkout": can_checkout,
         })
 
         total_amount += subtotal
         total_quantity += quantity
+
+    # Identify session entries whose catalogue records
+    # have been deleted from the database.
+    missing_item_ids = [
+        item_id
+        for item_id in cart
+        if item_id not in existing_item_ids
+    ]
+
+    if missing_item_ids:
+        has_unavailable_items = True
 
     context = {
         "page_title": "My Cart",
         "cart_lines": cart_lines,
         "total_amount": total_amount,
         "total_quantity": total_quantity,
+        "has_unavailable_items": has_unavailable_items,
+        "missing_item_ids": missing_item_ids,
     }
 
     return render(
@@ -217,6 +245,49 @@ def remove_from_cart(request, slug):
     messages.success(
         request,
         f"{item.name} was removed from your cart."
+    )
+
+    return redirect("catalog:cart")
+
+@login_required
+@require_POST
+def remove_missing_cart_item(request, item_id):
+    """
+    Remove a cart entry whose catalogue item
+    no longer exists in the database.
+
+    Only entries already present in the user's
+    session cart can be removed.
+    """
+
+    cart = load_cart(request)
+    item_key = str(item_id)
+
+    # The item must exist in this user's cart.
+    if item_key not in cart:
+        messages.warning(
+            request,
+            "This item is no longer in your cart."
+        )
+        return redirect("catalog:cart")
+
+    # This endpoint is only for deleted services.
+    # Existing services use the normal removal view.
+    if CatalogItem.objects.filter(pk=item_id).exists():
+        messages.error(
+            request,
+            "This service still exists. Please use "
+            "its regular Remove from cart button."
+        )
+        return redirect("catalog:cart")
+
+    # Remove the missing item from the session.
+    del cart[item_key]
+    save_cart(request, cart)
+
+    messages.success(
+        request,
+        "The deleted service was removed from your cart."
     )
 
     return redirect("catalog:cart")
