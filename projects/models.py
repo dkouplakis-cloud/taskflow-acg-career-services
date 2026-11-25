@@ -56,3 +56,47 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProjectAccess(models.Model):
+    """
+    Grant an authorized account explicit access to a project.
+
+    Career Services staff have office-wide access separately.
+    These grants support scoped faculty and student assistants.
+    """
+
+    class AccessLevel(models.TextChoices):
+        VIEWER = "viewer", "Viewer"
+        CONTRIBUTOR = "contributor", "Contributor"
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="access_grants"
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="project_access_grants"
+    )
+
+    access_level = models.CharField(
+        max_length=20,
+        choices=AccessLevel.choices,
+        default=AccessLevel.VIEWER
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "user"],
+                name="unique_project_user_access"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.user} - {self.project} "
+            f"({self.get_access_level_display()})"
+        )

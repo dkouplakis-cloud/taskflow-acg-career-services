@@ -16,31 +16,37 @@ from tasks.models import Task
 from collections import defaultdict
 from .forms import ProjectForm
 from .models import Project
+from core.permissions import workspace_required
+from .permissions import visible_projects_for_user
 
-@login_required
+
+
+@workspace_required
 def project_list(request):
     """
-    Display projects belonging to the authenticated user.
+    Display projects according to Career Services permissions.
 
-    Database-level filtering prevents projects belonging
-    to other users from appearing in this list.
+    Career Services staff can view every internal project.
+    Other workspace members require explicit project-level
+    authorization.
     """
 
-    # Retrieve only projects owned by the current user.
-    projects = Project.objects.filter(owner=request.user)
+    # Apply centralized project-level visibility rules.
+    projects = visible_projects_for_user(request.user)
 
+    # Pass the authorized project queryset to the template.
     context = {
-        'projects': projects,
+        "projects": projects,
     }
 
     return render(
         request,
-        'projects/project_list.html',
+        "projects/project_list.html",
         context
     )
 
 
-@login_required
+@workspace_required
 @require_http_methods(["GET", "POST"])
 def project_create(request):
     """
@@ -87,25 +93,24 @@ def project_create(request):
         context
     )
 
-@login_required
+@workspace_required
 @require_http_methods(["GET"])
 def project_detail(request, project_id):
     """
-    Display an individual project and its tasks.
+    Display a project and its associated tasks.
 
-    Only the authenticated project's owner
-    can access its information.
-
-    Tasks are retrieved through the existing
-    Project-to-Task relationship.
+    Career Services staff may view all internal projects.
+    Authorized faculty and student assistants may view
+    only projects with explicit access grants.
     """
 
-    # Retrieve the project only if it belongs
-    # to the currently authenticated user.
+    # Restrict the lookup to projects the user may view.
+    # Prefetch tasks to preserve efficient database access.
     project = get_object_or_404(
-        Project.objects.prefetch_related('tasks'),
-        pk=project_id,
-        owner=request.user
+        visible_projects_for_user(
+            request.user
+        ).prefetch_related("tasks"),
+        pk=project_id
     )
 
     
@@ -234,7 +239,7 @@ def project_detail(request, project_id):
         context
     )
 
-@login_required
+@workspace_required
 @require_http_methods(["GET", "POST"])
 def project_update(request, project_id):
     """
@@ -288,8 +293,9 @@ def project_update(request, project_id):
         context
     )
 
-@login_required
+@workspace_required
 def analytics_dashboard(request):
+
     """
     Display task analytics for projects owned
     by the currently authenticated user.

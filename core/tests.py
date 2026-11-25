@@ -244,3 +244,150 @@ class RoleAwareLoginTests(TestCase):
             reverse("catalog_management:dashboard"),
             fetch_redirect_response=False
         )
+
+# ==========================================================
+# CAREER SERVICES WORKSPACE AUTHORIZATION TESTS
+# ==========================================================
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+from django.test import RequestFactory, TestCase
+
+from .permissions import workspace_required
+
+
+class WorkspaceAuthorizationTests(TestCase):
+    """
+    Verify that internal workspace access is restricted
+    to explicitly authorized Career Services personnel.
+    """
+
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        # A simple protected view used only for testing.
+        @workspace_required
+        def protected_view(request):
+            return HttpResponse("Workspace access granted.")
+
+        self.protected_view = protected_view
+
+    def test_regular_student_cannot_access_workspace(self):
+        """
+        An authenticated student without workspace
+        authorization must receive HTTP 403.
+        """
+
+        student = get_user_model().objects.create_user(
+            username="regular_student_access_test",
+            password="TestPassword123!"
+        )
+
+        request = self.factory.get("/projects/")
+        request.user = student
+
+        with self.assertRaises(PermissionDenied):
+            self.protected_view(request)
+
+    def test_authorized_personnel_can_access_workspace(self):
+        """
+        Explicitly authorized staff, faculty and student
+        assistants must pass the workspace permission check.
+        """
+
+        group_names = (
+            "Career Services Staff",
+            "Authorized Faculty",
+            "Career Services Student Assistants",
+        )
+
+        for index, group_name in enumerate(group_names):
+
+            with self.subTest(group=group_name):
+
+                group, _ = Group.objects.get_or_create(
+                    name=group_name
+                )
+
+                user = get_user_model().objects.create_user(
+                    username=f"workspace_user_{index}",
+                    password="TestPassword123!"
+                )
+
+                user.groups.add(group)
+
+                request = self.factory.get("/projects/")
+                request.user = user
+
+                response = self.protected_view(request)
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+    def test_revoked_student_assistant_access(self):
+        """
+        Removing workspace group membership must
+        immediately revoke internal access.
+        """
+
+        group, _ = Group.objects.get_or_create(
+            name="Career Services Student Assistants"
+        )
+
+        user = get_user_model().objects.create_user(
+            username="revoked_assistant_test",
+            password="TestPassword123!"
+        )
+
+        user.groups.add(group)
+
+        request = self.factory.get("/projects/")
+        request.user = user
+
+        # The authorized assistant initially has access.
+        response = self.protected_view(request)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Simulate the assistant leaving Career Services.
+        user.groups.remove(group)
+
+        # Access must now be denied.
+        with self.assertRaises(PermissionDenied):
+            self.protected_view(request)
+
+    def test_inactive_staff_account_cannot_access_workspace(self):
+        """
+        An inactive user must not access the workspace
+        even if their authorized group membership remains.
+        """
+
+        group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        user = get_user_model().objects.create_user(
+            username="inactive_staff_access_test",
+            password="TestPassword123!"
+        )
+
+        user.groups.add(group)
+
+        request = self.factory.get("/projects/")
+        request.user = user
+
+        # Verify that the active staff member has access.
+        response = self.protected_view(request)
+        self.assertEqual(response.status_code, 200)
+
+        # Deactivate the staff member's account.
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+
+        # Group membership must not override deactivation.
+        with self.assertRaises(PermissionDenied):
+            self.protected_view(request)

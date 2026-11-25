@@ -10,9 +10,10 @@ from django.views.decorators.http import require_http_methods
 from .models import Task
 from projects.models import Project
 from .forms import TaskForm
+from core.permissions import workspace_required
 
 
-@login_required
+@workspace_required
 @require_http_methods(["GET", "POST"])
 def task_create(request, project_id):
     """
@@ -79,7 +80,7 @@ def task_create(request, project_id):
     )
 
 
-@login_required
+@workspace_required
 @require_http_methods(["GET", "POST"])
 def task_update(request, project_id, task_id):
     """
@@ -140,7 +141,7 @@ def task_update(request, project_id, task_id):
     )
 
 
-@login_required
+@workspace_required
 @require_http_methods(["POST"])
 def task_complete(request, project_id, task_id):
     """
@@ -187,7 +188,7 @@ def task_complete(request, project_id, task_id):
         project_id=project.pk
     )
 
-@login_required
+@workspace_required
 @require_http_methods(["POST"])
 def task_delete(request, project_id, task_id):
     """

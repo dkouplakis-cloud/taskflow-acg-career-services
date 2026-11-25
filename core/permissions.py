@@ -52,3 +52,68 @@ def role_required(*allowed_roles):
         return wrapped_view
 
     return decorator
+
+# ==========================================================
+# CAREER SERVICES WORKSPACE AUTHORIZATION
+# ==========================================================
+
+WORKSPACE_GROUP_NAMES = (
+    "Career Services Staff",
+    "Authorized Faculty",
+    "Career Services Student Assistants",
+)
+
+def is_career_services_staff(user):
+    """
+    Check whether a user has organization-wide
+    Career Services staff authorization.
+
+    Superuser status alone does not grant access.
+    """
+
+    return (
+        user.is_authenticated
+        and user.is_active
+        and user.groups.filter(
+            name="Career Services Staff"
+        ).exists()
+    )
+
+def workspace_required(view_func):
+    """
+    Restrict internal Career Services functionality
+    to explicitly authorized personnel.
+
+    Anonymous users are redirected to login.
+    Authenticated users without authorization receive 403.
+
+    Project-specific permissions must be checked
+    separately inside the protected view.
+    """
+
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(request, *args, **kwargs):
+
+        # An inactive account must not access
+        # confidential office functionality.
+        if not request.user.is_active:
+            raise PermissionDenied(
+                "Your account is not active."
+            )
+
+        # Access is granted only through explicit
+        # Career Services group membership.
+        is_authorized = request.user.groups.filter(
+            name__in=WORKSPACE_GROUP_NAMES
+        ).exists()
+
+        if not is_authorized:
+            raise PermissionDenied(
+                "You are not authorized to access "
+                "the Career Services workspace."
+            )
+
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
