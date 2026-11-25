@@ -19,6 +19,7 @@ from .models import Project
 
 from core.permissions import (
     career_services_staff_required,
+    is_career_services_staff,
     workspace_required,
 )
 
@@ -316,9 +317,10 @@ def analytics_dashboard(request):
     Supports filtering by a specific project.
     """
 
-    # Only include the logged-in user's projects.
-    projects = Project.objects.filter(
-        owner=request.user
+    # Restrict analytics to projects visible to this user.
+    # Staff see all projects; scoped members see granted projects.
+    projects = visible_projects_for_user(
+        request.user
     ).order_by("name")
 
     # Initially display analytics for all projects.
@@ -333,9 +335,10 @@ def analytics_dashboard(request):
             pk=project_id
         )
 
-    # Only retrieve tasks from owned projects.
+    # Include tasks only from projects visible to this user.
+    # This prevents cross-project analytics data exposure.
     tasks = Task.objects.filter(
-        project__owner=request.user
+        project__in=projects
     )
 
     # Filter tasks if a project was selected.
@@ -397,11 +400,11 @@ def analytics_dashboard(request):
         else 0
     )
 
-    # Calculate workload for each Career Services team member.
-    # Only count tasks from projects owned by this user.
-
+    # Calculate workload using only authorized projects.
+    # Staff see office-wide workload; scoped members see
+    # assignments belonging to their granted projects.
     workload_filter = Q(
-        assigned_tasks__project__owner=request.user
+        assigned_tasks__project__in=projects
     )
 
     # Respect the selected project filter.
@@ -410,11 +413,36 @@ def analytics_dashboard(request):
             assigned_tasks__project=selected_project
         )
 
-    
     # Start with the active Career Services team.
     team_members = TeamMember.objects.filter(
         is_active=True
     )
+
+    # Scoped workspace members see only team members
+    # associated with projects they are authorized to view.
+    # Career Services staff retain the full active directory.
+    if not is_career_services_staff(request.user):
+        visible_member_ids = set(
+            projects.values_list("project_manager_id", flat=True)
+        )
+
+        # Include collaborators from authorized projects.
+        visible_member_ids.update(
+            projects.values_list("collaborators__pk", flat=True)
+        )
+
+        # Include existing task assignees, even if they
+        # are no longer project collaborators.
+        visible_member_ids.update(
+            tasks.values_list("assignee_id", flat=True)
+        )
+
+        # Exclude missing manager, collaborator or assignee IDs.
+        visible_member_ids.discard(None)
+
+        team_members = team_members.filter(
+            pk__in=visible_member_ids
+        )
 
     # When filtering by project, show its manager,
     # collaborators and any existing task assignees.

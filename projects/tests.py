@@ -100,6 +100,30 @@ class CareerServicesOfficeWideAccessTests(TestCase):
             "Save Changes"
         )
 
+    def test_non_owner_staff_can_view_project_analytics(self):
+        """
+        Career Services staff can access analytics for
+        office projects they do not personally own.
+        """
+        self.client.force_login(self.other_staff)
+
+        response = self.client.get(
+            reverse("projects:analytics")
+        )
+
+        # The Analytics dashboard must be accessible.
+        self.assertEqual(response.status_code, 200)
+
+        # Non-owner staff must see the office project.
+        visible_projects = list(response.context["projects"])
+
+        self.assertIn(self.project, visible_projects)
+
+        self.assertEqual(
+            response.context["total_projects"],
+            1
+        )
+
 class ScopedProjectVisibilityTests(TestCase):
     """
     Verify that faculty and student assistants can see
@@ -558,4 +582,218 @@ class ScopedProjectVisibilityTests(TestCase):
         # The unauthorized attempt must not delete the task.
         self.assertTrue(
             Task.objects.filter(pk=task_id).exists()
+        )
+
+    def test_contributor_analytics_only_shows_granted_projects(self):
+        """
+        Contributors must see analytics only for projects
+        where they have explicit access.
+        """
+        # This assistant has access to self.project,
+        # but not to self.other_project.
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(
+            reverse("projects:analytics")
+        )
+
+        # The authorized Analytics dashboard must load.
+        self.assertEqual(response.status_code, 200)
+
+        # Inspect the projects supplied to the template.
+        visible_projects = list(response.context["projects"])
+
+        # The granted project must be visible.
+        self.assertIn(self.project, visible_projects)
+
+        # The ungranted project must remain hidden.
+        self.assertNotIn(self.other_project, visible_projects)
+
+        # Only one authorized project should be counted.
+        self.assertEqual(
+            response.context["total_projects"],
+            1
+        )
+
+    def test_contributor_cannot_filter_analytics_by_ungranted_project(self):
+        """
+        Contributors cannot access analytics for projects
+        outside their explicitly granted scope.
+        """
+        self.client.force_login(self.assistant)
+
+        # Attempt to access analytics for an ungranted project.
+        response = self.client.get(
+            reverse("projects:analytics"),
+            {"project": self.other_project.pk}
+        )
+
+        # Do not expose analytics for inaccessible projects.
+        self.assertEqual(response.status_code, 404)
+
+    def test_contributor_analytics_hides_unrelated_team_members(self):
+        """
+        Contributors see team members associated with
+        granted projects, not unrelated projects.
+        """
+        from core.models import TeamMember
+
+        # Use two distinct seeded Career Services team members.
+        members = list(
+            TeamMember.objects.filter(
+                is_active=True
+            ).order_by("pk")[:2]
+        )
+
+        self.assertEqual(len(members), 2)
+
+        authorized_member, unrelated_member = members
+
+        # Assign one manager to the granted project.
+        self.project.project_manager = authorized_member
+        self.project.save(update_fields=["project_manager"])
+
+        # Assign another manager to the ungranted project.
+        self.other_project.project_manager = unrelated_member
+        self.other_project.save(
+            update_fields=["project_manager"]
+        )
+
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(
+            reverse("projects:analytics")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Inspect the team members exposed to the template.
+        visible_member_ids = {
+            member.pk
+            for member in response.context["team_workload"]
+        }
+
+        # Include the granted project's manager.
+        self.assertIn(
+            authorized_member.pk,
+            visible_member_ids
+        )
+
+        # Exclude the ungranted project's manager.
+        self.assertNotIn(
+            unrelated_member.pk,
+            visible_member_ids
+        )
+
+    def test_contributor_analytics_excludes_ungranted_project_tasks(self):
+        """
+        Analytics statistics must exclude tasks from
+        projects outside the Contributor's access scope.
+        """
+        from tasks.models import Task
+
+        # Create a task in the authorized project.
+        Task.objects.create(
+            project=self.project,
+            name="Authorized Analytics Task",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Create another task in an unauthorized project.
+        Task.objects.create(
+            project=self.other_project,
+            name="Confidential Analytics Task",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(
+            reverse("projects:analytics")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        statistics = response.context["statistics"]
+
+        # Only tasks from the granted project may be counted.
+        authorized_tasks = Task.objects.filter(
+            project=self.project
+        )
+
+        self.assertEqual(
+            statistics["total"],
+            authorized_tasks.count()
+        )
+
+        self.assertEqual(
+            statistics["pending"],
+            authorized_tasks.filter(status="pending").count()
+        )
+
+    def test_contributor_analytics_workload_excludes_ungranted_tasks(self):
+        """
+        Team workload statistics must count assignments
+        only from projects the Contributor can access.
+        """
+        from core.models import TeamMember
+        from tasks.models import Task
+
+        member = TeamMember.objects.filter(
+            is_active=True
+        ).order_by("pk").first()
+
+        self.assertIsNotNone(member)
+
+        # Associate the member with the granted project.
+        self.project.project_manager = member
+        self.project.save(update_fields=["project_manager"])
+
+        # Create an authorized completed assignment.
+        Task.objects.create(
+            project=self.project,
+            name="Authorized Workload Task",
+            assignee=member,
+            status="completed",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Create an unauthorized assignment for the same member.
+        Task.objects.create(
+            project=self.other_project,
+            name="Confidential Workload Task",
+            assignee=member,
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(
+            reverse("projects:analytics")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Retrieve the member's visible workload statistics.
+        workload = next(
+            item
+            for item in response.context["team_workload"]
+            if item.pk == member.pk
+        )
+
+        # The unauthorized assignment must not be counted.
+        self.assertEqual(workload.assigned_total, 1)
+        self.assertEqual(workload.assigned_completed, 1)
+
+        # Expandable task lists must also remain scoped.
+        self.assertEqual(
+            len(workload.assigned_task_list),
+            1
+        )
+        self.assertEqual(
+            workload.assigned_task_list[0].project_id,
+            self.project.pk
         )
