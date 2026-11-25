@@ -12,6 +12,11 @@ from projects.models import Project
 from .forms import TaskForm
 from core.permissions import workspace_required
 
+from django.core.exceptions import PermissionDenied
+from projects.permissions import (
+    can_modify_project_tasks,
+    visible_projects_for_user,
+)
 
 @workspace_required
 @require_http_methods(["GET", "POST"])
@@ -24,13 +29,19 @@ def task_create(request, project_id):
     POST validates and saves the new task.
     """
 
-    # Only allow access to projects owned
-    # by the currently authenticated user.
+    # Retrieve only projects visible to this workspace member.
     project = get_object_or_404(
-        Project,
-        pk=project_id,
-        owner=request.user
+        visible_projects_for_user(request.user),
+        pk=project_id
     )
+
+    # Viewing a project does not automatically grant
+    # permission to create tasks within it.
+    if not can_modify_project_tasks(request.user, project):
+        raise PermissionDenied(
+            "You do not have permission to create "
+            "tasks in this project."
+        )
 
     if request.method == "POST":
 
@@ -79,6 +90,13 @@ def task_create(request, project_id):
         context
     )
 
+"""
+Edit a task within an authorized Career Services project.
+
+Staff may edit tasks across all office projects.
+Contributors may edit tasks in explicitly granted
+projects. Viewers cannot modify tasks.
+"""
 
 @workspace_required
 @require_http_methods(["GET", "POST"])
@@ -88,11 +106,18 @@ def task_update(request, project_id, task_id):
     owned by the authenticated user.
     """
 
+    # Verify that this user is allowed to access the project.
     project = get_object_or_404(
-        Project,
-        pk=project_id,
-        owner=request.user
+        visible_projects_for_user(request.user),
+        pk=project_id
     )
+
+    # Viewing a project does not grant task-editing rights.
+    if not can_modify_project_tasks(request.user, project):
+        raise PermissionDenied(
+            "You do not have permission to edit "
+            "tasks in this project."
+        )
 
     task = get_object_or_404(
         Task,
@@ -151,11 +176,19 @@ def task_complete(request, project_id, task_id):
     can perform this action.
     """
 
+    # Retrieve only projects visible to this workspace member.
     project = get_object_or_404(
-        Project,
-        pk=project_id,
-        owner=request.user
+        visible_projects_for_user(request.user),
+        pk=project_id
     )
+
+    # Only staff and explicitly authorized Contributors
+    # may change the status of tasks in this project.
+    if not can_modify_project_tasks(request.user, project):
+        raise PermissionDenied(
+            "You do not have permission to complete "
+            "tasks in this project."
+        )
 
     task = get_object_or_404(
         Task,
@@ -188,22 +221,32 @@ def task_complete(request, project_id, task_id):
         project_id=project.pk
     )
 
+
 @workspace_required
 @require_http_methods(["POST"])
 def task_delete(request, project_id, task_id):
     """
-    Permanently delete a task belonging to
-    a project owned by the authenticated user.
+    Delete a task within an authorized Career Services project.
+
+    Career Services staff may delete tasks across all projects.
+    Contributors may delete tasks in explicitly granted projects.
+    Viewers cannot delete tasks.
 
     Only POST requests are permitted.
     """
 
-    # Verify project ownership.
+    # Retrieve only projects visible to this workspace member.
     project = get_object_or_404(
-        Project,
-        pk=project_id,
-        owner=request.user
+        visible_projects_for_user(request.user),
+        pk=project_id
     )
+
+    # Verify modification permissions before deleting anything.
+    if not can_modify_project_tasks(request.user, project):
+        raise PermissionDenied(
+            "You do not have permission to delete "
+            "tasks in this project."
+        )
 
     # Verify that the task belongs to this project.
     task = get_object_or_404(

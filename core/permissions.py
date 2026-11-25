@@ -117,3 +117,27 @@ def workspace_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapped_view
+
+def career_services_staff_required(view_func):
+    """
+    Restrict office-wide management operations to
+    explicitly authorized Career Services staff.
+
+    Anonymous users are redirected to login.
+    Other users receive HTTP 403 Forbidden.
+    """
+
+    @wraps(view_func)
+    @login_required
+    def wrapped_view(request, *args, **kwargs):
+
+        # Superuser status alone does not grant
+        # Career Services staff authorization.
+        if not is_career_services_staff(request.user):
+            raise PermissionDenied(
+                "Career Services staff authorization is required."
+            )
+
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view

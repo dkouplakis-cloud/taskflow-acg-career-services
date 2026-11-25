@@ -16,9 +16,13 @@ from tasks.models import Task
 from collections import defaultdict
 from .forms import ProjectForm
 from .models import Project
-from core.permissions import workspace_required
-from .permissions import visible_projects_for_user
 
+from core.permissions import (
+    career_services_staff_required,
+    workspace_required,
+)
+
+from .permissions import visible_projects_for_user
 
 
 @workspace_required
@@ -46,7 +50,7 @@ def project_list(request):
     )
 
 
-@workspace_required
+@career_services_staff_required
 @require_http_methods(["GET", "POST"])
 def project_create(request):
     """
@@ -239,7 +243,16 @@ def project_detail(request, project_id):
         context
     )
 
-@workspace_required
+"""
+Allow authorized Career Services staff to edit a project.
+
+GET displays the existing project information.
+POST validates and saves the updated information.
+
+Staff access is organization-wide, regardless of ownership.
+"""
+
+@career_services_staff_required
 @require_http_methods(["GET", "POST"])
 def project_update(request, project_id):
     """
@@ -249,11 +262,11 @@ def project_update(request, project_id):
     POST validates and saves the updated information.
     """
 
-    # Only the project's owner can access this page.
+    # Staff authorization is enforced by the view decorator.
+    # Authorized Career Services staff may manage any project
     project = get_object_or_404(
         Project,
         pk=project_id,
-        owner=request.user
     )
 
     if request.method == "POST":

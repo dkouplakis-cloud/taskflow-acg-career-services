@@ -48,3 +48,36 @@ def visible_projects_for_user(user):
     return Project.objects.filter(
         access_grants__user=user
     ).distinct()
+
+def can_modify_project_tasks(user, project):
+    """
+    Check whether a user may create or modify tasks
+    within the specified Career Services project.
+
+    Career Services staff may manage all tasks.
+    Other authorized workspace members require
+    an explicit Contributor-level project grant.
+    """
+
+    # Deny anonymous and inactive accounts.
+    if not user.is_authenticated or not user.is_active:
+        return False
+
+    # Staff have office-wide task management permissions.
+    if is_career_services_staff(user):
+        return True
+
+    # Faculty and student assistants must belong
+    # to an explicitly authorized workspace group.
+    is_scoped_member = user.groups.filter(
+        name__in=SCOPED_PROJECT_GROUP_NAMES
+    ).exists()
+
+    if not is_scoped_member:
+        return False
+
+    # Only Contributor grants allow task modifications.
+    return project.access_grants.filter(
+        user=user,
+        access_level="contributor"
+    ).exists()
