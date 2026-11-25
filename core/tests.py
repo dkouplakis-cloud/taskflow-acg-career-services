@@ -391,3 +391,132 @@ class WorkspaceAuthorizationTests(TestCase):
         # Group membership must not override deactivation.
         with self.assertRaises(PermissionDenied):
             self.protected_view(request)
+
+    def test_regular_student_navigation_hides_workspace_links(self):
+        """
+        Ordinary students must not see internal workspace
+        navigation links, even when authenticated.
+        """
+        from django.urls import reverse
+
+        # Create an ordinary student without workspace access.
+        student = get_user_model().objects.create_user(
+            username="student_navigation_test",
+            password="TestPassword123!"
+        )
+
+        self.client.force_login(student)
+
+        # Render a public page using the shared layout.
+        response = self.client.get(
+            reverse("core:contact")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Internal workspace links must remain hidden.
+        restricted_routes = (
+            "projects:project_list",
+            "projects:analytics",
+            "projects:project_create",
+        )
+
+        for route in restricted_routes:
+            with self.subTest(route=route):
+                restricted_url = reverse(route)
+
+                self.assertNotContains(
+                    response,
+                    f'href="{restricted_url}"'
+                )
+
+    def test_staff_navigation_shows_workspace_and_management_links(self):
+        """
+        Authorized Career Services staff must see
+        workspace and project management navigation.
+        """
+        from django.urls import reverse
+
+        # Create an explicitly authorized staff account.
+        staff_group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        staff = get_user_model().objects.create_user(
+            username="staff_navigation_test",
+            password="TestPassword123!"
+        )
+        staff.groups.add(staff_group)
+
+        self.client.force_login(staff)
+
+        # Render the shared layout through a public page.
+        response = self.client.get(
+            reverse("core:contact")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Staff must see workspace and management links.
+        expected_routes = (
+            "projects:project_list",
+            "projects:analytics",
+            "projects:project_create",
+        )
+
+        for route in expected_routes:
+            with self.subTest(route=route):
+                expected_url = reverse(route)
+
+                self.assertContains(
+                    response,
+                    f'href="{expected_url}"'
+                )
+
+    def test_scoped_members_navigation_hides_project_creation(self):
+        """
+        Authorized faculty and student assistants can
+        see workspace links, but not staff-only actions.
+        """
+        from django.urls import reverse
+
+        group_names = (
+            "Authorized Faculty",
+            "Career Services Student Assistants",
+        )
+
+        for index, group_name in enumerate(group_names):
+            with self.subTest(group=group_name):
+                group, _ = Group.objects.get_or_create(
+                    name=group_name
+                )
+
+                user = get_user_model().objects.create_user(
+                    username=f"scoped_navigation_user_{index}",
+                    password="TestPassword123!"
+                )
+                user.groups.add(group)
+
+                self.client.force_login(user)
+
+                response = self.client.get(
+                    reverse("core:contact")
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                # Both roles can access internal navigation.
+                for route in (
+                    "projects:project_list",
+                    "projects:analytics",
+                ):
+                    self.assertContains(
+                        response,
+                        f'href="{reverse(route)}"'
+                    )
+
+                # Project creation is reserved for staff.
+                self.assertNotContains(
+                    response,
+                    f'href="{reverse("projects:project_create")}"'
+                )

@@ -123,11 +123,16 @@ TEMPLATES = [
 
         'OPTIONS': {
             'context_processors': [
+
+                'django.template.context_processors.debug',
+
                 # Make the current request available in templates.
                 'django.template.context_processors.request',
 
                 # Provide the authenticated user and permissions.
                 'django.contrib.auth.context_processors.auth',
+
+                'core.context_processors.workspace_navigation',
 
                 # Display success, warning, and error messages.
                 'django.contrib.messages.context_processors.messages',

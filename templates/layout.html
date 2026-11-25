@@ -191,10 +191,9 @@
 
             {% if user.is_authenticated %}
 
-                    <!--
-                        Authenticated users can access
-                        their private project workspace.
-                    -->
+                {% if can_access_workspace %}
+
+                    <!-- Internal Career Services workspace -->
                     <a
                         href="{% url 'projects:project_list' %}"
                         {% if request.resolver_match.view_name == 'projects:project_list' %}
@@ -203,8 +202,8 @@
                     >
                         My Projects
                     </a>
-                    
-                    <!-- Analytics Dashboard -->
+
+                    <!-- Authorized workspace analytics -->
                     <a
                         href="{% url 'projects:analytics' %}"
                         {% if request.resolver_match.view_name == 'projects:analytics' %}
@@ -214,32 +213,32 @@
                         Analytics
                     </a>
 
-                    <!--
-                        New Project remains accessible
-                        within the authenticated workspace.
-                    -->
+                {% endif %}
+
+                {% if can_manage_projects %}
+
+                    <!-- Project creation is restricted to staff. -->
                     <a
                         href="{% url 'projects:project_create' %}"
                     >
                         New Project
                     </a>
 
-                {% else %}
-
-                    <!--
-                        Visitors who are not authenticated
-                        can access the sign-in page.
-                    -->
-                    <a
-                        href="{% url 'login' %}"
-                        {% if request.resolver_match.view_name == 'login' %}
-                            aria-current="page"
-                        {% endif %}
-                    >
-                        Sign In
-                    </a>
-
                 {% endif %}
+
+            {% else %}
+
+                <!-- Anonymous visitors can sign in. -->
+                <a
+                    href="{% url 'login' %}"
+                    {% if request.resolver_match.view_name == 'login' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Sign In
+                </a>
+
+            {% endif %}
 
             </nav>
 
@@ -447,19 +446,18 @@
             aria-label="Footer navigation"
         >
 
-            <a href="{% url 'projects:project_list' %}">
-                My Projects
-            </a>
+            {% if can_access_workspace %}
 
-            <!-- Analytics Dashboard -->
-            <a
-                href="{% url 'projects:analytics' %}"
-                {% if request.resolver_match.view_name == 'projects:analytics' %}
-                    aria-current="page"
-                {% endif %}
-            >
-                Analytics
-            </a>
+                <!-- Internal workspace links for authorized users only. -->
+                <a href="{% url 'projects:project_list' %}">
+                    My Projects
+                </a>
+
+                <a href="{% url 'projects:analytics' %}">
+                    Analytics
+                </a>
+
+            {% endif %}
 
             <a href="mailto:career@acg.edu">
                 Email Career Services

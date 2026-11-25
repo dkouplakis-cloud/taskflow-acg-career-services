@@ -79,6 +79,21 @@ def is_career_services_staff(user):
         ).exists()
     )
 
+def can_access_workspace(user):
+    """
+    Check whether an active, authenticated user
+    has explicit Career Services workspace access.
+
+    Superuser status alone does not grant access.
+    """
+    return (
+        user.is_authenticated
+        and user.is_active
+        and user.groups.filter(
+            name__in=WORKSPACE_GROUP_NAMES
+        ).exists()
+    )
+
 def workspace_required(view_func):
     """
     Restrict internal Career Services functionality
@@ -102,13 +117,8 @@ def workspace_required(view_func):
                 "Your account is not active."
             )
 
-        # Access is granted only through explicit
-        # Career Services group membership.
-        is_authorized = request.user.groups.filter(
-            name__in=WORKSPACE_GROUP_NAMES
-        ).exists()
-
-        if not is_authorized:
+        # Apply the centralized workspace authorization policy.
+        if not can_access_workspace(request.user):
             raise PermissionDenied(
                 "You are not authorized to access "
                 "the Career Services workspace."
