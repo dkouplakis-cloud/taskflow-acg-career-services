@@ -19,6 +19,7 @@ from .cart_views import (
 
 from .checkout_views import (
     order_confirmation,
+    order_history,
     place_order,
 )
 
@@ -54,6 +55,13 @@ urlpatterns = [
         "checkout/",
         place_order,
         name="place_order"
+    ),
+
+    # Show the authenticated user's previous catalogue orders.
+    path(
+        "orders/",
+        order_history,
+        name="order_history"
     ),
 
     # View an order confirmation.

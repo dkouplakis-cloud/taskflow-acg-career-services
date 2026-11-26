@@ -3018,3 +3018,120 @@ class CheckoutViewTests(TestCase):
         # No order records should be created.
         self.assertEqual(Order.objects.count(), 0)
         self.assertEqual(OrderItem.objects.count(), 0)
+
+    def test_order_history_requires_authentication(self):
+        """
+        Anonymous visitors must be redirected to sign in
+        before accessing their order history.
+        """
+
+        # Request order history without authenticating.
+        response = self.client.get(
+            reverse("catalog:order_history")
+        )
+
+        # Django must redirect anonymous visitors.
+        self.assertEqual(response.status_code, 302)
+
+        # Preserve the requested destination after login.
+        self.assertIn(
+            "next=",
+            response["Location"]
+        )
+    
+    def test_order_history_only_displays_own_orders(self):
+        """
+        Authenticated students must see only their own
+        orders, never another student's order history.
+        """
+        from .models import Order
+
+        User = get_user_model()
+
+        # Create two independent student accounts.
+        student_a = User.objects.create_user(
+            username="order_history_student_a"
+        )
+
+        student_b = User.objects.create_user(
+            username="order_history_student_b"
+        )
+
+        # Create one simulated order for each student.
+        own_order = Order.objects.create(
+            user=student_a
+        )
+
+        other_order = Order.objects.create(
+            user=student_b
+        )
+
+        # Authenticate as the first student.
+        self.client.force_login(student_a)
+
+        response = self.client.get(
+            reverse("catalog:order_history")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify ownership filtering in the queryset.
+        visible_orders = list(response.context["orders"])
+
+        self.assertIn(own_order, visible_orders)
+        self.assertNotIn(other_order, visible_orders)
+        self.assertEqual(len(visible_orders), 1)
+
+        # Verify that the HTML does not expose another order.
+        self.assertContains(
+            response,
+            f"Order #{own_order.pk}"
+        )
+
+        self.assertNotContains(
+            response,
+            f"Order #{other_order.pk}"
+        )
+    
+    def test_order_history_displays_empty_state(self):
+        """
+        A student without previous orders should see
+        a helpful empty state and catalogue navigation.
+        """
+        user = get_user_model().objects.create_user(
+            username="empty_order_history_student"
+        )
+
+        self.client.force_login(user)
+
+        response = self.client.get(
+            reverse("catalog:order_history")
+        )
+
+        # The page must load successfully.
+        self.assertEqual(response.status_code, 200)
+
+        # The correct template must be rendered.
+        self.assertTemplateUsed(
+            response,
+            "catalog/order_history.html"
+        )
+
+        # No orders should appear in the queryset.
+        self.assertEqual(
+            list(response.context["orders"]),
+            []
+        )
+
+        # Verify the empty-state content.
+        self.assertContains(response, "No orders yet")
+        self.assertContains(
+            response,
+            "Explore Career Services"
+        )
+
+        # Verify navigation back to the catalogue.
+        self.assertContains(
+            response,
+            reverse("catalog:list")
+        )

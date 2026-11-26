@@ -1,0 +1,248 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block page_class %}tf-public-catalog tf-order-page{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link
+        rel="stylesheet"
+        href="{% static 'css/catalog-public.css' %}"
+    >
+    <link
+        rel="stylesheet"
+        href="{% static 'css/catalog-orders.css' %}"
+    >
+{% endblock %}
+
+{% block content %}
+
+<section class="tf-order" aria-labelledby="order-history-title">
+
+    <div class="container">
+
+        <!-- Breadcrumb navigation. -->
+        <nav class="tf-order__breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'catalog:list' %}">
+                Career Services
+            </a>
+
+            <span aria-hidden="true">/</span>
+
+            <span aria-current="page">My Orders</span>
+        </nav>
+
+        <!-- Order history introduction. -->
+        <header class="tf-order__header">
+
+            <span class="tf-order__eyebrow">
+                ACG CAREER SERVICES
+            </span>
+
+            <h1 id="order-history-title" class="tf-order__title">
+                My Orders
+            </h1>
+
+            <p class="tf-order__subtitle">
+                Review your previous career service selections,
+                order details, and current order statuses.
+            </p>
+
+            <span class="tf-order__reference">
+                {{ orders|length }}
+                order{{ orders|length|pluralize }} recorded
+            </span>
+
+        </header>
+
+        <!-- Orders belong exclusively to the signed-in user. -->
+        <div class="tf-order__main">
+
+            {% for order in orders %}
+
+                <article
+                    class="tf-order__card"
+                    aria-labelledby="order-heading-{{ order.pk }}"
+                >
+
+                    <div class="tf-order__card-header">
+
+                        <span class="tf-order__section-label">
+                            ORDER RECORD
+                        </span>
+
+                        <h2 id="order-heading-{{ order.pk }}">
+                            Order #{{ order.pk }}
+                        </h2>
+
+                    </div>
+
+                    <!-- Order metadata and recorded total. -->
+                    <div class="tf-order__details-grid">
+
+                        <div class="tf-order__detail">
+
+                            <span class="tf-order__detail-label">
+                                Order Date
+                            </span>
+
+                            <strong>
+                                {{ order.created_at|date:"F j, Y" }}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-order__detail">
+
+                            <span class="tf-order__detail-label">
+                                Status
+                            </span>
+
+                            <strong class="tf-order__status">
+                                {{ order.get_status_display }}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-order__detail">
+
+                            <span class="tf-order__detail-label">
+                                Order Total
+                            </span>
+
+                            <strong>
+                                {% if order.total_amount == 0 %}
+                                    Free
+                                {% else %}
+                                    €{{ order.total_amount|floatformat:2 }}
+                                {% endif %}
+                            </strong>
+
+                        </div>
+
+                        <div class="tf-order__detail">
+
+                            <span class="tf-order__detail-label">
+                                Services
+                            </span>
+
+                            <strong>
+                                {{ order.items.all|length }}
+                                item{{ order.items.all|length|pluralize }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Historical item names and quantities. -->
+                    <div class="tf-order__items">
+
+                        {% for line in order.items.all %}
+
+                            <div class="tf-order__item">
+
+                                <div class="tf-order__item-info">
+
+                                    <h3 class="tf-order__item-name">
+                                        {{ line.item_name }}
+                                    </h3>
+
+                                    <p class="tf-order__item-quantity">
+                                        Quantity:
+                                        <strong>{{ line.quantity }}</strong>
+                                    </p>
+
+                                </div>
+
+                                <div class="tf-order__item-pricing">
+
+                                    <strong class="tf-order__subtotal">
+                                        {% if line.subtotal == 0 %}
+                                            Free
+                                        {% else %}
+                                            €{{ line.subtotal|floatformat:2 }}
+                                        {% endif %}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <!-- Existing order confirmation doubles as details. -->
+                    <div class="tf-order__card-header">
+
+                        <a
+                            href="{% url 'catalog:order_confirmation' order.pk %}"
+                            class="btn btn-primary"
+                            aria-label="View details for order {{ order.pk }}"
+                        >
+                            View Order Details
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% empty %}
+
+                <!-- Helpful empty state for new student accounts. -->
+                <section
+                    class="tf-order__card"
+                    aria-labelledby="empty-orders-title"
+                >
+
+                    <div class="tf-order__card-header">
+
+                        <span class="tf-order__section-label">
+                            YOUR ORDER HISTORY
+                        </span>
+
+                        <h2 id="empty-orders-title">
+                            No orders yet
+                        </h2>
+
+                        <p>
+                            Once you complete a simulated checkout,
+                            your career service selections will
+                            appear here.
+                        </p>
+
+                        <a
+                            href="{% url 'catalog:list' %}"
+                            class="btn btn-primary"
+                        >
+                            Explore Career Services
+                        </a>
+
+                    </div>
+
+                </section>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- Clearly identify the academic checkout simulation. -->
+        <div class="tf-order__notice">
+
+            <strong>Simulated transactions</strong>
+
+            <p>
+                Orders displayed here are part of the TaskFlow
+                academic application. No real payments are
+                processed.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

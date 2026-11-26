@@ -76,3 +76,32 @@ def order_confirmation(request, order_id):
         "catalog/order_confirmation.html",
         context
     )
+
+@login_required
+@require_GET
+def order_history(request):
+    """
+    Display the authenticated user's simulated
+    catalogue orders, newest first.
+
+    Never expose orders belonging to other users.
+    """
+
+    # Enforce ownership at the database-query level.
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .prefetch_related("items")
+        .order_by("-created_at")
+    )
+
+    context = {
+        "page_title": "My Orders",
+        "orders": orders,
+    }
+
+    return render(
+        request,
+        "catalog/order_history.html",
+        context
+    )
