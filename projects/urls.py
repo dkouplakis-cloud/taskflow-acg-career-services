@@ -67,6 +67,12 @@ urlpatterns = [
         name="analytics"
     ),
 
+    # Calendar dashboard for authorized workspace members.
+    path(
+        "schedule/",
+        views.schedule_dashboard,
+        name="schedule"
+    ),
 
     # Delete a task from a project.
     path(

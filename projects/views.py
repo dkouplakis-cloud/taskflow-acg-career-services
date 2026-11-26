@@ -566,3 +566,34 @@ def analytics_dashboard(request):
         "projects/analytics.html",
         context
     )
+
+@workspace_required
+def schedule_dashboard(request):
+    """
+    Display scheduled tasks from projects accessible
+    to the authenticated Career Services workspace member.
+
+    Staff see office-wide tasks, while authorized faculty
+    and student assistants see only granted projects.
+    """
+
+    # Apply centralized project visibility permissions.
+    projects = visible_projects_for_user(request.user)
+
+    # Retrieve tasks exclusively from authorized projects.
+    scheduled_tasks = (
+        Task.objects.filter(project__in=projects)
+        .select_related("project", "assignee")
+        .order_by("due_date", "pk")
+    )
+
+    # Supply the authorized tasks to the calendar template.
+    context = {
+        "scheduled_tasks": scheduled_tasks,
+    }
+
+    return render(
+        request,
+        "projects/schedule.html",
+        context
+    )

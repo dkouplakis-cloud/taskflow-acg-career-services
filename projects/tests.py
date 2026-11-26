@@ -123,6 +123,40 @@ class CareerServicesOfficeWideAccessTests(TestCase):
             response.context["total_projects"],
             1
         )
+    def test_non_owner_staff_can_view_schedule(self):
+        """
+        Career Services staff can view scheduled tasks
+        across the office, regardless of project ownership.
+        """
+        from tasks.models import Task
+
+        # Create a scheduled task in another staff member's project.
+        task = Task.objects.create(
+            project=self.project,
+            name="Career Fair Schedule Test",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Authenticate as staff who do not own the project.
+        self.client.force_login(self.other_staff)
+
+        response = self.client.get(
+            reverse("projects:schedule")
+        )
+
+        # Confirm the Schedule page renders successfully.
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the intended Django template was rendered.
+        self.assertTemplateUsed(
+            response,
+            "projects/schedule.html"
+        )
+
+        # Confirm that office-wide task information is visible.
+        self.assertContains(response, task.name)
+        self.assertContains(response, self.project.name)
 
 class ScopedProjectVisibilityTests(TestCase):
     """
@@ -797,3 +831,105 @@ class ScopedProjectVisibilityTests(TestCase):
             workload.assigned_task_list[0].project_id,
             self.project.pk
         )
+
+    def test_contributor_schedule_only_shows_granted_project_tasks(self):
+        """
+        Contributors may view scheduled tasks only
+        from projects within their authorized scope.
+        """
+        from tasks.models import Task
+
+        # Create a task in the authorized project.
+        authorized_task = Task.objects.create(
+            project=self.project,
+            name="Authorized Schedule Task",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Create a task in an unauthorized project.
+        confidential_task = Task.objects.create(
+            project=self.other_project,
+            name="Confidential Schedule Task",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Authenticate as a scoped Contributor.
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(
+            reverse("projects:schedule")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the queryset supplied to the calendar.
+        scheduled_tasks = list(
+            response.context["scheduled_tasks"]
+        )
+
+        self.assertIn(authorized_task, scheduled_tasks)
+        self.assertNotIn(confidential_task, scheduled_tasks)
+
+        # Verify the rendered page does not leak task names.
+        self.assertContains(response, authorized_task.name)
+        self.assertNotContains(response, confidential_task.name)
+
+    def test_regular_student_cannot_access_schedule(self):
+        """
+        Ordinary students must not access the internal
+        Career Services Schedule, even through a direct URL.
+        """
+        # Authenticate as a regular student without
+        # Career Services workspace authorization.
+        self.client.force_login(self.student)
+
+        response = self.client.get(
+            reverse("projects:schedule")
+        )
+
+        # Workspace access must be denied.
+        self.assertEqual(response.status_code, 403)
+
+    def test_viewer_schedule_only_shows_granted_project_tasks(self):
+        """
+        Faculty with Viewer access can see scheduled tasks
+        from granted projects, but not unrelated projects.
+        """
+        from tasks.models import Task
+
+        # Create a task in the faculty member's granted project.
+        authorized_task = Task.objects.create(
+            project=self.project,
+            name="Faculty Authorized Schedule Task",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Create a task in an ungranted project.
+        confidential_task = Task.objects.create(
+            project=self.other_project,
+            name="Faculty Confidential Schedule Task",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # This faculty member has Viewer access only.
+        self.client.force_login(self.faculty)
+
+        response = self.client.get(
+            reverse("projects:schedule")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the authorized queryset.
+        scheduled_tasks = list(
+            response.context["scheduled_tasks"]
+        )
+
+        self.assertIn(authorized_task, scheduled_tasks)
+        self.assertNotIn(confidential_task, scheduled_tasks)
+
+        # Verify rendered HTML does not expose private tasks.
+        self.assertContains(response, authorized_task.name)
+        self.assertNotContains(response, confidential_task.name)

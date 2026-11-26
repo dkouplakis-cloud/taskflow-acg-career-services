@@ -1,0 +1,86 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Schedule | TaskFlow{% endblock %}
+
+{% block page_class %}schedule-page{% endblock %}
+
+{% block content %}
+
+<section
+    class="schedule-dashboard"
+    aria-labelledby="schedule-heading"
+>
+    <!-- Schedule page introduction -->
+    <header class="schedule-header">
+        <h1 id="schedule-heading">
+            Schedule
+        </h1>
+
+        <p>
+            Explore project deadlines and scheduled tasks
+            across your authorized Career Services workspace.
+        </p>
+    </header>
+
+    <!-- Initial task listing; calendar integration follows. -->
+    <section
+        class="schedule-tasks"
+        aria-labelledby="schedule-tasks-heading"
+    >
+        <h2 id="schedule-tasks-heading">
+            Scheduled Tasks
+        </h2>
+
+        {% if scheduled_tasks %}
+
+            <ul class="schedule-task-list">
+                {% for task in scheduled_tasks %}
+                    <li class="schedule-task-item">
+                        <article>
+                            <h3>{{ task.name }}</h3>
+
+                            <p>
+                                Project:
+                                <a href="{% url 'projects:project_detail' task.project.pk %}">
+                                    {{ task.project.name }}
+                                </a>
+                            </p>
+
+                            <p>
+                                Due:
+                                <time datetime="{{ task.due_date|date:'Y-m-d' }}">
+                                    {{ task.due_date|date:"j F Y" }}
+                                </time>
+                            </p>
+
+                            <p>
+                                Status: {{ task.get_status_display }}
+                            </p>
+
+                            <p>
+                                Priority: {{ task.get_priority_display }}
+                            </p>
+                        </article>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+
+            <!-- Displayed when no accessible tasks exist. -->
+            <div class="schedule-empty-state">
+                <h3>No scheduled tasks yet</h3>
+
+                <p>
+                    Tasks from your accessible projects
+                    will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </section>
+</section>
+
+{% endblock %}
