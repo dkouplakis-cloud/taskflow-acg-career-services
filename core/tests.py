@@ -520,3 +520,312 @@ class WorkspaceAuthorizationTests(TestCase):
                     response,
                     f'href="{reverse("projects:project_create")}"'
                 )
+
+class StudentRegistrationTests(TestCase):
+    """
+    Verify public student registration and ensure
+    new accounts receive no internal workspace privileges.
+    """
+
+    def test_registration_creates_regular_student(self):
+        """
+        Successful registration creates a regular user,
+        creates their profile, and signs them in without
+        granting Career Services workspace access.
+        """
+
+        registration_data = {
+            "username": "student_registration_test",
+            "first_name": "Alex",
+            "last_name": "Student",
+            "email": "student.registration@example.com",
+            "password1": "StrongDemoPassword847!",
+            "password2": "StrongDemoPassword847!",
+        }
+
+        # Submit the public registration form.
+        response = self.client.post(
+            reverse("student_register"),
+            registration_data
+        )
+
+        # Successful registration redirects to the catalogue.
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+        # Verify the student account was created.
+        user = get_user_model().objects.get(
+            username="student_registration_test"
+        )
+
+        self.assertEqual(
+            user.email,
+            "student.registration@example.com"
+        )
+
+        # The existing signal must create a regular profile.
+        self.assertEqual(
+            user.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        # Public registration must never grant privileges.
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertFalse(user.groups.exists())
+
+        # The newly registered student must be signed in.
+        self.assertEqual(
+            str(self.client.session.get("_auth_user_id")),
+            str(user.pk)
+        )
+
+        # Internal projects remain inaccessible.
+        workspace_response = self.client.get(
+            reverse("projects:project_list")
+        )
+
+        self.assertEqual(
+            workspace_response.status_code,
+            403
+        )
+
+    def test_registration_cannot_self_assign_privileges(self):
+        """
+        Public registration must ignore attempts to
+        assign administrative roles or workspace access.
+        """
+        from django.contrib.auth.models import Group
+
+        # Create a privileged group for the security test.
+        staff_group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        # Attempt to submit unauthorized privilege fields.
+        registration_data = {
+            "username": "privilege_escalation_test",
+            "first_name": "Test",
+            "last_name": "Student",
+            "email": "privilege.test@example.com",
+            "password1": "StrongDemoPassword847!",
+            "password2": "StrongDemoPassword847!",
+            "is_staff": "on",
+            "is_superuser": "on",
+            "role": "admin",
+            "groups": str(staff_group.pk),
+        }
+
+        response = self.client.post(
+            reverse("student_register"),
+            registration_data
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+        user = get_user_model().objects.get(
+            username="privilege_escalation_test"
+        )
+
+        # Public registration must never grant privileges.
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertFalse(user.groups.exists())
+
+        # The profile must retain its regular role.
+        self.assertEqual(
+            user.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        # Internal workspace access must remain prohibited.
+        workspace_response = self.client.get(
+            reverse("projects:project_list")
+        )
+
+        self.assertEqual(
+            workspace_response.status_code,
+            403
+        )
+
+    def test_registration_cannot_self_assign_privileges(self):
+        """
+        Public registration must ignore attempts to
+        assign administrative roles or workspace access.
+        """
+        from django.contrib.auth.models import Group
+
+        # Create a privileged group for the security test.
+        staff_group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        # Attempt to submit fields that must never be
+        # controlled through public registration.
+        registration_data = {
+            "username": "privilege_escalation_test",
+            "first_name": "Test",
+            "last_name": "Student",
+            "email": "privilege.test@example.com",
+            "password1": "StrongDemoPassword847!",
+            "password2": "StrongDemoPassword847!",
+            "is_staff": "on",
+            "is_superuser": "on",
+            "role": "admin",
+            "groups": str(staff_group.pk),
+        }
+
+        response = self.client.post(
+            reverse("student_register"),
+            registration_data
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+        user = get_user_model().objects.get(
+            username="privilege_escalation_test"
+        )
+
+        # Administrative privileges must remain disabled.
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+
+        # The student must not join privileged groups.
+        self.assertFalse(user.groups.exists())
+
+        # The automatically created profile stays regular.
+        self.assertEqual(
+            user.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        # Direct internal workspace access remains blocked.
+        workspace_response = self.client.get(
+            reverse("projects:project_list")
+        )
+
+        self.assertEqual(
+            workspace_response.status_code,
+            403
+        )
+    
+    def test_registration_rejects_duplicate_email(self):
+        """
+        Registration must reject email addresses already
+        associated with another account, regardless of case.
+        """
+
+        User = get_user_model()
+
+        # Create an existing account with a mixed-case email.
+        existing_user = User.objects.create_user(
+            username="existing_email_test",
+            email="Student@Example.com",
+            password="ExistingPassword847!"
+        )
+
+        # Attempt registration using the same email
+        # with different capitalization.
+        registration_data = {
+            "username": "duplicate_email_test",
+            "first_name": "Alex",
+            "last_name": "Student",
+            "email": "student@example.com",
+            "password1": "StrongDemoPassword847!",
+            "password2": "StrongDemoPassword847!",
+        }
+
+        response = self.client.post(
+            reverse("student_register"),
+            registration_data
+        )
+
+        # Invalid registration must redisplay the form.
+        self.assertEqual(response.status_code, 200)
+
+        # Verify that the appropriate error is displayed.
+        self.assertContains(
+            response,
+            "An account with this email address already exists."
+        )
+
+        # No new student account should be created.
+        self.assertFalse(
+            User.objects.filter(
+                username="duplicate_email_test"
+            ).exists()
+        )
+
+        # The existing account must remain unchanged.
+        existing_user.refresh_from_db()
+
+        # Django normalizes the email domain to lowercase.
+        # The existing account must remain unchanged.
+        self.assertEqual(
+            existing_user.email,
+            "Student@example.com"
+        )
+
+        # Failed registration must not authenticate the user.
+        self.assertNotIn(
+            "_auth_user_id",
+            self.client.session
+        )
+    
+    def test_registration_rejects_mismatched_passwords(self):
+        """
+        Registration must reject mismatched passwords
+        without creating or authenticating a user.
+        """
+
+        User = get_user_model()
+
+        registration_data = {
+            "username": "password_mismatch_test",
+            "first_name": "Alex",
+            "last_name": "Student",
+            "email": "password.test@example.com",
+            "password1": "StrongDemoPassword847!",
+            "password2": "DifferentPassword963!",
+        }
+
+        # Submit the registration form with two
+        # different passwords.
+        response = self.client.post(
+            reverse("student_register"),
+            registration_data
+        )
+
+        # Invalid submissions must redisplay the form.
+        self.assertEqual(response.status_code, 200)
+
+        # Django must report the password mismatch.
+        self.assertFormError(
+            response.context["form"],
+            "password2",
+            "The two password fields didn’t match."
+        )
+
+        # No account may be created.
+        self.assertFalse(
+            User.objects.filter(
+                username="password_mismatch_test"
+            ).exists()
+        )
+
+        # Failed registration must not authenticate anyone.
+        self.assertNotIn(
+            "_auth_user_id",
+            self.client.session
+        )

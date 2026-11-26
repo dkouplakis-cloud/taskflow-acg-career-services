@@ -15,7 +15,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from core.auth_views import TaskFlowLoginView
+from core.auth_views import TaskFlowLoginView, student_register
 from django.contrib.auth.decorators import login_not_required
 from django.views.static import serve
 
@@ -28,7 +28,15 @@ urlpatterns = [
         "manage/catalog/",
         include("catalog.management_urls")
     ),
-    
+
+    # Public registration for regular student accounts.
+    # Privileged workspace roles cannot be self-assigned.
+    path(
+        "accounts/register/",
+        student_register,
+        name="student_register"
+    ),
+
     # Role-aware login using Django's secure LoginView.
     # This route must appear before the built-in auth URLs.
     path(
