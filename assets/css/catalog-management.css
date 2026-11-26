@@ -1159,3 +1159,18 @@ section[aria-labelledby="category-directory-title"] > .card {
     border-color: #a9cfff;
     color: #ffffff;
 }
+
+/* ==========================================================
+   CATALOGUE ITEMS — DIRECTORY SUBTITLE CONTRAST
+   ========================================================== */
+
+/*
+ * Improve the catalogue item count's readability in dark mode.
+ * Target only the paragraph immediately after the directory
+ * heading, preserving Bootstrap's light-mode appearance.
+ */
+
+[data-theme="dark"] #catalogue-directory-title + .text-body-secondary {
+    color: var(--text) !important;
+    opacity: 0.9;
+}
