@@ -1,5 +1,14 @@
-
 {% extends "layout.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    <!-- Dedicated styles for the Schedule calendar. -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/schedule.css' %}"
+    >
+{% endblock %}
 
 {% block title %}Schedule | TaskFlow{% endblock %}
 
@@ -22,6 +31,115 @@
             across your authorized Career Services workspace.
         </p>
     </header>
+
+    <!-- Server-rendered monthly calendar -->
+    <section
+        class="schedule-calendar"
+        aria-labelledby="schedule-calendar-heading"
+    >
+        
+        <header class="schedule-calendar-header">
+
+            <!-- Display the month selected by the user. -->
+            <h2 id="schedule-calendar-heading">
+                {{ displayed_month|date:"F Y" }}
+            </h2>
+
+            <!-- Accessible, server-driven calendar navigation. -->
+            <nav
+                class="schedule-calendar-navigation"
+                aria-label="Calendar month navigation"
+            >
+
+                {% if previous_month %}
+                    <a
+                        class="schedule-calendar-nav-link"
+                        href="{% url 'projects:schedule' %}?month={{ previous_month }}"
+                        aria-label="Previous month"
+                    >
+                        &larr; Previous
+                    </a>
+                {% endif %}
+
+                <!-- Return directly to the current month. -->
+                <a
+                    class="schedule-calendar-today"
+                    href="{% url 'projects:schedule' %}"
+                >
+                    Today
+                </a>
+
+                {% if next_month %}
+                    <a
+                        class="schedule-calendar-nav-link"
+                        href="{% url 'projects:schedule' %}?month={{ next_month }}"
+                        aria-label="Next month"
+                    >
+                        Next &rarr;
+                    </a>
+                {% endif %}
+
+            </nav>
+
+        </header>
+
+        <!-- Monday-first weekday headings -->
+        <div
+            class="schedule-calendar-weekdays"
+            aria-hidden="true"
+        >
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+        </div>
+
+        <!-- Monthly calendar with tasks grouped by due date. -->
+        <ol class="schedule-calendar-grid">
+            {% for week in calendar_task_weeks %}
+                {% for cell in week %}
+                    <li
+                        class="schedule-calendar-day
+                            {% if cell.date.month != calendar_month %}
+                                schedule-calendar-day--outside
+                            {% endif %}
+                            {% if cell.date == today %}
+                                schedule-calendar-day--today
+                            {% endif %}"
+                        data-date="{{ cell.date|date:'Y-m-d' }}"
+                    >
+                        <!-- Accessible calendar date. -->
+                        <time
+                            datetime="{{ cell.date|date:'Y-m-d' }}"
+                            aria-label="{{ cell.date|date:'l, j F Y' }}"
+                            {% if cell.date == today %}
+                                aria-current="date"
+                            {% endif %}
+                        >
+                            {{ cell.date|date:"j" }}
+                        </time>
+
+                        <!-- Display authorized tasks due on this date. -->
+                        {% if cell.tasks %}
+                            <ul
+                                class="schedule-calendar-day-tasks"
+                                aria-label="Tasks due on this date"
+                            >
+                                {% for task in cell.tasks %}
+                                    <li class="schedule-calendar-task">
+                                        {{ task.name }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            {% endfor %}
+        </ol>
+    </section>
 
     <!-- Initial task listing; calendar integration follows. -->
     <section

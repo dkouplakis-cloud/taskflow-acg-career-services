@@ -16,13 +16,13 @@ from tasks.models import Task
 from collections import defaultdict
 from .forms import ProjectForm
 from .models import Project
-
+from calendar import Calendar
 from core.permissions import (
     career_services_staff_required,
     is_career_services_staff,
     workspace_required,
 )
-
+from datetime import date
 from .permissions import visible_projects_for_user
 
 
@@ -587,9 +587,126 @@ def schedule_dashboard(request):
         .order_by("due_date", "pk")
     )
 
-    # Supply the authorized tasks to the calendar template.
+    # Use the current local date as the default calendar month.
+    today = timezone.localdate()
+    displayed_month = today.replace(day=1)
+
+    # Allow navigation to another month using YYYY-MM.
+    requested_month = request.GET.get("month", "")
+
+    if requested_month:
+        try:
+            # Require the expected year-month format.
+            if (
+                len(requested_month) != 7
+                or requested_month[4] != "-"
+            ):
+                raise ValueError("Invalid month format.")
+
+            displayed_month = date.fromisoformat(
+                f"{requested_month}-01"
+            )
+
+        except ValueError:
+            # Invalid values safely fall back to the current month.
+            displayed_month = today.replace(day=1)
+
+    # Generate the selected month's Monday-first calendar.
+    
+    # Generate complete Monday-first calendar weeks.
+    calendar = Calendar(firstweekday=0)
+
+    try:
+        calendar_weeks = calendar.monthdatescalendar(
+            displayed_month.year,
+            displayed_month.month
+        )
+
+    except ValueError:
+        # At the supported date boundary, adjacent-month
+        # padding may fall outside Python's valid date range.
+        # Retain only representable dates.
+        valid_dates = [
+            date(year, month, day)
+            for year, month, day in calendar.itermonthdays3(
+                displayed_month.year,
+                displayed_month.month
+            )
+            if 1 <= year <= 9999
+        ]
+
+        # Preserve weekly grouping without creating
+        # invalid datetime.date objects.
+        calendar_weeks = [
+            valid_dates[index:index + 7]
+            for index in range(0, len(valid_dates), 7)
+        ]
+
+    # Group authorized tasks by their scheduled due date.
+    # This preserves the existing workspace access restrictions.
+    tasks_by_day = {}
+
+    for task in scheduled_tasks:
+        tasks_by_day.setdefault(task.due_date, []).append(task)
+
+    # Prepare each calendar cell with its corresponding tasks.
+    # Keep the original calendar_weeks for existing tests.
+    calendar_task_weeks = [
+        [
+            {
+                "date": day,
+                "tasks": tasks_by_day.get(day, [])
+                if (
+                    day.month == displayed_month.month
+                    and day.year == displayed_month.year
+                )
+                else [],
+            }
+            for day in week
+        ]
+        for week in calendar_weeks
+    ]
+
+    # Calculate the previous month for calendar navigation.
+    previous_month = None
+
+    if displayed_month != date.min:
+        previous_year = displayed_month.year
+        previous_number = displayed_month.month - 1
+
+        if previous_number == 0:
+            previous_year -= 1
+            previous_number = 12
+
+        previous_month = (
+            f"{previous_year:04d}-{previous_number:02d}"
+        )
+
+    # Calculate the next month for calendar navigation.
+    next_month = None
+
+    if displayed_month != date(9999, 12, 1):
+        next_year = displayed_month.year
+        next_number = displayed_month.month + 1
+
+        if next_number == 13:
+            next_year += 1
+            next_number = 1
+
+        next_month = (
+            f"{next_year:04d}-{next_number:02d}"
+        )
+
     context = {
         "scheduled_tasks": scheduled_tasks,
+        "calendar_weeks": calendar_weeks,
+        "calendar_month": displayed_month.month,
+        "calendar_year": displayed_month.year,
+        "today": today,
+        "displayed_month": displayed_month,
+        "previous_month": previous_month,
+        "next_month": next_month,
+        "calendar_task_weeks": calendar_task_weeks,
     }
 
     return render(

@@ -158,6 +158,210 @@ class CareerServicesOfficeWideAccessTests(TestCase):
         self.assertContains(response, task.name)
         self.assertContains(response, self.project.name)
 
+    def test_schedule_displays_requested_month(self):
+        """
+        Authorized staff can select a calendar month
+        using the YYYY-MM query parameter.
+        """
+        from datetime import date
+
+        self.client.force_login(self.other_staff)
+
+        # Request December 2026 instead of the current month.
+        response = self.client.get(
+            reverse("projects:schedule"),
+            {"month": "2026-12"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the selected month is passed to the template.
+        self.assertEqual(
+            response.context["displayed_month"],
+            date(2026, 12, 1)
+        )
+        self.assertEqual(response.context["calendar_year"], 2026)
+        self.assertEqual(response.context["calendar_month"], 12)
+
+        # Confirm December dates appear in the generated grid.
+        calendar_dates = [
+            day
+            for week in response.context["calendar_weeks"]
+            for day in week
+        ]
+
+        self.assertIn(date(2026, 12, 10), calendar_dates)
+    
+    def test_schedule_month_navigation_crosses_year_boundary(self):
+        """
+        Calendar navigation must correctly transition
+        between December and January of the next year.
+        """
+        self.client.force_login(self.other_staff)
+
+        response = self.client.get(
+            reverse("projects:schedule"),
+            {"month": "2026-12"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Verify the backend calculates both months correctly.
+        self.assertEqual(
+            response.context["previous_month"],
+            "2026-11"
+        )
+        self.assertEqual(
+            response.context["next_month"],
+            "2027-01"
+        )
+
+        # Verify the actual rendered navigation links.
+        schedule_url = reverse("projects:schedule")
+
+        self.assertContains(
+            response,
+            f'href="{schedule_url}?month=2026-11"'
+        )
+        self.assertContains(
+            response,
+            f'href="{schedule_url}?month=2027-01"'
+        )
+
+        # The Today control returns to the current month.
+        self.assertContains(
+            response,
+            f'href="{schedule_url}"'
+        )
+
+        # The heading must show the selected month.
+        self.assertContains(response, "December 2026")
+    
+    def test_schedule_places_task_on_correct_calendar_date(self):
+        """
+        Verify that an authorized task appears in the
+        calendar cell matching its actual due date.
+        """
+        from tasks.models import Task
+
+        self.client.force_login(self.other_staff)
+
+        # Create a task explicitly in the isolated test database.
+        # Its project belongs to another authorized staff member.
+        task = Task.objects.create(
+            project=self.project,
+            name="Career Fair Calendar Placement Test",
+            status="pending",
+            due_date=timezone.localdate() + timedelta(days=7)
+        )
+
+        # Request the month containing the task's due date.
+        requested_month = task.due_date.strftime("%Y-%m")
+
+        response = self.client.get(
+            reverse("projects:schedule"),
+            {"month": requested_month}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Find the cell corresponding to the task's due date.
+        matching_cells = [
+            cell
+            for week in response.context["calendar_task_weeks"]
+            for cell in week
+            if cell["date"] == task.due_date
+        ]
+
+        self.assertEqual(len(matching_cells), 1)
+
+        # Confirm the task is assigned to that calendar cell.
+        self.assertIn(task, matching_cells[0]["tasks"])
+
+        # Confirm the task name is rendered to the user.
+        self.assertContains(response, task.name)
+    
+    def test_schedule_handles_invalid_month_parameters(self):
+        """
+        Invalid calendar month parameters must not crash
+        the Schedule page or produce incorrect dates.
+        """
+        self.client.force_login(self.other_staff)
+
+        current_month = timezone.localdate().replace(day=1)
+
+        invalid_months = (
+            "2026-13",   # Month outside the valid range.
+            "2026-00",   # Month zero is invalid.
+            "2026-1",    # Incorrect YYYY-MM format.
+            "invalid",   # Non-date input.
+            "0000-01",   # Year zero is not supported.
+        )
+
+        for invalid_month in invalid_months:
+            with self.subTest(month=invalid_month):
+                response = self.client.get(
+                    reverse("projects:schedule"),
+                    {"month": invalid_month}
+                )
+
+                # The page must remain accessible.
+                self.assertEqual(response.status_code, 200)
+
+                # Invalid input must fall back to this month.
+                self.assertEqual(
+                    response.context["displayed_month"],
+                    current_month
+                )
+
+                self.assertEqual(
+                    response.context["calendar_month"],
+                    current_month.month
+                )
+
+                self.assertEqual(
+                    response.context["calendar_year"],
+                    current_month.year
+                )
+    
+    def test_schedule_handles_calendar_year_boundaries(self):
+        """
+        The calendar must handle the earliest and latest
+        supported years without generating invalid dates.
+        """
+        from datetime import date
+
+        self.client.force_login(self.other_staff)
+
+        boundary_months = (
+            ("0001-01", date(1, 1, 1), None, "0001-02"),
+            ("9999-12", date(9999, 12, 1), "9999-11", None),
+        )
+
+        for month, expected_date, previous, next_month in boundary_months:
+            with self.subTest(month=month):
+                response = self.client.get(
+                    reverse("projects:schedule"),
+                    {"month": month}
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                self.assertEqual(
+                    response.context["displayed_month"],
+                    expected_date
+                )
+
+                self.assertEqual(
+                    response.context["previous_month"],
+                    previous
+                )
+
+                self.assertEqual(
+                    response.context["next_month"],
+                    next_month
+                )
+
 class ScopedProjectVisibilityTests(TestCase):
     """
     Verify that faculty and student assistants can see
@@ -933,3 +1137,65 @@ class ScopedProjectVisibilityTests(TestCase):
         # Verify rendered HTML does not expose private tasks.
         self.assertContains(response, authorized_task.name)
         self.assertNotContains(response, confidential_task.name)
+
+    def test_calendar_only_displays_tasks_from_granted_projects(self):
+        """
+        Faculty and student assistants must not see calendar
+        tasks belonging to projects outside their access grants.
+        """
+        from tasks.models import Task
+
+        due_date = timezone.localdate() + timedelta(days=7)
+
+        # A task belonging to the explicitly authorized project.
+        allowed_task = Task.objects.create(
+            project=self.project,
+            name="Authorized Workshop Calendar Task",
+            status="pending",
+            due_date=due_date
+        )
+
+        # A confidential task belonging to an ungranted project.
+        restricted_task = Task.objects.create(
+            project=self.other_project,
+            name="Confidential Office Calendar Task",
+            status="pending",
+            due_date=due_date
+        )
+
+        # Verify both Viewer and Contributor access levels.
+        for user in (self.faculty, self.assistant):
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+
+                response = self.client.get(
+                    reverse("projects:schedule"),
+                    {"month": due_date.strftime("%Y-%m")}
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                # Find the calendar cell containing the deadline.
+                matching_cells = [
+                    cell
+                    for week in response.context["calendar_task_weeks"]
+                    for cell in week
+                    if cell["date"] == due_date
+                ]
+
+                self.assertEqual(len(matching_cells), 1)
+
+                calendar_tasks = matching_cells[0]["tasks"]
+
+                # Authorized task must be visible.
+                self.assertIn(allowed_task, calendar_tasks)
+
+                # Confidential task must not be exposed.
+                self.assertNotIn(restricted_task, calendar_tasks)
+
+                # Verify the rendered HTML also respects access.
+                self.assertContains(response, allowed_task.name)
+                self.assertNotContains(
+                    response,
+                    restricted_task.name
+                )
