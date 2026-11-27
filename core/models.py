@@ -224,3 +224,45 @@ class StudentRegistrationRequest(models.Model):
 
     def __str__(self):
         return f"{self.username} - {self.get_status_display()}"
+
+class AccountIdentityLock(models.Model):
+    """
+    Provide a shared database-backed synchronization
+    point for account identity management.
+
+    Operations that create or modify account identifiers
+    must acquire this lock before validating and
+    persisting usernames and email addresses.
+
+    Only one synchronization record is permitted.
+    """
+
+    # Fixed identifier for the shared synchronization row.
+    id = models.PositiveSmallIntegerField(
+        primary_key=True,
+        default=1,
+        editable=False
+    )
+
+    # Updating this value acquires a database write lock
+    # within the surrounding atomic transaction.
+    revision = models.PositiveBigIntegerField(
+        default=0,
+        editable=False
+    )
+
+    class Meta:
+
+        verbose_name = "Account identity lock"
+        verbose_name_plural = "Account identity locks"
+
+        # Prevent multiple synchronization records.
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(id=1),
+                name="core_identity_lock_singleton",
+            ),
+        ]
+
+    def __str__(self):
+        return "Account identity synchronization lock"

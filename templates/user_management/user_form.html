@@ -1,0 +1,325 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+  Create User | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+  catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4 py-lg-5
+            tf-category-list-page tf-user-form-page">
+
+  <!-- Administration breadcrumb navigation. -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+
+    <ol class="breadcrumb">
+
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+
+      </li>
+
+      <li class="breadcrumb-item">
+
+        <a href="{% url 'user_management:user_list' %}">
+          Manage Users
+        </a>
+
+      </li>
+
+      <li class="breadcrumb-item active"
+          aria-current="page">
+        Create User
+      </li>
+
+    </ol>
+
+  </nav>
+
+  <!-- Account creation page introduction. -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="create-user-title"
+  >
+
+    <div class="tf-category-page-header__copy">
+
+      <p class="tf-category-page-header__eyebrow">
+        User Administration
+      </p>
+
+      <h1 id="create-user-title">
+        Create User
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Register a new TaskFlow account with secure
+        authentication credentials and controlled access.
+      </p>
+
+    </div>
+
+    <div class="tf-category-page-header__actions">
+
+      <a
+        href="{% url 'user_management:user_list' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Users
+      </a>
+
+    </div>
+
+  </section>
+
+  <form
+    method="post"
+    action="{% url 'user_management:user_create' %}"
+    class="tf-user-create-form"
+  >
+
+    {% csrf_token %}
+
+    <!-- Display submission errors without losing valid input. -->
+    {% if form.errors %}
+
+      <div
+        class="tf-user-form-alert mb-4"
+        role="alert"
+      >
+
+        <strong>Account could not be created.</strong>
+
+        <p>
+          Review the highlighted fields and correct
+          the validation errors before submitting again.
+        </p>
+
+        {{ form.non_field_errors }}
+
+      </div>
+
+    {% endif %}
+
+    <!-- Responsive two-column account administration layout. -->
+    <div class="tf-user-form-layout">
+
+      <!-- Main account creation column. -->
+      <div class="tf-user-form-main">
+
+        <!-- Account identity and contact information. -->
+        <div class="tf-user-form-panel">
+
+        <fieldset class="tf-user-form-fieldset">
+
+            <legend>Account Information</legend>
+
+            <p class="tf-user-form-description">
+            Enter the identity and contact information
+            associated with the new account.
+            All fields are required.
+            </p>
+
+            <div class="row g-4">
+
+            <div class="col-12">
+                {% include "user_management/_form_field.html" with field=form.username only %}
+            </div>
+
+            <div class="col-12 col-md-6">
+                {% include "user_management/_form_field.html" with field=form.first_name only %}
+            </div>
+
+            <div class="col-12 col-md-6">
+                {% include "user_management/_form_field.html" with field=form.last_name only %}
+            </div>
+
+            <div class="col-12">
+                {% include "user_management/_form_field.html" with field=form.email only %}
+            </div>
+
+            </div>
+
+        </fieldset>
+
+        </div>
+
+        <!-- Authentication credentials. -->
+        <div class="tf-user-form-panel">
+
+        <fieldset class="tf-user-form-fieldset">
+
+            <legend>Authentication Credentials</legend>
+
+            <p class="tf-user-form-description">
+            Configure a strong initial password for
+            the new account.
+            </p>
+
+            <div class="row g-4">
+
+            <div class="col-12">
+                {% include "user_management/_form_field.html" with field=form.password1 only %}
+            </div>
+
+            <div class="col-12">
+                {% include "user_management/_form_field.html" with field=form.password2 only %}
+            </div>
+
+            </div>
+
+        </fieldset>
+
+        </div>
+
+    </div>
+
+    <!-- Supporting permissions and security information. -->
+    <div class="tf-user-form-sidebar">
+
+        <aside
+        class="tf-user-form-panel"
+        aria-labelledby="default-access-title"
+        >
+
+        <p class="tf-user-form-eyebrow">
+            Access Policy
+        </p>
+
+        <h2 id="default-access-title">
+            Default Account Permissions
+        </h2>
+
+        <p class="tf-user-form-description">
+            New accounts are created with limited
+            permissions by default.
+        </p>
+
+        <dl class="tf-user-form-summary">
+
+            <div>
+            <dt>Application role</dt>
+
+            <dd>
+                <span class="tf-user-form-role">
+                Regular User
+                </span>
+            </dd>
+            </div>
+
+            <div>
+            <dt>Account status</dt>
+            <dd>Active</dd>
+            </div>
+
+            <div>
+            <dt>Workspace membership</dt>
+            <dd>None assigned</dd>
+            </div>
+
+            <div>
+            <dt>Administration access</dt>
+            <dd>Not permitted</dd>
+            </div>
+
+        </dl>
+
+        </aside>
+
+        <!-- Secure account creation guidance. -->
+        <aside
+        class="tf-user-form-panel"
+        aria-labelledby="security-guidance-title"
+        >
+
+        <p class="tf-user-form-eyebrow">
+            Security Guidance
+        </p>
+
+        <h2 id="security-guidance-title">
+            Responsible Account Creation
+        </h2>
+
+        <ul class="tf-user-form-guidance">
+
+            <li>
+            Use a unique username and email address.
+            </li>
+
+            <li>
+            Review pending registration requests
+            before creating an account.
+            </li>
+
+            <li>
+            Never reuse your own administrator password.
+            </li>
+
+            <li>
+            Communicate initial credentials through
+            an approved secure channel.
+            </li>
+
+            <li>
+            Assign additional permissions only when
+            operationally necessary.
+            </li>
+
+        </ul>
+
+        </aside>
+
+      </div>
+
+    </div>
+
+
+    <!-- Explicit submission and cancellation controls. -->
+    <div class="tf-user-form-actions mt-4">
+
+      <p>
+        Verify all account information before submission.
+      </p>
+
+      <div class="tf-user-form-action-buttons">
+
+        <a
+          href="{% url 'user_management:user_list' %}"
+          class="btn btn-outline-secondary fw-semibold"
+        >
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="btn btn-primary fw-semibold"
+        >
+          Create User
+        </button>
+
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}

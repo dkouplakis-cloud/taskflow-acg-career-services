@@ -1,0 +1,397 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+  User Details | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+  catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4 py-lg-5
+            tf-category-list-page tf-user-detail-page">
+
+  <!-- Administration breadcrumb navigation. -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+
+    <ol class="breadcrumb">
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'user_management:user_list' %}">
+          Manage Users
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active"
+          aria-current="page">
+        User Details
+      </li>
+
+    </ol>
+
+  </nav>
+
+  <!-- Account identity and navigation. -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="user-detail-title"
+  >
+
+    <div class="tf-category-page-header__copy">
+
+      <p class="tf-category-page-header__eyebrow">
+        Account Overview
+      </p>
+
+      <h1 id="user-detail-title">
+        {{ account.get_full_name|default:account.username }}
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Review account information, application roles
+        and assigned access permissions.
+      </p>
+
+    </div>
+
+    <div class="tf-category-page-header__actions">
+
+      <a
+        href="{% url 'user_management:user_list' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Users
+      </a>
+
+    </div>
+
+  </section>
+
+  <!-- Account identity summary. -->
+  <section
+    class="tf-user-identity-panel mb-4"
+    aria-label="Account identity"
+  >
+
+    <div class="tf-user-detail-avatar" aria-hidden="true">
+
+      {{ account.first_name|default:account.username|slice:":1"|upper }}
+
+    </div>
+
+    <div class="tf-user-identity-copy">
+
+      <h2>
+        {{ account.get_full_name|default:account.username }}
+      </h2>
+
+      <p>@{{ account.username }}</p>
+
+      <div class="tf-user-detail-badges">
+
+        {% if account.is_active %}
+
+          <span class="tf-user-status tf-user-status--active">
+            Active Account
+          </span>
+
+        {% else %}
+
+          <span class="tf-user-status tf-user-status--inactive">
+            Inactive Account
+          </span>
+
+        {% endif %}
+
+        {% if is_current_account %}
+
+          <span class="tf-user-status tf-user-status--current">
+            Your Account
+          </span>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Separate personal details from access permissions. -->
+  <div class="row g-4 mb-4">
+
+    <div class="col-12 col-lg-6">
+
+      <section
+        class="tf-user-detail-panel h-100"
+        aria-labelledby="personal-information-title"
+      >
+
+        <header class="tf-user-detail-panel__header">
+
+          <h2 id="personal-information-title">
+            Personal Information
+          </h2>
+
+          <p>Registered account identity and contact details.</p>
+
+        </header>
+
+        <dl class="tf-user-detail-fields">
+
+          <div>
+            <dt>Username</dt>
+            <dd>{{ account.username }}</dd>
+          </div>
+
+          <div>
+            <dt>First name</dt>
+            <dd>
+              {{ account.first_name|default:"Not provided" }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Last name</dt>
+            <dd>
+              {{ account.last_name|default:"Not provided" }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Email address</dt>
+            <dd>
+              {{ account.email|default:"Not provided" }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Biography</dt>
+
+            <dd>
+
+              {% if account.profile and account.profile.bio %}
+                {{ account.profile.bio|linebreaksbr }}
+              {% else %}
+                No biography provided.
+              {% endif %}
+
+            </dd>
+          </div>
+
+        </dl>
+
+      </section>
+
+    </div>
+
+    <div class="col-12 col-lg-6">
+
+      <section
+        class="tf-user-detail-panel h-100"
+        aria-labelledby="access-permissions-title"
+      >
+
+        <header class="tf-user-detail-panel__header">
+
+          <h2 id="access-permissions-title">
+            Access &amp; Permissions
+          </h2>
+
+          <p>Application roles and explicit group memberships.</p>
+
+        </header>
+
+        <dl class="tf-user-detail-fields">
+
+          <div>
+
+            <dt>Application role</dt>
+
+            <dd>
+
+              {% if account.profile %}
+                {{ account.profile.get_role_display }}
+              {% else %}
+                Profile missing
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+          <div>
+
+            <dt>Assigned groups</dt>
+
+            <dd>
+
+              {% if account.groups.all %}
+
+                <ul class="tf-user-detail-groups">
+
+                  {% for group in account.groups.all %}
+                    <li>{{ group.name }}</li>
+                  {% endfor %}
+
+                </ul>
+
+              {% else %}
+
+                No assigned groups
+
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+          <div>
+
+            <dt>Account status</dt>
+
+            <dd>
+
+              {% if account.is_active %}
+                Active
+              {% else %}
+                Inactive
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+          <div>
+
+            <dt>Django staff status</dt>
+
+            <dd>
+
+              {% if account.is_staff %}
+                Enabled
+              {% else %}
+                Disabled
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+          <div>
+
+            <dt>Django superuser status</dt>
+
+            <dd>
+
+              {% if account.is_superuser %}
+                Enabled
+              {% else %}
+                Disabled
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+        </dl>
+
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- Account history and authentication activity. -->
+  <section
+    class="tf-user-detail-panel"
+    aria-labelledby="account-history-title"
+  >
+
+    <header class="tf-user-detail-panel__header">
+
+      <h2 id="account-history-title">
+        Account History
+      </h2>
+
+      <p>Registration and authentication activity.</p>
+
+    </header>
+
+    <div class="row g-4">
+
+      <div class="col-12 col-md-6">
+
+        <dl class="tf-user-detail-fields">
+
+          <div>
+
+            <dt>Date registered</dt>
+
+            <dd>
+              <time datetime="{{ account.date_joined|date:'c' }}">
+                {{ account.date_joined|date:"F j, Y — H:i" }}
+              </time>
+            </dd>
+
+          </div>
+
+        </dl>
+
+      </div>
+
+      <div class="col-12 col-md-6">
+
+        <dl class="tf-user-detail-fields">
+
+          <div>
+
+            <dt>Last login</dt>
+
+            <dd>
+
+              {% if account.last_login %}
+
+                <time datetime="{{ account.last_login|date:'c' }}">
+                  {{ account.last_login|date:"F j, Y — H:i" }}
+                </time>
+
+              {% else %}
+
+                Never signed in
+
+              {% endif %}
+
+            </dd>
+
+          </div>
+
+        </dl>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+{% endblock %}

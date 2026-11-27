@@ -11,11 +11,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.views import LoginView
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-
+from .account_identity import account_identity_transaction
 from .forms import StudentRegistrationForm
 from .models import StudentRegistrationRequest, UserProfile
 from .permissions import can_access_workspace
@@ -72,6 +72,9 @@ def student_register(request):
 
     A student account is not created until the
     Career Services Administrator approves it.
+
+    Coordinate identifier validation and persistence
+    with other account identity management operations.
     """
 
     # Authenticated users cannot submit new applications.
@@ -79,14 +82,20 @@ def student_register(request):
         return redirect("catalog:list")
 
     if request.method == "POST":
+
         form = StudentRegistrationForm(request.POST)
 
-        if form.is_valid():
-            try:
-                # The database enforces uniqueness for pending
-                # usernames and emails, even during concurrent
-                # registration submissions.
-                with transaction.atomic():
+        application_created = False
+
+        try:
+
+            # Acquire the shared synchronization lock
+            # before performing registration validation.
+            with account_identity_transaction():
+
+                if form.is_valid():
+
+                    # Store only the hashed password.
                     StudentRegistrationRequest.objects.create(
                         username=form.cleaned_data["username"],
                         first_name=form.cleaned_data["first_name"],
@@ -98,19 +107,27 @@ def student_register(request):
                         status=StudentRegistrationRequest.Status.PENDING,
                     )
 
-            except IntegrityError:
-                # Another application may have been submitted
-                # after our initial form validation.
-                # Display a safe error instead of HTTP 500.
-                form.add_error(
-                    None,
-                    "This registration request could not be "
-                    "submitted because the username or email "
-                    "may already have a pending application. "
-                    "Please review your details and try again."
-                )
+                    application_created = True
 
-            else:
+        except IntegrityError:
+
+            # Handle database uniqueness conflicts
+            # without exposing internal database details.
+            form.add_error(
+                None,
+                "This registration request could not be "
+                "submitted because the username or email "
+                "may already be registered or reserved "
+                "by a pending application. Please review "
+                "your details and try again."
+            )
+
+        else:
+
+            # Display success only after the protected
+            # transaction completes successfully.
+            if application_created:
+
                 messages.success(
                     request,
                     "Your registration request has been submitted "
@@ -122,6 +139,7 @@ def student_register(request):
                 return redirect("student_register")
 
     else:
+
         form = StudentRegistrationForm()
 
     return render(

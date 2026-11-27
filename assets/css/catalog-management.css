@@ -1174,3 +1174,857 @@ section[aria-labelledby="category-directory-title"] > .card {
     color: var(--text) !important;
     opacity: 0.9;
 }
+
+/* ==========================================================
+   USER MANAGEMENT — DIRECTORY FILTERS
+   Responsive account search and administration controls.
+   ========================================================== */
+
+/* Search toolbar within the account directory. */
+.tf-user-directory-page .tf-user-directory-toolbar {
+    margin: 20px;
+    padding: 24px;
+
+    background: var(--tf-cat-surface-soft);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 14px;
+}
+
+/* Toolbar title and supporting information. */
+.tf-user-directory-page .tf-user-directory-toolbar__heading {
+    margin-bottom: 22px;
+}
+
+.tf-user-directory-page .tf-user-directory-toolbar__heading h3 {
+    margin: 0 0 6px;
+
+    color: var(--tf-cat-heading);
+    font-size: 1.1rem;
+    font-weight: 750;
+}
+
+.tf-user-directory-page .tf-user-directory-toolbar__heading p {
+    margin: 0;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+/* Give identity search more space than dropdown filters. */
+.tf-user-directory-page .tf-user-filter-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+}
+
+.tf-user-directory-page .tf-user-filter-field {
+    min-width: 0;
+}
+
+.tf-user-directory-page .tf-user-filter-field label {
+    color: var(--tf-cat-heading);
+    font-size: 0.85rem;
+}
+
+/* Consistent and clearly distinguishable form controls. */
+.tf-user-directory-page .tf-user-filter-field .form-control,
+.tf-user-directory-page .tf-user-filter-field .form-select {
+    min-height: 46px;
+
+    background-color: var(--tf-cat-surface);
+    border: 1px solid #879bb2;
+    border-radius: 9px;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.9rem;
+}
+
+.tf-user-directory-page .tf-user-filter-field
+.form-control::placeholder {
+    color: var(--tf-cat-muted);
+}
+
+/* Accessible keyboard focus indicators. */
+.tf-user-directory-page .tf-user-filter-field
+:is(.form-control, .form-select):focus {
+    border-color: var(--tf-cat-accent);
+    outline: 2px solid var(--tf-cat-accent);
+    outline-offset: 2px;
+}
+
+/* Results count and form actions. */
+.tf-user-directory-page .tf-user-filter-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    margin-top: 24px;
+}
+
+.tf-user-directory-page .tf-user-filter-count {
+    margin: 0;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.85rem;
+}
+
+.tf-user-directory-page .tf-user-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tf-user-directory-page .tf-user-filter-actions .btn {
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 9px;
+}
+
+/* Server-side validation feedback. */
+.tf-user-directory-page .tf-user-filter-errors {
+    margin: 8px 0 0;
+    padding: 0;
+
+    color: #b42318;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.5;
+
+    list-style: none;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-directory-page .tf-user-filter-field
+[aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+/* Improve validation feedback in dark mode. */
+[data-theme="dark"] .tf-user-directory-page
+.tf-user-filter-errors {
+    color: #fda4af;
+}
+
+[data-theme="dark"] .tf-user-directory-page
+.tf-user-filter-field [aria-invalid="true"] {
+    border-color: #fda4af;
+}
+
+/* Stack search and filter controls on smaller screens. */
+@media (max-width: 767.98px) {
+    .tf-user-directory-page .tf-user-directory-toolbar {
+        margin: 14px;
+        padding: 18px;
+    }
+
+    .tf-user-directory-page .tf-user-filter-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .tf-user-directory-page .tf-user-filter-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tf-user-directory-page .tf-user-filter-actions {
+        flex-direction: column;
+    }
+
+    .tf-user-directory-page .tf-user-filter-actions .btn {
+        width: 100%;
+    }
+}
+
+/* ==========================================================
+   USER MANAGEMENT — DARK MODE BADGES
+   Theme-aware Bootstrap badge colours.
+   ========================================================== */
+
+[data-theme="dark"] .tf-user-directory-page .badge {
+    /* Administrator and directory count indicators. */
+    --bs-primary-bg-subtle: #203d68;
+    --bs-primary-text-emphasis: #bfdbfe;
+
+    /* Power User and current account indicators. */
+    --bs-info-bg-subtle: #3b2b61;
+    --bs-info-text-emphasis: #ddd6fe;
+
+    /* Regular User indicators. */
+    --bs-secondary-bg-subtle: #334155;
+    --bs-secondary-text-emphasis: #e2e8f0;
+
+    /* Active account indicators. */
+    --bs-success-bg-subtle: #163d32;
+    --bs-success-text-emphasis: #a7f3d0;
+
+    /* Inactive account indicators. */
+    --bs-danger-bg-subtle: #542733;
+    --bs-danger-text-emphasis: #fecdd3;
+
+    /* Missing or unexpected profile information. */
+    --bs-warning-bg-subtle: #4a391d;
+    --bs-warning-text-emphasis: #fde68a;
+}
+
+/* ==========================================================
+   USER MANAGEMENT — ACCOUNT DETAILS
+   Responsive account information and access overview.
+   ========================================================== */
+
+/* Account identity summary */
+.tf-user-detail-page .tf-user-identity-panel {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    padding: 28px;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 16px;
+}
+
+/* Initial-based decorative account avatar */
+.tf-user-detail-page .tf-user-detail-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    width: 82px;
+    height: 82px;
+
+    background: linear-gradient(135deg, #175ca8, #16314f);
+    border-radius: 22px;
+
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 750;
+}
+
+.tf-user-detail-page .tf-user-identity-copy {
+    min-width: 0;
+}
+
+.tf-user-detail-page .tf-user-identity-copy h2 {
+    margin: 0 0 5px;
+
+    color: var(--tf-cat-heading);
+    font-size: 1.5rem;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-detail-page .tf-user-identity-copy p {
+    margin: 0 0 12px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+/* Account status indicators */
+.tf-user-detail-page .tf-user-detail-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tf-user-detail-page .tf-user-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 12px;
+    border-radius: 30px;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.tf-user-detail-page .tf-user-status--active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.tf-user-detail-page .tf-user-status--inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.tf-user-detail-page .tf-user-status--current {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Theme-aware status indicators */
+[data-theme="dark"] .tf-user-detail-page
+.tf-user-status--active {
+    background: #163d32;
+    color: #a7f3d0;
+}
+
+[data-theme="dark"] .tf-user-detail-page
+.tf-user-status--inactive {
+    background: #542733;
+    color: #fecdd3;
+}
+
+[data-theme="dark"] .tf-user-detail-page
+.tf-user-status--current {
+    background: #203d68;
+    color: #bfdbfe;
+}
+
+/* Account information panels */
+.tf-user-detail-page .tf-user-detail-panel {
+    min-width: 0;
+    padding: 28px;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 16px;
+}
+
+.tf-user-detail-page .tf-user-detail-panel__header {
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid var(--tf-cat-border);
+}
+
+.tf-user-detail-page .tf-user-detail-panel__header h2 {
+    margin: 0 0 6px;
+
+    color: var(--tf-cat-heading);
+    font-size: 1.15rem;
+    font-weight: 750;
+}
+
+.tf-user-detail-page .tf-user-detail-panel__header p {
+    margin: 0;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+/* Semantic description lists */
+.tf-user-detail-page .tf-user-detail-fields {
+    margin: 0;
+}
+
+.tf-user-detail-page .tf-user-detail-fields > div {
+    padding: 14px 0;
+
+    border-bottom: 1px solid var(--tf-cat-border);
+}
+
+.tf-user-detail-page .tf-user-detail-fields > div:first-child {
+    padding-top: 0;
+}
+
+.tf-user-detail-page .tf-user-detail-fields > div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.tf-user-detail-page .tf-user-detail-fields dt {
+    margin-bottom: 5px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.tf-user-detail-page .tf-user-detail-fields dd {
+    margin: 0;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+/* Display explicitly assigned groups as separate labels. */
+.tf-user-detail-page .tf-user-detail-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.tf-user-detail-page .tf-user-detail-groups li {
+    padding: 6px 12px;
+
+    background: var(--tf-cat-surface-soft);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 8px;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+/* Mobile account overview */
+@media (max-width: 767.98px) {
+    .tf-user-detail-page .tf-user-identity-panel {
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .tf-user-detail-page .tf-user-detail-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        font-size: 1.4rem;
+    }
+
+    .tf-user-detail-page .tf-user-identity-copy h2 {
+        font-size: 1.15rem;
+    }
+
+    .tf-user-detail-page .tf-user-detail-panel {
+        padding: 20px;
+    }
+}
+
+/* ==========================================================
+   USER MANAGEMENT — ACCOUNT FORMS
+   Shared administrative account creation and editing styles.
+   ========================================================== */
+
+/* Account form panels */
+.tf-user-form-page .tf-user-form-panel {
+    min-width: 0;
+    padding: 28px;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 16px;
+}
+
+
+/* Preserve semantic field grouping without decorative borders. */
+.tf-user-form-page .tf-user-form-fieldset {
+    min-width: 0;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+}
+
+/* Position section headings inside the surrounding card. */
+.tf-user-form-page .tf-user-form-fieldset legend {
+    display: block;
+    float: none;
+    width: 100%;
+
+    margin: 0 0 10px;
+    padding: 0;
+
+    color: var(--tf-cat-heading);
+    font-size: 1.25rem;
+    font-weight: 750;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.tf-user-form-page .tf-user-form-panel h2 {
+    margin: 0 0 12px;
+
+    color: var(--tf-cat-heading);
+    font-size: 1.15rem;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+.tf-user-form-page .tf-user-form-description {
+    margin: 0 0 24px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.88rem;
+    line-height: 1.65;
+}
+
+/* Section eyebrow labels */
+.tf-user-form-page .tf-user-form-eyebrow {
+    margin: 0 0 10px;
+
+    color: var(--tf-cat-accent);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+/* Accessible field labels and controls */
+.tf-user-form-page .tf-user-form-field {
+    min-width: 0;
+}
+
+.tf-user-form-page .tf-user-form-field label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.88rem;
+    font-weight: 650;
+}
+
+.tf-user-form-page .form-control,
+.tf-user-form-page .form-select {
+    min-height: 48px;
+    padding: 11px 14px;
+
+    background-color: var(--tf-cat-surface);
+    border: 1px solid #879bb2;
+    border-radius: 9px;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.9rem;
+}
+
+.tf-user-form-page .form-control::placeholder {
+    color: var(--tf-cat-muted);
+    opacity: 1;
+}
+
+.tf-user-form-page .form-control:focus,
+.tf-user-form-page .form-select:focus {
+    background-color: var(--tf-cat-surface);
+    border-color: var(--tf-cat-accent);
+
+    color: var(--tf-cat-heading);
+
+    outline: 2px solid var(--tf-cat-accent);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* Django-generated field descriptions and password rules */
+.tf-user-form-page .tf-user-form-help {
+    margin-top: 9px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-form-page .tf-user-form-help ul {
+    margin: 12px 0 0;
+    padding: 14px 14px 14px 30px;
+
+    background: var(--tf-cat-surface-soft);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 10px;
+}
+
+.tf-user-form-page .tf-user-form-help li + li {
+    margin-top: 5px;
+}
+
+/* Default permission summary */
+.tf-user-form-page .tf-user-form-summary {
+    margin: 0;
+}
+
+.tf-user-form-page .tf-user-form-summary > div {
+    padding: 15px 0;
+
+    border-bottom: 1px solid var(--tf-cat-border);
+}
+
+.tf-user-form-page .tf-user-form-summary > div:first-child {
+    padding-top: 0;
+}
+
+.tf-user-form-page .tf-user-form-summary > div:last-child {
+    padding-bottom: 0;
+
+    border-bottom: 0;
+}
+
+.tf-user-form-page .tf-user-form-summary dt {
+    margin-bottom: 6px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.tf-user-form-page .tf-user-form-summary dd {
+    margin: 0;
+
+    color: var(--tf-cat-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-form-page .tf-user-form-role {
+    display: inline-block;
+
+    padding: 6px 12px;
+
+    background: #e2e8f0;
+    border-radius: 20px;
+
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .tf-user-form-page .tf-user-form-role {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+/* Security guidance */
+.tf-user-form-page .tf-user-form-guidance {
+    margin: 0;
+    padding-left: 20px;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.85rem;
+    line-height: 1.75;
+}
+
+.tf-user-form-page .tf-user-form-guidance li + li {
+    margin-top: 12px;
+}
+
+/* Accessible validation errors */
+.tf-user-form-page .tf-user-form-alert {
+    padding: 18px 22px;
+
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 12px;
+
+    color: #991b1b;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-form-page .tf-user-form-alert p {
+    margin: 7px 0 0;
+
+    font-size: 0.88rem;
+}
+
+.tf-user-form-page .errorlist {
+    margin: 8px 0 0;
+    padding-left: 20px;
+
+    color: #b42318;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-form-page [aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+[data-theme="dark"] .tf-user-form-page .tf-user-form-alert {
+    background: #45252b;
+    border-color: #a65160;
+    color: #fecdd3;
+}
+
+[data-theme="dark"] .tf-user-form-page .errorlist {
+    color: #fda4af;
+}
+
+[data-theme="dark"] .tf-user-form-page [aria-invalid="true"] {
+    border-color: #fda4af;
+}
+
+/* Submission action panel */
+.tf-user-form-page .tf-user-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 22px 28px;
+
+    background: var(--tf-cat-surface);
+    border: 1px solid var(--tf-cat-border);
+    border-radius: 14px;
+}
+
+.tf-user-form-page .tf-user-form-actions p {
+    margin: 0;
+
+    color: var(--tf-cat-muted);
+    font-size: 0.85rem;
+}
+
+.tf-user-form-page .tf-user-form-action-buttons {
+    display: flex;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.tf-user-form-page .tf-user-form-action-buttons .btn {
+    min-height: 44px;
+    padding: 11px 22px;
+}
+
+/* Responsive account administration forms */
+@media (max-width: 767.98px) {
+    .tf-user-form-page .tf-user-form-panel {
+        padding: 20px;
+    }
+
+    .tf-user-form-page .tf-user-form-actions {
+        align-items: stretch;
+        flex-direction: column;
+
+        padding: 20px;
+    }
+
+    .tf-user-form-page .tf-user-form-action-buttons {
+        flex-direction: column;
+    }
+
+    .tf-user-form-page .tf-user-form-action-buttons .btn {
+        width: 100%;
+    }
+}
+
+/* ==========================================================
+   USER MANAGEMENT — RESPONSIVE FORM LAYOUT
+   Maintain balanced form and supporting information columns.
+   ========================================================== */
+
+/* Desktop account administration layout. */
+.tf-user-form-page .tf-user-form-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(260px, 1fr);
+
+    align-items: start;
+    gap: 24px;
+
+    width: 100%;
+}
+
+/* Maintain consistent vertical spacing in both columns. */
+.tf-user-form-page .tf-user-form-main,
+.tf-user-form-page .tf-user-form-sidebar {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 24px;
+
+    min-width: 0;
+}
+
+/* Prevent inherited width restrictions on form panels. */
+.tf-user-form-page .tf-user-form-layout
+.tf-user-form-panel {
+    box-sizing: border-box;
+
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+
+    margin: 0;
+}
+
+/* Tablet layout: full-width form with balanced supporting cards. */
+@media (max-width: 991.98px) {
+    .tf-user-form-page .tf-user-form-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-user-form-page .tf-user-form-sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+    }
+}
+
+/* Mobile layout: vertically stacked, full-width panels. */
+@media (max-width: 767.98px) {
+    .tf-user-form-page .tf-user-form-layout,
+    .tf-user-form-page .tf-user-form-main,
+    .tf-user-form-page .tf-user-form-sidebar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+}
+
+/* ==========================================================
+   USER MANAGEMENT — DESKTOP PANEL ALIGNMENT
+   Synchronize corresponding form and sidebar panel heights.
+   ========================================================== */
+
+@media (min-width: 992px) {
+
+    /* Establish two shared rows across both columns. */
+    .tf-user-form-page .tf-user-form-layout {
+        grid-template-rows: auto auto;
+        align-items: stretch;
+    }
+
+    /* Allow the four panels to participate directly
+       in the parent grid while preserving DOM order. */
+    .tf-user-form-page .tf-user-form-main,
+    .tf-user-form-page .tf-user-form-sidebar {
+        display: contents;
+    }
+
+    /* Account Information: first row, left column. */
+    .tf-user-form-page .tf-user-form-main
+    > .tf-user-form-panel:first-child {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    /* Authentication Credentials: second row, left column. */
+    .tf-user-form-page .tf-user-form-main
+    > .tf-user-form-panel:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    /* Default Account Permissions: first row, right column. */
+    .tf-user-form-page .tf-user-form-sidebar
+    > .tf-user-form-panel:first-child {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    /* Security Guidance: second row, right column. */
+    .tf-user-form-page .tf-user-form-sidebar
+    > .tf-user-form-panel:nth-child(2) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    /* Stretch corresponding panels to equal row heights. */
+    .tf-user-form-page .tf-user-form-layout
+    .tf-user-form-panel {
+        align-self: stretch;
+    }
+}

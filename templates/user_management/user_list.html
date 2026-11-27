@@ -1,0 +1,531 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+  Manage Users | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+  catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4 py-lg-5 tf-category-list-page tf-user-directory-page">
+
+  <!-- Administration breadcrumb navigation. -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+
+    <ol class="breadcrumb">
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li
+        class="breadcrumb-item active"
+        aria-current="page"
+      >
+        Manage Users
+      </li>
+
+    </ol>
+
+  </nav>
+
+  <!-- User administration page introduction. -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="user-management-title"
+  >
+
+    <div class="tf-category-page-header__copy">
+
+      <p class="tf-category-page-header__eyebrow">
+        Account Administration
+      </p>
+
+      <h1 id="user-management-title">
+        Manage Users
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Manage registered TaskFlow accounts, application
+        roles and Career Services workspace permissions
+        from a centralized administration interface.
+      </p>
+
+    </div>
+
+    <div class="tf-category-page-header__actions">
+
+      <a
+        href="{% url 'catalog_management:dashboard' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Dashboard
+      </a>
+
+      <!-- Open the administrator-only account creation form. -->
+      <a
+        href="{% url 'user_management:user_create' %}"
+        class="btn btn-primary fw-semibold"
+      >
+        Create User
+      </a>
+
+    </div>
+
+  </section>
+
+  <!-- Database-backed registered account directory. -->
+  <section
+    class="tf-admin-table-panel"
+    aria-labelledby="user-directory-title"
+  >
+
+    <div class="card-header border-bottom p-4">
+
+      <div
+        class="d-flex flex-column flex-sm-row
+               justify-content-between
+               align-items-sm-center gap-3"
+      >
+
+        <div>
+
+          <h2
+            id="user-directory-title"
+            class="h5 fw-bold mb-1"
+          >
+            User Directory
+          </h2>
+
+          <p class="text-secondary small mb-0">
+            Overview of registered accounts and
+            their current access permissions.
+          </p>
+
+        </div>
+
+        <span class="badge bg-primary-subtle
+                     text-primary-emphasis px-3 py-2">
+
+          {{ registered_users_count }}
+          Registered User{{ registered_users_count|pluralize }}
+
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- Search and filter registered accounts. -->
+    <div class="tf-user-directory-toolbar">
+
+      <div class="tf-user-directory-toolbar__heading">
+
+        <h3>Find registered accounts</h3>
+
+        <p>
+          Search by identity, application role
+          or account status.
+        </p>
+
+      </div>
+
+      <form
+        method="get"
+        action="{% url 'user_management:user_list' %}"
+        role="search"
+        aria-label="Search registered accounts"
+      >
+
+        <div class="tf-user-filter-grid">
+
+          {% for field in filter_form %}
+
+            <div class="tf-user-filter-field">
+
+              <label
+                for="{{ field.id_for_label }}"
+                class="form-label fw-semibold"
+              >
+                {{ field.label }}
+              </label>
+
+              {{ field }}
+
+              {% if field.errors %}
+
+                <ul
+                  id="{{ field.auto_id }}_error"
+                  class="tf-user-filter-errors"
+                >
+
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+
+                </ul>
+
+              {% endif %}
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+        <!-- Display any cross-field validation errors. -->
+        {% if filter_form.non_field_errors %}
+
+          <div
+            class="tf-user-filter-errors"
+            role="alert"
+          >
+            {{ filter_form.non_field_errors }}
+          </div>
+
+        {% endif %}
+
+        <!-- Filtered results and form actions. -->
+        <div class="tf-user-filter-footer">
+
+          <p class="tf-user-filter-count">
+
+            Showing <strong>{{ total_users }}</strong>
+            of
+            <strong>{{ registered_users_count }}</strong>
+            registered users
+
+          </p>
+
+          <div class="tf-user-filter-actions">
+
+            <a
+              href="{% url 'user_management:user_list' %}"
+              class="btn btn-outline-secondary fw-semibold"
+            >
+              Clear Filters
+            </a>
+
+            <button
+              type="submit"
+              class="btn btn-primary fw-semibold"
+            >
+              Search &amp; Filter
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+    </div>
+
+    {% if users %}
+
+      <!-- Accessible, horizontally scrollable account table. -->
+      <div
+        class="table-responsive"
+        role="region"
+        aria-label="Registered user accounts"
+        tabindex="0"
+      >
+
+        <table class="table tf-admin-table align-middle mb-0">
+
+          <thead>
+
+            <tr>
+              <th scope="col">Account</th>
+              <th scope="col">Email Address</th>
+              <th scope="col">Application Role</th>
+              <th scope="col">Groups</th>
+              <th scope="col">Status</th>
+              <th scope="col">Date Joined</th>
+              <th scope="col">Actions</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {% for account in users %}
+
+              <tr>
+
+                <!-- Account identity and username. -->
+                <td>
+
+                  <div class="fw-semibold text-break">
+
+                    {{ account.get_full_name|default:account.username }}
+
+                  </div>
+
+                  <div class="small text-secondary text-break">
+                    @{{ account.username }}
+                  </div>
+
+                  {% if account.pk == request.user.pk %}
+
+                    <span class="badge bg-info-subtle
+                                 text-info-emphasis mt-2">
+                      Your Account
+                    </span>
+
+                  {% endif %}
+
+                </td>
+
+                <!-- Registered contact information. -->
+                <td class="text-break">
+
+                  {{ account.email|default:"Not provided" }}
+
+                </td>
+
+                <!-- Application roles are separate from groups. -->
+                <td>
+
+                  {% if not account.profile %}
+
+                    <span class="badge bg-warning-subtle
+                                 text-warning-emphasis">
+                      Profile Missing
+                    </span>
+
+                  {% elif account.profile.role == "admin" %}
+
+                    <span class="badge bg-primary-subtle
+                                 text-primary-emphasis">
+                      Administrator
+                    </span>
+
+                  {% elif account.profile.role == "power" %}
+
+                    <span class="badge bg-info-subtle
+                                 text-info-emphasis">
+                      Power User
+                    </span>
+
+                  {% elif account.profile.role == "regular" %}
+
+                    <span class="badge bg-secondary-subtle
+                                 text-secondary-emphasis">
+                      Regular User
+                    </span>
+
+                  {% else %}
+
+                    <span class="badge bg-warning-subtle
+                                 text-warning-emphasis">
+                      Unknown Role
+                    </span>
+
+                  {% endif %}
+
+                </td>
+
+                <!-- Display explicitly assigned group memberships. -->
+                <td>
+
+                  <div class="d-flex flex-column
+                              align-items-start gap-2">
+
+                    {% for group in account.groups.all %}
+
+                      <span class="small fw-semibold text-break">
+                        {{ group.name }}
+                      </span>
+
+                    {% empty %}
+
+                      <span class="small text-secondary">
+                        No assigned groups
+                      </span>
+
+                    {% endfor %}
+
+                  </div>
+
+                </td>
+
+                <!-- Account activation status. -->
+                <td>
+
+                  {% if account.is_active %}
+
+                    <span class="badge bg-success-subtle
+                                 text-success-emphasis">
+                      Active
+                    </span>
+
+                  {% else %}
+
+                    <span class="badge bg-danger-subtle
+                                 text-danger-emphasis">
+                      Inactive
+                    </span>
+
+                  {% endif %}
+
+                </td>
+
+                <!-- Account registration date. -->
+                <td class="text-nowrap">
+
+                  <time datetime="{{ account.date_joined|date:'c' }}">
+                    {{ account.date_joined|date:"M j, Y" }}
+                  </time>
+
+                </td>
+
+                <!-- Open the individual account management page. -->
+                <td class="text-nowrap">
+
+                <a
+                    href="{% url 'user_management:user_detail' account.pk %}"
+                    class="btn btn-sm btn-outline-primary fw-semibold"
+                    aria-label="View details for {{ account.username }}"
+                >
+                    View Details
+                </a>
+
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <!-- Pagination for larger account directories. -->
+      {% if page_obj.has_other_pages %}
+
+        <nav
+          class="p-4 border-top"
+          aria-label="User directory pagination"
+        >
+
+          <ul class="pagination justify-content-center
+                     flex-wrap mb-0">
+
+            {% if page_obj.has_previous %}
+
+              <li class="page-item">
+
+                <a
+                  class="page-link"
+                  href="?page={{ page_obj.previous_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% endif %}"
+                >
+                  Previous
+                </a>
+
+              </li>
+
+            {% endif %}
+
+            <li class="page-item active">
+
+              <span
+                class="page-link"
+                aria-current="page"
+              >
+
+                {{ page_obj.number }}
+                of {{ page_obj.paginator.num_pages }}
+
+              </span>
+
+            </li>
+
+            {% if page_obj.has_next %}
+
+              <li class="page-item">
+
+                <a
+                  class="page-link"
+                  href="?page={{ page_obj.next_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% endif %}"
+                >
+                  Next
+                </a>
+
+              </li>
+
+            {% endif %}
+
+          </ul>
+
+        </nav>
+
+      {% endif %}
+
+    {% else %}
+
+      <!-- Contextual directory feedback. -->
+      <div class="tf-admin-empty-state">
+
+        {% if filter_form.errors %}
+
+          <h3>Check your search filters</h3>
+
+          <p>
+            Some filter values are invalid.
+            Correct the highlighted fields and try again.
+          </p>
+
+        {% elif pagination_query %}
+
+          <h3>No matching accounts</h3>
+
+          <p>
+            No registered accounts match your current
+            search criteria. Try adjusting your filters.
+          </p>
+
+          <a
+            href="{% url 'user_management:user_list' %}"
+            class="btn btn-outline-secondary fw-semibold mt-3"
+          >
+            Clear All Filters
+          </a>
+
+        {% else %}
+
+          <h3>No registered users found</h3>
+
+          <p>
+            Registered TaskFlow accounts will appear
+            in this directory when they become available.
+          </p>
+
+        {% endif %}
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</div>
+
+{% endblock %}

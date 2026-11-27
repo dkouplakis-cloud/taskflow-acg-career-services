@@ -7,7 +7,7 @@ administrator approves a pending application.
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from .account_identity import account_identity_transaction
 from django.utils import timezone
 
 from .models import StudentRegistrationRequest, UserProfile
@@ -17,7 +17,7 @@ class RegistrationApprovalError(Exception):
     """Raised when an application cannot be approved."""
 
 
-@transaction.atomic
+@account_identity_transaction()
 def approve_student_registration(*, application_id, reviewer):
     """
     Approve a pending registration and create a student.
@@ -116,7 +116,7 @@ class RegistrationRejectionError(Exception):
     """Raised when an application cannot be rejected."""
 
 
-@transaction.atomic
+@account_identity_transaction()
 def reject_student_registration(*, application_id, reviewer):
     """
     Reject a pending student registration request.

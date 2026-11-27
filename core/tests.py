@@ -2733,3 +2733,1367 @@ class HomeWorkspaceAuthorizationTests(TestCase):
                     response,
                     self.hidden_project.name
                 )
+
+class UserManagementAccessTests(TestCase):
+    """
+    Verify administrator-only access to the custom
+    user management directory.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+
+        # Create an administrator without workspace membership.
+        cls.admin = User.objects.create_user(
+            username="directory_admin",
+            email="directory.admin@example.com"
+        )
+
+        cls.admin.profile.role = UserProfile.Role.ADMIN
+        cls.admin.profile.save(update_fields=["role"])
+
+        # Create a regular student account.
+        cls.student = User.objects.create_user(
+            username="directory_student",
+            first_name="Directory",
+            last_name="Student",
+            email="directory.student@example.com"
+        )
+
+        # Create a privileged application user.
+        cls.power_user = User.objects.create_user(
+            username="directory_power_user"
+        )
+
+        cls.power_user.profile.role = UserProfile.Role.POWER
+        cls.power_user.profile.save(update_fields=["role"])
+
+        # Workspace membership must not grant administration.
+        cls.staff_group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        cls.power_user.groups.add(cls.staff_group)
+
+    def test_anonymous_user_redirected_to_login(self):
+        # Anonymous visitors cannot view account information.
+        url = reverse("user_management:user_list")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}",
+            fetch_redirect_response=False
+        )
+
+    def test_regular_user_cannot_access_directory(self):
+        # Regular accounts must receive HTTP 403.
+        self.client.force_login(self.student)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_power_user_cannot_access_directory(self):
+        # Privileged users and workspace staff are not
+        # automatically entitled to administrative access.
+        self.client.force_login(self.power_user)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_administrator_can_view_registered_accounts(self):
+        # Administration does not require workspace membership.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(
+            response,
+            "user_management/user_list.html"
+        )
+
+        self.assertEqual(
+            response.context["total_users"],
+            3
+        )
+
+        self.assertContains(
+            response,
+            self.student.username
+        )
+
+        self.assertContains(
+            response,
+            self.student.email
+        )
+
+    def test_directory_rejects_post_requests(self):
+        # The read-only directory accepts safe HTTP methods only.
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 405)
+
+    def test_revoked_admin_role_blocks_existing_session(self):
+        # Role revocation must apply to authenticated sessions.
+        self.client.force_login(self.admin)
+
+        url = reverse("user_management:user_list")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.admin.profile.role = UserProfile.Role.REGULAR
+        self.admin.profile.save(update_fields=["role"])
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_missing_profile_denies_administrative_access(self):
+        # Missing profiles must never grant administrative access.
+        self.client.force_login(self.admin)
+
+        self.admin.profile.delete()
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_deactivated_administrator_loses_access(self):
+        # Deactivation must invalidate access through an
+        # existing authenticated session.
+        self.client.force_login(self.admin)
+
+        url = reverse("user_management:user_list")
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.admin.is_active = False
+        self.admin.save(update_fields=["is_active"])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}",
+            fetch_redirect_response=False
+        )
+
+    def assert_directory_results(self, filters, expected_users):
+        """
+        Verify the exact accounts returned by
+        the user directory's filtering functionality.
+        """
+
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse("user_management:user_list"),
+            data=filters
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context["total_users"],
+            len(expected_users)
+        )
+
+        actual_ids = {
+            account.pk
+            for account in response.context["users"]
+        }
+
+        expected_ids = {
+            account.pk
+            for account in expected_users
+        }
+
+        self.assertEqual(actual_ids, expected_ids)
+
+        return response
+
+    def test_directory_search_by_account_identity(self):
+        # Search must support usernames, names and email addresses.
+        search_queries = (
+            "directory_student",
+            "Directory Student",
+            "DIRECTORY STUDENT",
+            "Student",
+            "directory.student@example.com",
+        )
+
+        for query in search_queries:
+            with self.subTest(query=query):
+                self.assert_directory_results(
+                    {"q": query},
+                    [self.student]
+                )
+
+    def test_directory_filters_by_application_role(self):
+        # Every supported application role must be filterable.
+        scenarios = (
+            ("admin", [self.admin]),
+            ("power", [self.power_user]),
+            ("regular", [self.student]),
+        )
+
+        for role, expected_users in scenarios:
+            with self.subTest(role=role):
+                self.assert_directory_results(
+                    {"role": role},
+                    expected_users
+                )
+
+    def test_directory_filters_by_account_status(self):
+        # Active and inactive accounts must be distinguishable.
+        self.student.is_active = False
+        self.student.save(update_fields=["is_active"])
+
+        self.assert_directory_results(
+            {"status": "active"},
+            [self.admin, self.power_user]
+        )
+
+        self.assert_directory_results(
+            {"status": "inactive"},
+            [self.student]
+        )
+
+    def test_directory_combines_search_role_and_status(self):
+        # All submitted filters must constrain the results.
+        self.assert_directory_results(
+            {
+                "q": "directory",
+                "role": "regular",
+                "status": "active"
+            },
+            [self.student]
+        )
+
+        self.assert_directory_results(
+            {
+                "q": "directory",
+                "role": "regular",
+                "status": "inactive"
+            },
+            []
+        )
+
+    def test_directory_rejects_invalid_filter_parameters(self):
+        # Invalid parameters must not broaden directory results.
+        scenarios = (
+            {"role": "unsupported"},
+            {"status": "unsupported"},
+            {"q": "a" * 151},
+        )
+
+        for filters in scenarios:
+            with self.subTest(filters=filters):
+                response = self.assert_directory_results(
+                    filters,
+                    []
+                )
+
+                self.assertFalse(
+                    response.context["filter_form"].is_valid()
+                )
+
+                self.assertContains(
+                    response,
+                    "Check your search filters"
+                )
+
+    def test_directory_displays_matching_empty_state(self):
+        # Valid searches without results require clear feedback.
+        response = self.assert_directory_results(
+            {"q": "nonexistent-account"},
+            []
+        )
+
+        self.assertContains(
+            response,
+            "No matching accounts"
+        )
+
+        self.assertContains(
+            response,
+            "Clear All Filters"
+        )
+
+        self.assertNotContains(
+            response,
+            "No registered users found"
+        )
+
+    def test_directory_preserves_registered_account_count(self):
+        # Filtered results must not alter the total account count.
+        response = self.assert_directory_results(
+            {"role": "admin"},
+            [self.admin]
+        )
+
+        self.assertEqual(
+            response.context["registered_users_count"],
+            3
+        )
+
+        self.assertEqual(
+            response.context["total_users"],
+            1
+        )
+
+        # Clearing filters restores all registered accounts.
+        response = self.assert_directory_results(
+            {},
+            [self.admin, self.student, self.power_user]
+        )
+
+        self.assertEqual(
+            response.context["registered_users_count"],
+            3
+        )
+
+    def test_directory_pagination_preserves_all_filters(self):
+        # Create enough matching accounts for multiple pages.
+        User = get_user_model()
+
+        for index in range(12):
+            account = User.objects.create_user(
+                username=f"directory_batch_{index:02d}",
+                first_name="Batch & Review",
+                last_name=f"Student {index:02d}",
+                email=f"batch{index:02d}@example.com"
+            )
+
+            account.profile.role = UserProfile.Role.REGULAR
+            account.profile.save(update_fields=["role"])
+
+        self.client.force_login(self.admin)
+
+        filters = {
+            "q": "Batch & Review",
+            "role": "regular",
+            "status": "active"
+        }
+
+        expected_query = (
+            "q=Batch+%26+Review"
+            "&amp;role=regular"
+            "&amp;status=active"
+        )
+
+        # Verify the first page and its Next link.
+        response = self.client.get(
+            reverse("user_management:user_list"),
+            data=filters
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_users"], 12)
+        self.assertEqual(
+            response.context["registered_users_count"], 15
+        )
+        self.assertEqual(len(response.context["users"]), 10)
+
+        self.assertContains(
+            response,
+            f"?page=2&amp;{expected_query}"
+        )
+
+        # Verify the second page and its Previous link.
+        response = self.client.get(
+            reverse("user_management:user_list"),
+            data={**filters, "page": "2"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_users"], 12)
+        self.assertEqual(
+            response.context["page_obj"].number, 2
+        )
+        self.assertEqual(len(response.context["users"]), 2)
+
+        self.assertContains(
+            response,
+            "directory_batch_10"
+        )
+
+        self.assertContains(
+            response,
+            "directory_batch_11"
+        )
+
+        self.assertContains(
+            response,
+            f"?page=1&amp;{expected_query}"
+        )
+
+    def test_administrator_can_view_user_details(self):
+        # Administrators may inspect registered accounts.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(
+            response,
+            "user_management/user_detail.html"
+        )
+
+        self.assertEqual(
+            response.context["account"],
+            self.student
+        )
+
+        self.assertContains(response, self.student.username)
+        self.assertContains(response, self.student.email)
+        self.assertContains(response, "Personal Information")
+        self.assertContains(response, "Access &amp; Permissions")
+        self.assertContains(response, "Account History")
+
+    def test_administrator_can_view_own_account(self):
+        # Identify the administrator's own account correctly.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.admin.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_current_account"])
+        self.assertContains(response, "Your Account")
+
+    def test_other_account_is_not_marked_as_current(self):
+        # Other accounts must not display the current-user indicator.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_current_account"])
+
+    def test_anonymous_user_cannot_access_user_details(self):
+        # Personal account information requires authentication.
+        url = reverse(
+            "user_management:user_detail",
+            kwargs={"pk": self.student.pk}
+        )
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}",
+            fetch_redirect_response=False
+        )
+
+    def test_regular_user_cannot_access_user_details(self):
+        # Changing the requested primary key must not
+        # bypass administrator-only authorization.
+        self.client.force_login(self.student)
+
+        for account in (self.student, self.admin, self.power_user):
+
+            with self.subTest(account=account.username):
+
+                response = self.client.get(
+                    reverse(
+                        "user_management:user_detail",
+                        kwargs={"pk": account.pk}
+                    )
+                )
+
+                self.assertEqual(response.status_code, 403)
+
+    def test_power_user_cannot_access_user_details(self):
+        # Workspace membership does not grant account administration.
+        self.client.force_login(self.power_user)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_nonexistent_account_returns_404(self):
+        # Requests for nonexistent accounts must fail safely.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": 999999}
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_details_rejects_post_requests(self):
+        # The account details endpoint is strictly read-only.
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            ),
+            data={"role": "admin"}
+        )
+
+        self.assertEqual(response.status_code, 405)
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_user_details_never_exposes_password(self):
+        # Neither raw passwords nor password hashes may
+        # appear in the rendered administrative interface.
+        raw_password = "PrivateTestPassword123!"
+
+        self.student.set_password(raw_password)
+        self.student.save(update_fields=["password"])
+
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, raw_password)
+
+        self.assertNotContains(
+            response,
+            self.student.password
+        )
+
+    def test_revoked_administrator_cannot_view_user_details(self):
+        # Administrative role revocation must apply immediately.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_detail",
+            kwargs={"pk": self.student.pk}
+        )
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.admin.profile.role = UserProfile.Role.REGULAR
+        self.admin.profile.save(update_fields=["role"])
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 403)
+
+    def get_valid_creation_data(self, **overrides):
+        """
+        Return valid account creation data that individual
+        tests can override to exercise specific scenarios.
+        """
+
+        data = {
+            "username": "managed_new_user",
+            "first_name": "Managed",
+            "last_name": "Account",
+            "email": "managed.new@example.com",
+            "password1": "River!Copper72Mountain",
+            "password2": "River!Copper72Mountain",
+        }
+
+        data.update(overrides)
+
+        return data
+
+    def assert_creation_rejected(self, data, error_field):
+        """
+        Verify that invalid account creation attempts
+        return validation errors without creating accounts.
+        """
+
+        User = get_user_model()
+
+        self.client.force_login(self.admin)
+
+        original_count = User.objects.count()
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn(
+            error_field,
+            response.context["form"].errors
+        )
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count
+        )
+
+        return response
+
+    def test_administrator_can_access_creation_form(self):
+        # Authorized administrators may open the creation form.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse("user_management:user_create")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(
+            response,
+            "user_management/user_form.html"
+        )
+
+        self.assertEqual(
+            list(response.context["form"].fields),
+            [
+                "username",
+                "first_name",
+                "last_name",
+                "email",
+                "password1",
+                "password2",
+            ]
+        )
+
+        self.assertContains(
+            response,
+            "csrfmiddlewaretoken"
+        )
+
+    def test_administrator_can_create_valid_account(self):
+        # Valid submissions must create an active,
+        # securely authenticated regular account.
+        User = get_user_model()
+
+        self.client.force_login(self.admin)
+
+        data = self.get_valid_creation_data(
+            email="MANAGED.NEW@EXAMPLE.COM"
+        )
+
+        original_count = User.objects.count()
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        account = User.objects.get(
+            username=data["username"]
+        )
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count + 1
+        )
+
+        self.assertEqual(account.first_name, "Managed")
+        self.assertEqual(account.last_name, "Account")
+
+        self.assertEqual(
+            account.email,
+            "managed.new@example.com"
+        )
+
+        # Verify password hashing and authentication.
+        self.assertNotEqual(
+            account.password,
+            data["password1"]
+        )
+
+        self.assertTrue(
+            account.check_password(data["password1"])
+        )
+
+        self.assertTrue(account.is_active)
+        self.assertFalse(account.is_staff)
+        self.assertFalse(account.is_superuser)
+
+        self.assertEqual(
+            account.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        self.assertFalse(account.groups.exists())
+        self.assertFalse(account.user_permissions.exists())
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": account.pk}
+            )
+        )
+
+    def test_creation_prevents_privilege_escalation(self):
+        # Manipulated POST parameters must never grant
+        # additional application or Django privileges.
+        User = get_user_model()
+
+        workspace_group = self.power_user.groups.first()
+
+        self.assertIsNotNone(workspace_group)
+
+        self.client.force_login(self.admin)
+
+        data = self.get_valid_creation_data(
+            role="admin",
+            is_staff="true",
+            is_superuser="true",
+            groups=[workspace_group.pk],
+            is_active="false",
+        )
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        account = User.objects.get(
+            username=data["username"]
+        )
+
+        self.assertEqual(
+            account.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        self.assertFalse(account.is_staff)
+        self.assertFalse(account.is_superuser)
+        self.assertFalse(account.groups.exists())
+        self.assertFalse(account.user_permissions.exists())
+
+        # Account activation follows the server-side policy.
+        self.assertTrue(account.is_active)
+
+    def test_anonymous_user_cannot_create_accounts(self):
+        # Guests must not access the form or create accounts.
+        User = get_user_model()
+
+        url = reverse("user_management:user_create")
+
+        original_count = User.objects.count()
+
+        responses = (
+            self.client.get(url),
+            self.client.post(
+                url,
+                data=self.get_valid_creation_data()
+            ),
+        )
+
+        for response in responses:
+            self.assertRedirects(
+                response,
+                f"{resolve_url(settings.LOGIN_URL)}?next={url}",
+                fetch_redirect_response=False
+            )
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count
+        )
+
+    def test_non_administrators_cannot_create_accounts(self):
+        # Neither regular nor privileged workspace users
+        # may access the custom administration endpoint.
+        User = get_user_model()
+
+        url = reverse("user_management:user_create")
+
+        original_count = User.objects.count()
+
+        for account in (self.student, self.power_user):
+
+            with self.subTest(account=account.username):
+
+                self.client.force_login(account)
+
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, 403)
+
+                response = self.client.post(
+                    url,
+                    data=self.get_valid_creation_data()
+                )
+
+                self.assertEqual(response.status_code, 403)
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count
+        )
+
+    def test_creation_rejects_unsupported_http_methods(self):
+        # Only GET, HEAD and POST are supported.
+        self.client.force_login(self.admin)
+
+        url = reverse("user_management:user_create")
+
+        for method in ("put", "patch", "delete"):
+
+            with self.subTest(method=method):
+
+                response = getattr(self.client, method)(url)
+
+                self.assertEqual(response.status_code, 405)
+
+    def test_creation_requires_all_account_fields(self):
+        # Required fields must be validated server-side.
+        required_fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+        )
+
+        for field in required_fields:
+
+            with self.subTest(field=field):
+
+                data = self.get_valid_creation_data()
+
+                data.pop(field)
+
+                self.assert_creation_rejected(
+                    data,
+                    field
+                )
+
+    def test_creation_rejects_invalid_email(self):
+        # Invalid email formats must not create accounts.
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                email="invalid-email-address"
+            ),
+            "email"
+        )
+
+    def test_creation_rejects_duplicate_username(self):
+        # An existing username cannot be registered again.
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                username=self.student.username
+            ),
+            "username"
+        )
+
+    def test_creation_rejects_duplicate_email(self):
+        # Email uniqueness validation is case-insensitive.
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                email=self.student.email.upper()
+            ),
+            "email"
+        )
+
+    def test_creation_rejects_weak_passwords(self):
+        # Django's configured password validators
+        # must reject insecure credentials.
+        weak_passwords = (
+            "123",
+            "password",
+            "1234567890123456",
+        )
+
+        for password in weak_passwords:
+
+            with self.subTest(password=password):
+
+                data = self.get_valid_creation_data(
+                    password1=password,
+                    password2=password
+                )
+
+                self.assert_creation_rejected(
+                    data,
+                    "password2"
+                )
+
+    def test_creation_rejects_mismatched_passwords(self):
+        # Password confirmation must match exactly.
+        data = self.get_valid_creation_data(
+            password2="Different!Password83"
+        )
+
+        response = self.assert_creation_rejected(
+            data,
+            "password2"
+        )
+
+        # Invalid submissions must not redisplay passwords.
+        self.assertNotContains(
+            response,
+            data["password1"]
+        )
+
+        self.assertNotContains(
+            response,
+            data["password2"]
+        )
+
+    def test_creation_requires_csrf_token(self):
+        # Explicitly enable CSRF enforcement because
+        # Django's ordinary test client disables it.
+        from django.test import Client
+
+        User = get_user_model()
+
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        csrf_client.force_login(self.admin)
+
+        original_count = User.objects.count()
+
+        response = csrf_client.post(
+            reverse("user_management:user_create"),
+            data=self.get_valid_creation_data()
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count
+        )
+
+    def create_registration_request(self, **overrides):
+        """
+        Create an isolated student registration request
+        for account administration compatibility testing.
+        """
+
+        from django.contrib.auth.hashers import make_password
+        from .models import StudentRegistrationRequest
+
+        data = {
+            "username": "pending_student",
+            "first_name": "Pending",
+            "last_name": "Student",
+            "email": "pending.student@example.com",
+            "password_hash": make_password(
+                "Forest!Silver84Ocean"
+            ),
+            "status": StudentRegistrationRequest.Status.PENDING,
+        }
+
+        data.update(overrides)
+
+        return StudentRegistrationRequest.objects.create(
+            **data
+        )
+
+    def test_creation_rejects_pending_registration_username(self):
+        # Pending applications reserve their requested usernames.
+        registration = self.create_registration_request()
+
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                username=registration.username
+            ),
+            "username"
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(registration.status, "pending")
+
+    def test_creation_rejects_pending_registration_email(self):
+        # Pending applications reserve their email addresses.
+        registration = self.create_registration_request()
+
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                email=registration.email
+            ),
+            "email"
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(registration.status, "pending")
+
+    def test_pending_registration_username_is_case_insensitive(self):
+        # Changing username casing must not bypass validation.
+        registration = self.create_registration_request()
+
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                username=registration.username.upper()
+            ),
+            "username"
+        )
+
+    def test_pending_registration_email_is_case_insensitive(self):
+        # Changing email casing must not bypass validation.
+        registration = self.create_registration_request()
+
+        self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                email=registration.email.upper()
+            ),
+            "email"
+        )
+
+    def test_creation_rejects_multiple_registration_conflicts(self):
+        # Both conflicting fields must report validation errors.
+        registration = self.create_registration_request()
+
+        response = self.assert_creation_rejected(
+            self.get_valid_creation_data(
+                username=registration.username,
+                email=registration.email
+            ),
+            "username"
+        )
+
+        self.assertIn(
+            "email",
+            response.context["form"].errors
+        )
+
+    def test_rejected_registration_does_not_block_creation(self):
+        # Reviewed and rejected applications no longer
+        # reserve their requested usernames or emails.
+        from django.utils import timezone
+        from .models import StudentRegistrationRequest
+
+        User = get_user_model()
+
+        registration = self.create_registration_request(
+            status=StudentRegistrationRequest.Status.REJECTED,
+            password_hash="",
+            reviewed_by=self.admin,
+            reviewed_at=timezone.now()
+        )
+
+        self.client.force_login(self.admin)
+
+        original_count = User.objects.count()
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=self.get_valid_creation_data(
+                username=registration.username,
+                email=registration.email
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count + 1
+        )
+
+        account = User.objects.get(
+            username=registration.username
+        )
+
+        self.assertEqual(
+            account.email,
+            registration.email
+        )
+
+        # Preserve the reviewed registration history.
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            StudentRegistrationRequest.Status.REJECTED
+        )
+
+        self.assertEqual(
+            registration.reviewed_by,
+            self.admin
+        )
+
+        self.assertEqual(registration.password_hash, "")
+
+    def test_approved_registration_history_does_not_block_creation(self):
+        # Historical approved applications do not reserve
+        # identifiers when no corresponding account exists.
+        from django.utils import timezone
+        from .models import StudentRegistrationRequest
+
+        User = get_user_model()
+
+        registration = self.create_registration_request(
+            status=StudentRegistrationRequest.Status.APPROVED,
+            password_hash="",
+            reviewed_by=self.admin,
+            reviewed_at=timezone.now()
+        )
+
+        self.client.force_login(self.admin)
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=self.get_valid_creation_data(
+                username=registration.username,
+                email=registration.email
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(
+            User.objects.filter(
+                username=registration.username,
+                email=registration.email
+            ).exists()
+        )
+
+        # Historical approval records must remain unchanged.
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            StudentRegistrationRequest.Status.APPROVED
+        )
+
+    def test_unrelated_pending_registration_allows_creation(self):
+        # Unrelated pending applications must not prevent
+        # legitimate administrative account creation.
+        from .models import StudentRegistrationRequest
+
+        User = get_user_model()
+
+        registration = self.create_registration_request()
+
+        original_password_hash = registration.password_hash
+
+        self.client.force_login(self.admin)
+
+        data = self.get_valid_creation_data()
+
+        original_count = User.objects.count()
+
+        response = self.client.post(
+            reverse("user_management:user_create"),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count + 1
+        )
+
+        self.assertTrue(
+            User.objects.filter(
+                username=data["username"]
+            ).exists()
+        )
+
+        # Direct account creation must not modify
+        # unrelated registration requests.
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            StudentRegistrationRequest.Status.PENDING
+        )
+
+        self.assertEqual(
+            registration.password_hash,
+            original_password_hash
+        )
+
+        self.assertIsNone(registration.reviewed_by)
+        self.assertIsNone(registration.reviewed_at)
+
+class AccountIdentityTransactionTests(TestCase):
+    """
+    Verify the shared account identity transaction
+    mechanism independently of administrative views.
+    """
+
+    def setUp(self):
+        # Ensure a synchronization record is available
+        # regardless of previous test database resets.
+        from .models import AccountIdentityLock
+
+        AccountIdentityLock.objects.get_or_create(
+            pk=1,
+            defaults={"revision": 0}
+        )
+
+    def test_identity_transaction_increments_revision(self):
+        # Every protected operation must update the
+        # shared synchronization record.
+        from .account_identity import account_identity_transaction
+        from .models import AccountIdentityLock
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        with account_identity_transaction():
+
+            current_revision = (
+                AccountIdentityLock.objects.get(pk=1).revision
+            )
+
+            self.assertEqual(
+                current_revision,
+                original_revision + 1
+            )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision + 1
+        )
+
+    def test_identity_transaction_reuses_singleton(self):
+        # Consecutive operations must reuse the same row.
+        from .account_identity import account_identity_transaction
+        from .models import AccountIdentityLock
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        for _ in range(3):
+
+            with account_identity_transaction():
+                pass
+
+        self.assertEqual(
+            AccountIdentityLock.objects.count(),
+            1
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision + 3
+        )
+
+    def test_identity_transaction_restores_missing_record(self):
+        # Recover safely after a database reset removes
+        # the synchronization record.
+        from .account_identity import account_identity_transaction
+        from .models import AccountIdentityLock
+
+        AccountIdentityLock.objects.all().delete()
+
+        self.assertFalse(
+            AccountIdentityLock.objects.exists()
+        )
+
+        with account_identity_transaction():
+
+            self.assertEqual(
+                AccountIdentityLock.objects.count(),
+                1
+            )
+
+        lock = AccountIdentityLock.objects.get(pk=1)
+
+        self.assertEqual(lock.revision, 1)
+
+    def test_identity_transaction_rolls_back_on_failure(self):
+        # Failed operations must roll back both account
+        # creation and the synchronization revision.
+        from .account_identity import account_identity_transaction
+        from .models import AccountIdentityLock
+
+        User = get_user_model()
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        original_user_count = User.objects.count()
+
+        with self.assertRaises(RuntimeError):
+
+            with account_identity_transaction():
+
+                User.objects.create_user(
+                    username="rollback_identity_test",
+                    email="rollback@example.com",
+                    password="Forest!Silver84Ocean"
+                )
+
+                # Simulate a failure after account creation.
+                raise RuntimeError(
+                    "Simulated account transaction failure."
+                )
+
+        self.assertEqual(
+            User.objects.count(),
+            original_user_count
+        )
+
+        self.assertFalse(
+            User.objects.filter(
+                username="rollback_identity_test"
+            ).exists()
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )

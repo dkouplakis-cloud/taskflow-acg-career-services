@@ -36,6 +36,12 @@ urlpatterns = [
         include("core.registration_management_urls")
     ),
 
+        # Administrator-only registered account management.
+    path(
+        "manage/users/",
+        include("core.user_management_urls")
+    ),
+
     # Public registration for regular student accounts.
     # Privileged workspace roles cannot be self-assigned.
     path(
