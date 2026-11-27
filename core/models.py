@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-
+from django.db.models.functions import Lower
 
 class ContactMessage(models.Model):
     """
@@ -152,3 +152,75 @@ class UserProfile(models.Model):
             f"{self.user.username} - "
             f"{self.get_role_display()}"
         )
+
+class StudentRegistrationRequest(models.Model):
+    """
+    Store student account applications awaiting
+    approval from the Career Services Administrator.
+
+    A Django User is created only after approval.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    # Information submitted by the prospective student.
+    username = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=150)
+    email = models.EmailField()
+
+    # Store only Django's password hash, never plaintext.
+    # This field will be cleared after review.
+    password_hash = models.CharField(
+        max_length=128,
+        blank=True
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING
+    )
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    # Record which administrator reviewed the application.
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_student_registrations"
+    )
+
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ["-submitted_at"]
+
+        # Enforce case-insensitive uniqueness only
+        # while applications are pending.
+        #
+        # Reviewed applications remain available
+        # for administrative history and auditing.
+        constraints = [
+            models.UniqueConstraint(
+                Lower("username"),
+                condition=models.Q(status="pending"),
+                name="core_pending_username_ci",
+            ),
+            models.UniqueConstraint(
+                Lower("email"),
+                condition=models.Q(status="pending"),
+                name="core_pending_email_ci",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.username} - {self.get_status_display()}"

@@ -10,8 +10,7 @@ before they are saved to the database.
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from .models import ContactMessage
-
+from .models import ContactMessage, StudentRegistrationRequest
 
 class ContactMessageForm(forms.ModelForm):
     """
@@ -56,6 +55,21 @@ class StudentRegistrationForm(UserCreationForm):
         label="Email Address"
     )
 
+    # Require the student's real name for administrator review.
+    first_name = forms.CharField(
+        max_length=150,
+        required=True,
+        strip=True,
+        label="First Name",
+    )
+
+    last_name = forms.CharField(
+        max_length=150,
+        required=True,
+        strip=True,
+        label="Last Name",
+    )
+
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
 
@@ -84,3 +98,41 @@ class StudentRegistrationForm(UserCreationForm):
             )
 
         return email
+
+    def clean(self):
+        """
+        Prevent duplicate pending registration requests.
+
+        Rejected applications do not block a student
+        from submitting a new registration request.
+        """
+        cleaned_data = super().clean()
+
+        username = cleaned_data.get("username")
+        email = cleaned_data.get("email")
+
+        pending_requests = StudentRegistrationRequest.objects.filter(
+            status=StudentRegistrationRequest.Status.PENDING
+        )
+
+        # A username cannot have multiple pending applications.
+        if username and pending_requests.filter(
+            username__iexact=username
+        ).exists():
+            self.add_error(
+                "username",
+                "A registration request for this username "
+                "is already pending approval."
+            )
+
+        # Email comparisons must be case-insensitive.
+        if email and pending_requests.filter(
+            email__iexact=email
+        ).exists():
+            self.add_error(
+                "email",
+                "A registration request for this email "
+                "address is already pending approval."
+            )
+
+        return cleaned_data

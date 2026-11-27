@@ -1,0 +1,295 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+  Registration Requests | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+  catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5 tf-category-list-page">
+
+  <!-- Administration breadcrumb navigation. -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+
+      <li
+        class="breadcrumb-item active"
+        aria-current="page"
+      >
+        Registration Requests
+      </li>
+
+    </ol>
+  </nav>
+
+  <!-- Consistent administration page heading. -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="registration-page-title"
+  >
+
+    <div class="tf-category-page-header__copy">
+
+      <p class="tf-category-page-header__eyebrow">
+        Account Administration
+      </p>
+
+      <h1 id="registration-page-title">
+        Student Registration Requests
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Review applications for student accounts.
+        Students cannot access their accounts until
+        their registrations have been approved.
+      </p>
+
+    </div>
+
+    <div class="tf-category-page-header__actions">
+
+      <a
+        href="{% url 'catalog_management:dashboard' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Dashboard
+      </a>
+
+    </div>
+
+  </section>
+
+  <!-- Pending applications directory. -->
+  <section
+    class="card shadow-sm border-0 overflow-hidden"
+    aria-labelledby="pending-requests-title"
+  >
+
+    <div class="card-header bg-transparent border-bottom p-4">
+
+      <div
+        class="d-flex flex-column flex-sm-row
+               justify-content-between
+               align-items-sm-center gap-3"
+      >
+
+        <div>
+
+          <h2
+            id="pending-requests-title"
+            class="h5 fw-bold mb-1"
+          >
+            Pending Applications
+          </h2>
+
+          <p class="text-secondary small mb-0">
+            Applications awaiting administrator review.
+          </p>
+
+        </div>
+
+        <span
+          class="badge bg-warning-subtle
+                 text-warning-emphasis px-3 py-2"
+        >
+          {{ pending_count }}
+          Pending
+        </span>
+
+      </div>
+
+    </div>
+
+    {% if page_obj.object_list %}
+
+      <!-- Responsive applicant information table. -->
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+          <thead>
+            <tr>
+              <th scope="col" class="ps-4">
+                Applicant
+              </th>
+
+              <th scope="col">
+                Username
+              </th>
+
+              <th scope="col">
+                Email Address
+              </th>
+
+              <th scope="col">
+                Submitted
+              </th>
+
+              <th scope="col">
+                Status
+              </th>
+
+              <th scope="col" class="pe-4 text-end">
+                Actions
+              </th>
+
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for application in page_obj %}
+
+              <tr>
+
+                <td class="ps-4">
+
+                  <div class="fw-semibold">
+                    {{ application.first_name }}
+                    {{ application.last_name }}
+                  </div>
+
+                </td>
+
+                <td>
+                  {{ application.username }}
+                </td>
+
+                <td>
+                  {{ application.email }}
+                </td>
+
+                <td>
+                  <time
+                    datetime="{{ application.submitted_at|date:'c' }}"
+                  >
+                    {{ application.submitted_at|date:"M j, Y" }}
+                  </time>
+                </td>
+
+                <td class="pe-4">
+
+                  <span
+                    class="badge bg-warning-subtle
+                           text-warning-emphasis"
+                  >
+                    Awaiting Review
+                  </span>
+
+                </td>
+
+                <!-- Open the dedicated application review page. -->
+                <td class="pe-4 text-end">
+
+                  <a
+                    href="{% url 'registration_management:request_detail' application.pk %}"
+                    class="btn btn-sm btn-outline-primary fw-semibold"
+                    aria-label="Review registration for {{ application.username }}"
+                  >
+                    Review Application
+                  </a>
+
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <!-- Pagination for larger request collections. -->
+      {% if page_obj.has_other_pages %}
+
+        <nav
+          class="p-4 border-top"
+          aria-label="Registration request pagination"
+        >
+
+          <ul
+            class="pagination justify-content-center
+                   flex-wrap mb-0"
+          >
+
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="?page={{ page_obj.previous_page_number }}"
+                >
+                  Previous
+                </a>
+              </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span
+                class="page-link"
+                aria-current="page"
+              >
+                {{ page_obj.number }}
+                of {{ page_obj.paginator.num_pages }}
+              </span>
+            </li>
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="?page={{ page_obj.next_page_number }}"
+                >
+                  Next
+                </a>
+              </li>
+            {% endif %}
+
+          </ul>
+
+        </nav>
+
+      {% endif %}
+
+    {% else %}
+
+      <!-- Empty state for no pending applications. -->
+      <div class="text-center px-4 py-5">
+
+        <h3 class="h5 fw-bold mb-3">
+          No Pending Applications
+        </h3>
+
+        <p class="text-secondary mb-0">
+          There are currently no student registration
+          requests awaiting administrator approval.
+        </p>
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</main>
+{% endblock %}

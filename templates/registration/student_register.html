@@ -1,9 +1,8 @@
-
 {% extends "layout.html" %}
 
 {% load static %}
 
-{% block title %}Create Account | TaskFlow{% endblock %}
+{% block title %}Request Student Account | TaskFlow{% endblock %}
 
 {% block extra_css %}
 <link
@@ -14,32 +13,30 @@
 
 {% block content %}
 
-<!-- Public student registration page. -->
+<!-- Student registration page with dedicated styling. -->
 <section
-    class="auth-page"
+    class="auth-page auth-page--registration"
     aria-labelledby="registration-heading"
 >
 
     <div class="auth-container">
 
-        <!-- Registration introduction. -->
-        <header class="auth-header">
+        <h1 id="registration-heading">
+            Request a Student Account
+        </h1>
 
-            <p class="page-eyebrow">
-                Join ACG Career Services
-            </p>
+        <p class="page-description">
+            Submit your details to request access to TaskFlow
+            and ACG Career Services opportunities.
+            Your account will become available after
+            administrator approval.
+        </p>
 
-            <h1 id="registration-heading">
-                Create Your Account
-            </h1>
-
-            <p class="page-description">
-                Create your TaskFlow account to explore
-                career opportunities, discover workshops,
-                and manage your service selections.
-            </p>
-
-        </header>
+        <p class="auth-field-help">
+            Fields marked with
+            <span class="text-danger" aria-hidden="true">*</span>
+            are required.
+        </p>
 
         <!-- Display form-wide validation errors. -->
         {% if form.non_field_errors %}
@@ -62,6 +59,10 @@
 
                 <label for="{{ form.username.id_for_label }}">
                     Username
+                    {% if form.username.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.username }}
@@ -85,6 +86,10 @@
 
                 <label for="{{ form.first_name.id_for_label }}">
                     First Name
+                    {% if form.first_name.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.first_name }}
@@ -102,6 +107,10 @@
 
                 <label for="{{ form.last_name.id_for_label }}">
                     Last Name
+                    {% if form.last_name.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.last_name }}
@@ -119,6 +128,10 @@
 
                 <label for="{{ form.email.id_for_label }}">
                     Email Address
+                    {% if form.email.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.email }}
@@ -136,6 +149,10 @@
 
                 <label for="{{ form.password1.id_for_label }}">
                     Password
+                    {% if form.password1.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.password1 }}
@@ -159,6 +176,10 @@
 
                 <label for="{{ form.password2.id_for_label }}">
                     Confirm Password
+                    {% if form.password2.field.required %}
+                        <span class="text-danger" aria-hidden="true">*</span>
+                        <span class="visually-hidden">(required)</span>
+                    {% endif %}
                 </label>
 
                 {{ form.password2 }}
@@ -178,7 +199,7 @@
                     type="submit"
                     class="btn btn-primary"
                 >
-                    Create Account
+                    Submit Registration Request
                 </button>
 
             </div>

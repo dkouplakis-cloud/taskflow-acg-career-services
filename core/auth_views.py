@@ -7,18 +7,18 @@ preserving Django's built-in authentication
 and safe redirect handling.
 """
 
-from django.contrib.auth.views import LoginView
-from django.urls import reverse
-
 from django.contrib import messages
-from django.contrib.auth import login
 from django.contrib.auth.decorators import login_not_required
-from django.db import transaction
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.views import LoginView
+from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from .forms import StudentRegistrationForm
-from .models import UserProfile
 
+from .forms import StudentRegistrationForm
+from .models import StudentRegistrationRequest, UserProfile
+from .permissions import can_access_workspace
 
 class TaskFlowLoginView(LoginView):
     """
@@ -33,30 +33,48 @@ class TaskFlowLoginView(LoginView):
     """
 
     def get_default_redirect_url(self):
+        """
+        Redirect users according to their authorized portal.
 
+        Administrators access catalogue management.
+        Authorized workspace members retain their
+        existing internal destination.
+        Regular students access the public catalogue.
+
+        Django's safe 'next' handling remains unchanged.
+        """
+
+        user = self.request.user
+
+        # Administrators access their management dashboard.
         is_administrator = UserProfile.objects.filter(
-            user=self.request.user,
+            user=user,
             role=UserProfile.Role.ADMIN
         ).exists()
 
         if is_administrator:
-            return reverse(
-                "catalog_management:dashboard"
-            )
+            return reverse("catalog_management:dashboard")
 
+        # Ordinary students must not be redirected
+        # to the restricted Projects workspace.
+        if not can_access_workspace(user):
+            return reverse("catalog:list")
+
+        # Preserve the existing destination for
+        # explicitly authorized workspace personnel.
         return super().get_default_redirect_url()
 
 @login_not_required
 @require_http_methods(["GET", "POST"])
 def student_register(request):
     """
-    Allow visitors to create regular student accounts.
+    Accept student registration applications.
 
-    Registration never assigns privileged workspace
-    groups or administrative permissions.
+    A student account is not created until the
+    Career Services Administrator approves it.
     """
 
-    # Existing users do not need another account.
+    # Authenticated users cannot submit new applications.
     if request.user.is_authenticated:
         return redirect("catalog:list")
 
@@ -64,25 +82,48 @@ def student_register(request):
         form = StudentRegistrationForm(request.POST)
 
         if form.is_valid():
-            # Create the account and its signal-generated
-            # profile within one database transaction.
-            with transaction.atomic():
-                user = form.save()
+            try:
+                # The database enforces uniqueness for pending
+                # usernames and emails, even during concurrent
+                # registration submissions.
+                with transaction.atomic():
+                    StudentRegistrationRequest.objects.create(
+                        username=form.cleaned_data["username"],
+                        first_name=form.cleaned_data["first_name"],
+                        last_name=form.cleaned_data["last_name"],
+                        email=form.cleaned_data["email"],
+                        password_hash=make_password(
+                            form.cleaned_data["password1"]
+                        ),
+                        status=StudentRegistrationRequest.Status.PENDING,
+                    )
 
-            # Sign in the newly registered student.
-            login(request, user)
+            except IntegrityError:
+                # Another application may have been submitted
+                # after our initial form validation.
+                # Display a safe error instead of HTTP 500.
+                form.add_error(
+                    None,
+                    "This registration request could not be "
+                    "submitted because the username or email "
+                    "may already have a pending application. "
+                    "Please review your details and try again."
+                )
 
-            messages.success(
-                request,
-                "Your account has been created successfully."
-            )
+            else:
+                messages.success(
+                    request,
+                    "Your registration request has been submitted "
+                    "for administrator approval. You will be able "
+                    "to sign in only after your account is approved."
+                )
 
-            return redirect("catalog:list")
+                # Applicants remain unauthenticated until approval.
+                return redirect("student_register")
 
     else:
         form = StudentRegistrationForm()
 
-    # Display the form or its validation errors.
     return render(
         request,
         "registration/student_register.html",

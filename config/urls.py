@@ -29,6 +29,13 @@ urlpatterns = [
         include("catalog.management_urls")
     ),
 
+    # Administrator-only student registration review.
+    # Kept separate from public student registration.
+    path(
+        "manage/registrations/",
+        include("core.registration_management_urls")
+    ),
+
     # Public registration for regular student accounts.
     # Privileged workspace roles cannot be self-assigned.
     path(

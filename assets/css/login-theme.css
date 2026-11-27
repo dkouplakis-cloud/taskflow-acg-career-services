@@ -7,3 +7,132 @@
 [data-theme="dark"] .auth-page .page-eyebrow {
   color: #93c5fd;
 }
+
+/* ==========================================================
+   TASKFLOW — STUDENT REGISTRATION
+   Dedicated layout and typography refinements.
+
+   Scoped to registration only. The Login page retains
+   its existing appearance.
+   ========================================================== */
+
+/* Give the longer registration form room to breathe. */
+.auth-page.auth-page--registration {
+    max-width: 680px;
+    margin: 48px auto 64px;
+}
+
+/* Balance the card's internal spacing. */
+.auth-page.auth-page--registration .auth-container {
+    padding: clamp(28px, 5vw, 44px);
+}
+
+/* Establish a consistent, professional text hierarchy. */
+.auth-page.auth-page--registration .auth-header {
+    margin-bottom: 32px;
+    text-align: left;
+}
+
+.auth-page.auth-page--registration h1 {
+    font-size: clamp(1.8rem, 3vw, 2.25rem);
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+}
+
+.auth-page.auth-page--registration .page-description {
+    max-width: 540px;
+    font-size: 0.94rem;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* ----------------------------------------------------------
+   REGISTRATION — REQUIRED FIELD INSTRUCTIONS
+   Separate introductory text from form requirements.
+   ---------------------------------------------------------- */
+
+.auth-page.auth-page--registration
+.auth-container > .auth-field-help {
+    margin: 24px 0 28px;
+    padding-top: 18px;
+
+    /* Subtle divider between introduction and guidance. */
+    border-top: 1px solid rgba(148, 163, 184, 0.4);
+
+    color: var(--muted, #667085);
+    font-size: 0.84rem;
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* Keep form labels consistent and easy to scan. */
+.auth-page.auth-page--registration .form-group label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Preserve comfortable spacing on smaller screens. */
+@media (max-width: 600px) {
+    .auth-page.auth-page--registration {
+        margin: 28px auto 48px;
+    }
+
+    .auth-page.auth-page--registration .auth-container {
+        padding: 28px 22px;
+    }
+
+    .auth-page.auth-page--registration h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ==========================================================
+   TASKFLOW — STUDENT REGISTRATION DARK MODE
+   Refined neutral surfaces and accessible contrast.
+
+   These rules apply only to the registration page.
+   ========================================================== */
+
+/* Replace the overly saturated blue registration card. */
+[data-theme="dark"]
+.auth-page.auth-page--registration .auth-container {
+    background: #1b2638;
+    color: #f1f5f9;
+    border-color: rgba(148, 163, 184, 0.24);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+}
+
+/* Maintain clear heading and label contrast. */
+[data-theme="dark"]
+.auth-page.auth-page--registration h1,
+[data-theme="dark"]
+.auth-page.auth-page--registration .form-group label {
+    color: #f1f5f9;
+}
+
+/* Make supporting text visually secondary. */
+[data-theme="dark"]
+.auth-page.auth-page--registration .page-description,
+[data-theme="dark"]
+.auth-page.auth-page--registration .auth-field-help {
+    color: #cbd5e1;
+    font-weight: 400;
+}
+
+/* Separate form inputs from the surrounding card. */
+[data-theme="dark"]
+.auth-page.auth-page--registration .form-group input {
+    background: #111c2c;
+    color: #f8fafc;
+    border-color: #718096;
+}
+
+/* Provide a clear, restrained keyboard focus state. */
+[data-theme="dark"]
+.auth-page.auth-page--registration .form-group input:focus {
+    border-color: #93c5fd;
+    outline-color: #93c5fd;
+}

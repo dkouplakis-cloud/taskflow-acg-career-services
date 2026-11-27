@@ -1,0 +1,245 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+  Review Student Registration | TaskFlow
+{% endblock %}
+
+{% block page_class %}
+  catalog-management-page
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/catalog-management.css' %}"
+  >
+{% endblock %}
+
+{% block content %}
+<main class="container py-4 py-lg-5 tf-category-list-page">
+
+  <!-- Administrator breadcrumb navigation. -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'catalog_management:dashboard' %}">
+          Administration
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'registration_management:request_list' %}">
+          Registration Requests
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Review Application
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Registration review heading. -->
+  <section
+    class="tf-category-page-header mb-4"
+    aria-labelledby="registration-review-title"
+  >
+    <div class="tf-category-page-header__copy">
+      <p class="tf-category-page-header__eyebrow">
+        Account Administration
+      </p>
+
+      <h1 id="registration-review-title">
+        Review Student Registration
+      </h1>
+
+      <p class="tf-category-page-header__description">
+        Verify the applicant's information before
+        approving or rejecting their account request.
+      </p>
+    </div>
+
+    <div class="tf-category-page-header__actions">
+      <a
+        href="{% url 'registration_management:request_list' %}"
+        class="btn btn-outline-secondary fw-semibold"
+      >
+        Back to Applications
+      </a>
+    </div>
+  </section>
+
+  <div class="row g-4">
+
+    <!-- Applicant information. -->
+    <div class="col-12 col-lg-7">
+      <section
+        class="card shadow-sm border-0 h-100"
+        aria-labelledby="applicant-details-title"
+      >
+        <div class="card-header bg-transparent border-bottom p-4">
+          <div
+            class="d-flex flex-wrap justify-content-between
+                   align-items-center gap-3"
+          >
+            <div>
+              <p class="text-secondary small mb-1">
+                Registration Application
+              </p>
+
+              <h2
+                id="applicant-details-title"
+                class="h5 fw-bold mb-0"
+              >
+                Applicant Details
+              </h2>
+            </div>
+
+            <span
+              class="badge bg-warning-subtle
+                     text-warning-emphasis px-3 py-2"
+            >
+              Awaiting Review
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          <dl class="row g-3 mb-0">
+
+            <div class="col-12">
+              <dt class="text-secondary small mb-1">
+                Full Name
+              </dt>
+              <dd class="fw-semibold mb-0">
+                {{ application.first_name }}
+                {{ application.last_name }}
+              </dd>
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Username
+              </dt>
+              <dd class="fw-semibold mb-0 text-break">
+                {{ application.username }}
+              </dd>
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <dt class="text-secondary small mb-1">
+                Email Address
+              </dt>
+              <dd class="fw-semibold mb-0 text-break">
+                {{ application.email }}
+              </dd>
+            </div>
+
+            <div class="col-12">
+              <dt class="text-secondary small mb-1">
+                Submitted On
+              </dt>
+              <dd class="mb-0">
+                <time
+                  datetime="{{ application.submitted_at|date:'c' }}"
+                >
+                  {{ application.submitted_at|date:"M j, Y, g:i A" }}
+                </time>
+              </dd>
+            </div>
+
+          </dl>
+        </div>
+      </section>
+    </div>
+
+    <!-- Explicit administrator decision. -->
+    <div class="col-12 col-lg-5">
+      <section
+        class="card shadow-sm border-0 h-100"
+        aria-labelledby="review-decision-title"
+      >
+        <div class="card-header bg-transparent border-bottom p-4">
+          <h2
+            id="review-decision-title"
+            class="h5 fw-bold mb-1"
+          >
+            Review Decision
+          </h2>
+
+          <p class="text-secondary small mb-0">
+            Choose how to process this application.
+          </p>
+        </div>
+
+        <div class="card-body p-4">
+
+          <div class="mb-4">
+            <h3 class="h6 fw-semibold mb-2">
+              Approve Registration
+            </h3>
+
+            <p class="text-secondary small mb-3">
+              Create an active student account with
+              regular student permissions.
+            </p>
+
+            <form
+              method="post"
+              action="{% url 'registration_management:request_approve' application.pk %}"
+            >
+              {% csrf_token %}
+
+              <button
+                type="submit"
+                class="btn btn-success fw-semibold w-100"
+                aria-label="Confirm approval for {{ application.username }}"
+              >
+                Confirm Approval
+              </button>
+            </form>
+          </div>
+
+          <hr class="my-4">
+
+          <div>
+            <h3 class="h6 fw-semibold mb-2">
+              Reject Registration
+            </h3>
+
+            <p class="text-secondary small mb-3">
+              Reject this application without creating
+              a student account.
+            </p>
+
+            <form
+              method="post"
+              action="{% url 'registration_management:request_reject' application.pk %}"
+            >
+              {% csrf_token %}
+
+              <button
+                type="submit"
+                class="btn btn-outline-danger fw-semibold w-100"
+                aria-label="Confirm rejection for {{ application.username }}"
+              >
+                Confirm Rejection
+              </button>
+            </form>
+          </div>
+
+          <p class="text-secondary small mt-4 mb-0">
+            This decision is final within the current
+            review workflow. Verify the applicant's
+            details before confirming.
+          </p>
+
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+</main>
+{% endblock %}
