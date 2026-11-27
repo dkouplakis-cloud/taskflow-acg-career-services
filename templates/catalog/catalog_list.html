@@ -118,17 +118,19 @@ tf-public-catalog
     </div>
 
 
-<!-- ========================================
-     CATALOGUE SEARCH
-     ======================================== -->
+  <!-- ========================================
+    CATALOGUE SEARCH AND ADVANCED FILTERS
+  ======================================== -->
 
     <form
       method="get"
       action="{% url 'catalog:list' %}"
       role="search"
+      aria-label="Search and filter career opportunities"
       class="tf-catalog-search"
     >
 
+      <!-- Search by service name or description. -->
       <div class="tf-catalog-search__field">
 
         <label
@@ -150,7 +152,7 @@ tf-public-catalog
 
       </div>
 
-      <!-- Category filtering -->
+      <!-- Browse categories and their visible descendants. -->
       <div class="tf-catalog-search__category">
 
         <label
@@ -187,25 +189,84 @@ tf-public-catalog
 
       </div>
 
+      <!-- Advanced filters use validated Django form fields. -->
+      <fieldset class="tf-catalog-filters">
+
+        <legend class="tf-catalog-filters__heading">
+          Advanced filters
+        </legend>
+
+        <p class="tf-catalog-filters__description">
+          Narrow your results by price and delivery format.
+        </p>
+
+        <div class="tf-catalog-filters__grid">
+
+          {% for field in filter_form %}
+
+            <div class="tf-catalog-filters__field">
+
+              <label
+                for="{{ field.id_for_label }}"
+                class="tf-catalog-search__label"
+              >
+                {{ field.label }}
+              </label>
+
+              {{ field }}
+
+              {% if field.errors %}
+
+                <ul
+                  id="{{ field.auto_id }}_error"
+                  class="tf-catalog-filters__errors"
+                >
+
+                  {% for error in field.errors %}
+
+                    <li>{{ error }}</li>
+
+                  {% endfor %}
+
+                </ul>
+
+              {% endif %}
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+        {% if filter_form.non_field_errors %}
+
+          <div
+            class="tf-catalog-filters__errors"
+            role="alert"
+          >
+            {{ filter_form.non_field_errors }}
+          </div>
+
+        {% endif %}
+
+      </fieldset>
+
+      <!-- Submit all filters together or restore the catalogue. -->
       <div class="tf-catalog-search__actions">
+
+        <a
+          href="{% url 'catalog:list' %}"
+          class="btn btn-outline-secondary tf-catalog-search__clear"
+        >
+          Clear Filters
+        </a>
 
         <button
           type="submit"
           class="btn btn-primary tf-catalog-search__submit"
         >
-          Search
+          Search &amp; Filter
         </button>
-
-        {% if search_query or selected_category %}
-
-          <a
-            href="{% url 'catalog:list' %}"
-            class="btn btn-outline-secondary tf-catalog-search__clear"
-          >
-            Clear
-          </a>
-
-        {% endif %}
 
       </div>
 
@@ -348,7 +409,7 @@ tf-public-catalog
             {% if page_obj.has_previous %}
 
               <a
-                href="?page={{ page_obj.previous_page_number }}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}{% if selected_category %}&amp;category={{ selected_category|urlencode }}{% endif %}"
+                href="?page={{ page_obj.previous_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% endif %}"
                 class="btn btn-outline-secondary"
               >
                 Previous
@@ -359,7 +420,7 @@ tf-public-catalog
             {% if page_obj.has_next %}
 
               <a
-                href="?page={{ page_obj.next_page_number }}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}{% if selected_category %}&amp;category={{ selected_category|urlencode }}{% endif %}"
+                href="?page={{ page_obj.next_page_number }}{% if pagination_query %}&amp;{{ pagination_query }}{% endif %}"
                 class="btn btn-outline-secondary"
               >
                 Next
@@ -382,43 +443,54 @@ tf-public-catalog
 
       <div class="tf-catalog-empty">
 
-        <div class="tf-catalog-empty__symbol" aria-hidden="true">
+        <div
+          class="tf-catalog-empty__symbol"
+          aria-hidden="true"
+        >
           ✦
         </div>
-      
-      {% if search_query or selected_category %}
 
-        <h3>
-          No matching career services found.
-        </h3>
+        {% if filter_form.errors %}
 
-        <p>
-          {% if search_query and selected_category %}
-            No opportunities match your search and selected category.
-          {% elif search_query %}
-            We couldn't find any opportunities matching
-            "{{ search_query }}".
-          {% else %}
-            No opportunities match the selected category.
-          {% endif %}
+          <!-- Invalid filter values require correction. -->
+          <h3>Check your search filters</h3>
 
-          Try adjusting your filters or use the Clear
-          button to explore all available services.
-        </p>
+          <p>
+            Some of your filter values are invalid.
+            Correct the highlighted fields above and
+            try searching again.
+          </p>
 
-      {% else %}
+        {% elif pagination_query %}
 
-        <h3>
-          New opportunities are on the way.
-        </h3>
+          <!-- Valid filters returned no matching services. -->
+          <h3>No matching opportunities</h3>
 
-        <p>
-          There are currently no available career services
-          to display. Please check back for upcoming
-          workshops and opportunities.
-        </p>
+          <p>
+            No career opportunities match your current
+            search and filters. Try broadening your search
+            or adjusting your selected criteria.
+          </p>
 
-      {% endif %}
+          <a
+            href="{% url 'catalog:list' %}"
+            class="btn tf-catalog-search__clear tf-catalog-empty__action"
+          >
+            Clear All Filters
+          </a>
+
+        {% else %}
+
+          <!-- No publicly available catalogue services exist. -->
+          <h3>New opportunities are on the way</h3>
+
+          <p>
+            There are currently no available career services
+            to display. Please check back for upcoming
+            workshops and opportunities.
+          </p>
+
+        {% endif %}
 
       </div>
 

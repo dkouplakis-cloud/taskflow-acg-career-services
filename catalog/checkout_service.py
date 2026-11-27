@@ -7,11 +7,9 @@ cart data. No real payments are processed.
 """
 
 from decimal import Decimal
-
 from django.db import transaction
-
 from .models import CatalogItem, Order, OrderItem
-
+from .visibility import get_visible_category_ids
 
 class CheckoutError(Exception):
     """
@@ -45,7 +43,11 @@ def create_order_from_cart(user, cart):
 
     with transaction.atomic():
 
-        # Retrieve only services eligible for checkout.
+        # Retrieve categories belonging to completely
+        # active category hierarchies.
+        visible_category_ids = get_visible_category_ids()
+
+        # Retrieve and lock only services eligible for checkout.
         items = list(
             CatalogItem.objects
             .select_for_update()
@@ -53,7 +55,7 @@ def create_order_from_cart(user, cart):
                 pk__in=item_ids,
                 is_active=True,
                 is_available=True,
-                category__is_active=True,
+                category_id__in=visible_category_ids,
             )
             .order_by("pk")
         )

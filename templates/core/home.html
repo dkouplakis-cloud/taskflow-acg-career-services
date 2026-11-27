@@ -152,7 +152,8 @@
             </strong>
 
             <span class="tf-hero-focus-next-date">
-              Open this project to create its first task.
+              Tasks will appear here once they are added
+              to this project.
             </span>
 
           {% else %}
@@ -190,10 +191,9 @@
 
     {% else %}
 
-      <!-- Empty state for users without projects -->
-
+      <!-- Permission-aware empty workspace state. -->
       <a
-        href="{% url 'projects:project_create' %}"
+        href="{% if can_manage_projects %}{% url 'projects:project_create' %}{% else %}{% url 'projects:project_list' %}{% endif %}"
         class="tf-hero-focus"
       >
 
@@ -203,18 +203,37 @@
           </span>
         </div>
 
-        <h2 class="tf-hero-focus-title">
-          Your next project starts here.
-        </h2>
+        {% if can_manage_projects %}
 
-        <p class="tf-hero-focus-summary">
-          Create your first project to organize tasks,
-          assign responsibilities and track progress.
-        </p>
+          <h2 class="tf-hero-focus-title">
+            Your next project starts here.
+          </h2>
+
+          <p class="tf-hero-focus-summary">
+            Create your first project to organize tasks,
+            assign responsibilities and track progress.
+          </p>
+
+        {% else %}
+
+          <h2 class="tf-hero-focus-title">
+            No assigned projects yet.
+          </h2>
+
+          <p class="tf-hero-focus-summary">
+            Projects will appear here when the Career
+            Services team grants you access.
+          </p>
+
+        {% endif %}
 
         <div class="tf-hero-focus-footer">
 
-          <span>Create a project</span>
+          {% if can_manage_projects %}
+            <span>Create a project</span>
+          {% else %}
+            <span>View My Projects</span>
+          {% endif %}
 
           <span
             class="tf-hero-focus-arrow"
@@ -715,8 +734,15 @@
           {% empty %}
 
             <li class="activity-empty">
-              No tasks yet. Create a project and add
-              your first task to get started.
+
+              {% if can_manage_projects %}
+                No task activity yet. Add tasks to your
+                workspace projects to get started.
+              {% else %}
+                No task activity is available in your
+                assigned projects yet.
+              {% endif %}
+
             </li>
 
           {% endfor %}

@@ -290,3 +290,83 @@ class CatalogItemForm(forms.ModelForm):
             self.save_m2m()
 
         return item
+
+class CatalogFilterForm(forms.Form):
+    """
+    Validate advanced public catalogue filters.
+
+    Allow visitors to combine price ranges and
+    delivery formats with existing catalogue searches.
+    """
+
+    min_price = forms.DecimalField(
+        label="Minimum price (€)",
+        required=False,
+        min_value=0,
+        max_digits=8,
+        decimal_places=2,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "tf-catalog-search__input",
+                "placeholder": "0.00",
+                "min": "0",
+                "max": "999999.99",
+                "step": "0.01",
+            }
+        ),
+    )
+
+    max_price = forms.DecimalField(
+        label="Maximum price (€)",
+        required=False,
+        min_value=0,
+        max_digits=8,
+        decimal_places=2,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "tf-catalog-search__input",
+                "placeholder": "No maximum",
+                "min": "0",
+                "max": "999999.99",
+                "step": "0.01",
+            }
+        ),
+    )
+
+    delivery_format = forms.ChoiceField(
+        label="Delivery format",
+        required=False,
+        choices=[
+            ("", "All Delivery Formats"),
+            *CatalogItem.DeliveryFormat.choices,
+        ],
+        widget=forms.Select(
+            attrs={
+                "class": "tf-catalog-search__select",
+            }
+        ),
+    )
+
+    def clean(self):
+        """
+        Ensure the requested price range is valid.
+        """
+
+        cleaned_data = super().clean()
+
+        min_price = cleaned_data.get("min_price")
+        max_price = cleaned_data.get("max_price")
+
+        # Both limits are optional, and zero is valid.
+        if (
+            min_price is not None
+            and max_price is not None
+            and min_price > max_price
+        ):
+            self.add_error(
+                "max_price",
+                "Maximum price must be greater than "
+                "or equal to minimum price."
+            )
+
+        return cleaned_data

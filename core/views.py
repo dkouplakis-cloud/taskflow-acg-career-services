@@ -10,22 +10,32 @@ developed during the midterm project.
 """
 
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from datetime import timedelta
 from django.utils import timezone
 
 from django.db.models import Count, Q
 from projects.models import Project
+from projects.permissions import visible_projects_for_user
 from tasks.models import Task
 from .forms import ContactMessageForm
+from .permissions import can_access_workspace
 
 
 def home(request):
     """
-    Display database-backed dashboard statistics
-    for the authenticated user's projects and tasks.
+    Display dashboard statistics for authorized
+    Career Services workspace members.
+
+    Project and task information is restricted
+    according to centralized access-control rules.
     """
+
+    # Direct users without internal workspace access
+    # to the student-facing Career Services catalogue.
+    if not can_access_workspace(request.user):
+        return redirect("catalog:list")
 
     context = {
         "total_projects": 0,
@@ -49,14 +59,14 @@ def home(request):
 
     if request.user.is_authenticated:
 
-        # Only retrieve projects owned by this user.
-        projects = Project.objects.filter(
-            owner=request.user
+        # Apply centralized project-level authorization.
+        projects = visible_projects_for_user(
+            request.user
         )
 
-        # Retrieve tasks belonging to those projects.
+        # Retrieve tasks exclusively from authorized projects.
         tasks = Task.objects.filter(
-            project__owner=request.user
+            project__in=projects
         )
 
 

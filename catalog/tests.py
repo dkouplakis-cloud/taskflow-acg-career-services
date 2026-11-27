@@ -3135,3 +3135,748 @@ class CheckoutViewTests(TestCase):
             response,
             reverse("catalog:list")
         )
+
+class AnonymousCatalogAccessTests(TestCase):
+    """
+    Verify public catalogue access while preserving
+    authentication requirements for protected areas.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create an available service for anonymous access tests.
+        category = Category.objects.create(
+            name="Career Workshops",
+            slug="career-workshops",
+            is_active=True
+        )
+
+        cls.item = CatalogItem.objects.create(
+            name="Career Preparation Workshop",
+            slug="career-preparation-workshop",
+            description="Professional interview preparation.",
+            category=category,
+            image="catalog/items/test-workshop.png",
+            price=Decimal("0.00"),
+            delivery_format="in_person",
+            is_active=True,
+            is_available=True
+        )
+
+    def test_anonymous_user_can_browse_catalogue(self):
+        # Public browsing must not require authentication.
+        response = self.client.get(
+            reverse("catalog:list")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.item.name)
+
+    def test_anonymous_user_can_view_item_details(self):
+        # Available service details must remain publicly accessible.
+        response = self.client.get(
+            reverse(
+                "catalog:detail",
+                kwargs={"slug": self.item.slug}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.item.name)
+
+    def test_anonymous_user_can_search_catalogue(self):
+        # Anonymous visitors must be able to search services.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={"q": "Career"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.item.name)
+        self.assertEqual(response.context["total_items"], 1)
+
+    def test_anonymous_user_cannot_access_cart(self):
+        # Shopping cart access must still require authentication.
+        url = reverse("catalog:cart")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}"
+        )
+
+    def test_anonymous_user_cannot_access_workspace(self):
+        # Confidential projects must not be publicly accessible.
+        url = reverse("projects:project_list")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}"
+        )
+
+    def test_anonymous_user_cannot_access_administration(self):
+        # Custom administration must remain protected.
+        url = reverse("catalog_management:dashboard")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}"
+        )
+
+    def test_anonymous_navigation_shows_public_links(self):
+        # Guests must have access to public navigation.
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        public_routes = (
+            "catalog:list",
+            "login",
+            "student_register",
+        )
+
+        for route in public_routes:
+            with self.subTest(route=route):
+                self.assertContains(
+                    response,
+                    f'href="{reverse(route)}"'
+                )
+
+    def test_anonymous_navigation_hides_protected_links(self):
+        # Confidential workspace and administration links
+        # must not appear in the anonymous interface.
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        protected_routes = (
+            "core:home",
+            "core:about",
+            "core:contact",
+            "projects:project_list",
+            "projects:project_create",
+            "projects:analytics",
+            "projects:schedule",
+            "catalog_management:dashboard",
+        )
+
+        for route in protected_routes:
+            with self.subTest(route=route):
+                self.assertNotContains(
+                    response,
+                    f'href="{reverse(route)}"'
+                )
+
+class CategoryHierarchyVisibilityTests(TestCase):
+    """
+    Verify that inactive category ancestors prevent
+    public access and purchasing of descendant services.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create a regular user for cart and checkout tests.
+        cls.user = get_user_model().objects.create_user(
+            username="hierarchy_visibility_test",
+            password="TestPassword123!"
+        )
+
+        # Create a three-level active category hierarchy.
+        cls.root = Category.objects.create(
+            name="Career Development",
+            slug="career-development",
+            is_active=True
+        )
+
+        cls.parent = Category.objects.create(
+            name="Professional Preparation",
+            slug="professional-preparation",
+            parent=cls.root,
+            is_active=True
+        )
+
+        cls.child = Category.objects.create(
+            name="Interview Preparation",
+            slug="interview-preparation",
+            parent=cls.parent,
+            is_active=True
+        )
+
+        cls.item = CatalogItem.objects.create(
+            name="Mock Interview Workshop",
+            slug="mock-interview-workshop",
+            description="Professional interview coaching.",
+            category=cls.child,
+            image="catalog/items/hierarchy-test.png",
+            price=Decimal("15.00"),
+            delivery_format="in_person",
+            is_active=True,
+            is_available=True
+        )
+
+    def deactivate_category(self, category):
+        """Simulate an administrator deactivating a category."""
+
+        category.is_active = False
+        category.save(update_fields=["is_active"])
+
+    def add_item_to_cart(self):
+        """Add the available service through the real endpoint."""
+
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": self.item.slug}
+            )
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(
+            self.client.session.get("catalog_cart"),
+            {str(self.item.pk): 1}
+        )
+
+    def test_active_hierarchy_is_publicly_visible(self):
+        # Services in completely active hierarchies remain visible.
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.item.name)
+
+        self.assertEqual(
+            response.context["total_items"],
+            1
+        )
+
+        detail_response = self.client.get(
+            reverse(
+                "catalog:detail",
+                kwargs={"slug": self.item.slug}
+            )
+        )
+
+        self.assertEqual(detail_response.status_code, 200)
+
+    def test_inactive_parent_hides_descendant_service(self):
+        # An inactive immediate parent must hide its descendants.
+        self.deactivate_category(self.parent)
+
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.item.name)
+        self.assertEqual(response.context["total_items"], 0)
+
+        self.assertNotIn(
+            self.child.pk,
+            response.context["categories"].values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+    def test_inactive_grandparent_hides_descendant_service(self):
+        # Visibility restrictions must apply beyond one level.
+        self.deactivate_category(self.root)
+
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.item.name)
+        self.assertEqual(response.context["total_items"], 0)
+
+        visible_ids = set(
+            response.context["categories"].values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        self.assertNotIn(self.root.pk, visible_ids)
+        self.assertNotIn(self.parent.pk, visible_ids)
+        self.assertNotIn(self.child.pk, visible_ids)
+
+    def test_search_cannot_expose_hidden_service(self):
+        # Search and direct category filters cannot bypass visibility.
+        self.deactivate_category(self.root)
+
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={
+                "q": "Mock Interview",
+                "category": self.child.slug
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.item.name)
+        self.assertEqual(response.context["total_items"], 0)
+
+    def test_direct_detail_access_rejects_hidden_service(self):
+        # Knowing the item's URL must not bypass visibility rules.
+        self.deactivate_category(self.root)
+
+        url = reverse(
+            "catalog:detail",
+            kwargs={"slug": self.item.slug}
+        )
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+        self.client.force_login(self.user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_hidden_service_cannot_be_added_to_cart(self):
+        # Direct POST requests must not add hidden services.
+        self.client.force_login(self.user)
+        self.deactivate_category(self.root)
+
+        response = self.client.post(
+            reverse(
+                "catalog:add_to_cart",
+                kwargs={"slug": self.item.slug}
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(
+            self.client.session.get("catalog_cart", {}),
+            {}
+        )
+
+    def test_existing_cart_marks_hidden_service_unavailable(self):
+        # Previously added services remain removable but unavailable.
+        self.add_item_to_cart()
+        self.deactivate_category(self.root)
+
+        response = self.client.get(reverse("catalog:cart"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["has_unavailable_items"])
+        self.assertEqual(len(response.context["cart_lines"]), 1)
+
+        self.assertFalse(
+            response.context["cart_lines"][0]["can_checkout"]
+        )
+
+    def test_hidden_service_quantity_cannot_be_updated(self):
+        # Quantity modifications must respect category visibility.
+        self.add_item_to_cart()
+        self.deactivate_category(self.root)
+
+        response = self.client.post(
+            reverse(
+                "catalog:update_cart_quantity",
+                kwargs={"slug": self.item.slug}
+            ),
+            data={"quantity": "3"}
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+        self.assertEqual(
+            self.client.session.get("catalog_cart"),
+            {str(self.item.pk): 1}
+        )
+
+    def test_hidden_service_can_still_be_removed_from_cart(self):
+        # Users must be able to remove services that become hidden.
+        self.add_item_to_cart()
+        self.deactivate_category(self.root)
+
+        response = self.client.post(
+            reverse(
+                "catalog:remove_from_cart",
+                kwargs={"slug": self.item.slug}
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:cart")
+        )
+
+        self.assertEqual(
+            self.client.session.get("catalog_cart", {}),
+            {}
+        )
+
+    def test_checkout_rejects_hidden_service_and_preserves_cart(self):
+        # Direct checkout must fail without creating an order.
+        from .models import Order, OrderItem
+
+        self.add_item_to_cart()
+        self.deactivate_category(self.root)
+
+        response = self.client.post(
+            reverse("catalog:place_order")
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:cart")
+        )
+
+        self.assertFalse(Order.objects.exists())
+        self.assertFalse(OrderItem.objects.exists())
+
+        self.assertEqual(
+            self.client.session.get("catalog_cart"),
+            {str(self.item.pk): 1}
+        )
+
+    def test_reactivated_hierarchy_restores_service_visibility(self):
+        # Restoring the complete hierarchy restores public access.
+        self.deactivate_category(self.root)
+
+        response = self.client.get(reverse("catalog:list"))
+        self.assertEqual(response.context["total_items"], 0)
+
+        self.root.is_active = True
+        self.root.save(update_fields=["is_active"])
+
+        response = self.client.get(reverse("catalog:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_items"], 1)
+        self.assertContains(response, self.item.name)
+
+class AdvancedCatalogFilteringTests(TestCase):
+    """
+    Verify advanced catalogue filtering, hierarchical
+    browsing, validation, and pagination.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create parent, child and unrelated categories.
+        cls.parent = Category.objects.create(
+            name="Career Development",
+            slug="career-development"
+        )
+
+        cls.child = Category.objects.create(
+            name="CV Preparation",
+            slug="cv-preparation",
+            parent=cls.parent
+        )
+
+        cls.other = Category.objects.create(
+            name="Networking Events",
+            slug="networking-events"
+        )
+
+        # Create services with different prices and formats.
+        cls.free_item = CatalogItem.objects.create(
+            name="CV Writing Workshop",
+            slug="cv-writing-workshop",
+            description="Professional CV preparation.",
+            category=cls.child,
+            image="catalog/items/free-test.png",
+            price=Decimal("0.00"),
+            delivery_format="in_person"
+        )
+
+        cls.online_item = CatalogItem.objects.create(
+            name="Online CV Review",
+            slug="online-cv-review",
+            description="Personalized CV feedback.",
+            category=cls.child,
+            image="catalog/items/online-test.png",
+            price=Decimal("20.00"),
+            delivery_format="online"
+        )
+
+        cls.hybrid_item = CatalogItem.objects.create(
+            name="Career Coaching Programme",
+            slug="career-coaching-programme",
+            description="Professional career guidance.",
+            category=cls.parent,
+            image="catalog/items/hybrid-test.png",
+            price=Decimal("50.00"),
+            delivery_format="hybrid"
+        )
+
+        cls.other_item = CatalogItem.objects.create(
+            name="Employer Networking Event",
+            slug="employer-networking-event",
+            description="Meet prospective employers.",
+            category=cls.other,
+            image="catalog/items/networking-test.png",
+            price=Decimal("20.00"),
+            delivery_format="online"
+        )
+
+    def assert_filtered_items(self, filters, expected_items):
+        """Verify the exact services returned by a filter."""
+
+        response = self.client.get(
+            reverse("catalog:list"),
+            data=filters
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.context["total_items"],
+            len(expected_items)
+        )
+
+        actual_ids = {
+            item.pk for item in response.context["items"]
+        }
+
+        expected_ids = {
+            item.pk for item in expected_items
+        }
+
+        self.assertEqual(actual_ids, expected_ids)
+
+        return response
+
+    def test_minimum_price_filter_is_inclusive(self):
+        # Services matching the minimum boundary are included.
+        self.assert_filtered_items(
+            {"min_price": "20.00"},
+            [
+                self.online_item,
+                self.hybrid_item,
+                self.other_item
+            ]
+        )
+
+    def test_maximum_price_filter_is_inclusive(self):
+        # Services matching the maximum boundary are included.
+        self.assert_filtered_items(
+            {"max_price": "20.00"},
+            [
+                self.free_item,
+                self.online_item,
+                self.other_item
+            ]
+        )
+
+    def test_zero_price_range_returns_free_services(self):
+        # Zero must not be interpreted as an empty filter.
+        self.assert_filtered_items(
+            {
+                "min_price": "0",
+                "max_price": "0"
+            },
+            [self.free_item]
+        )
+
+    def test_delivery_format_filtering(self):
+        # Every supported delivery format must work.
+        scenarios = (
+            ("in_person", [self.free_item]),
+            ("online", [self.online_item, self.other_item]),
+            ("hybrid", [self.hybrid_item]),
+        )
+
+        for delivery_format, expected in scenarios:
+            with self.subTest(delivery_format=delivery_format):
+                self.assert_filtered_items(
+                    {"delivery_format": delivery_format},
+                    expected
+                )
+
+    def test_parent_category_includes_descendants(self):
+        # Parent filtering includes its visible subcategories.
+        self.assert_filtered_items(
+            {"category": self.parent.slug},
+            [
+                self.free_item,
+                self.online_item,
+                self.hybrid_item
+            ]
+        )
+
+    def test_subcategory_excludes_unrelated_services(self):
+        # A child category must not include parent or sibling items.
+        self.assert_filtered_items(
+            {"category": self.child.slug},
+            [self.free_item, self.online_item]
+        )
+
+    def test_all_advanced_filters_can_be_combined(self):
+        # Every submitted filter must constrain the results.
+        self.assert_filtered_items(
+            {
+                "q": "CV",
+                "category": self.parent.slug,
+                "min_price": "10.00",
+                "max_price": "30.00",
+                "delivery_format": "online"
+            },
+            [self.online_item]
+        )
+
+    def test_invalid_price_range_displays_validation_error(self):
+        # Reversed price boundaries must be rejected.
+        response = self.assert_filtered_items(
+            {
+                "min_price": "100",
+                "max_price": "20"
+            },
+            []
+        )
+
+        self.assertIn(
+            "max_price",
+            response.context["filter_form"].errors
+        )
+
+        self.assertContains(
+            response,
+            "Check your search filters"
+        )
+
+        self.assertContains(
+            response,
+            "Maximum price must be greater than "
+            "or equal to minimum price."
+        )
+
+    def test_invalid_filter_values_are_rejected(self):
+        # Invalid GET parameters must never broaden results.
+        scenarios = (
+            {"min_price": "-10"},
+            {"max_price": "abc"},
+            {"max_price": "10.999"},
+            {"min_price": "1000000"},
+            {"delivery_format": "unsupported"},
+            {"min_price": "NaN"},
+            {"max_price": "Infinity"},
+        )
+
+        for filters in scenarios:
+            with self.subTest(filters=filters):
+                response = self.assert_filtered_items(
+                    filters,
+                    []
+                )
+
+                self.assertFalse(
+                    response.context["filter_form"].is_valid()
+                )
+
+                self.assertContains(
+                    response,
+                    "Check your search filters"
+                )
+
+    def test_valid_filters_without_matches_show_correct_state(self):
+        # A filtered empty state differs from an empty catalogue.
+        response = self.assert_filtered_items(
+            {"min_price": "100"},
+            []
+        )
+
+        self.assertContains(
+            response,
+            "No matching opportunities"
+        )
+
+        self.assertContains(
+            response,
+            "Clear All Filters"
+        )
+
+        self.assertNotContains(
+            response,
+            "New opportunities are on the way"
+        )
+
+    def test_empty_catalogue_shows_general_empty_state(self):
+        # No available services should display the general message.
+        CatalogItem.objects.update(is_available=False)
+
+        response = self.assert_filtered_items({}, [])
+
+        self.assertContains(
+            response,
+            "New opportunities are on the way"
+        )
+
+        self.assertNotContains(
+            response,
+            "No matching opportunities"
+        )
+
+    def test_pagination_preserves_all_advanced_filters(self):
+        # Create enough matching services for multiple pages.
+        for index in range(10):
+            CatalogItem.objects.create(
+                name=f"CV & career workshop {index:02d}",
+                slug=f"pagination-workshop-{index}",
+                description="Career preparation.",
+                category=self.child,
+                image="catalog/items/pagination-test.png",
+                price=Decimal("0.00"),
+                delivery_format="online"
+            )
+
+        filters = {
+            "q": "CV & career",
+            "category": self.parent.slug,
+            "min_price": "0.00",
+            "max_price": "0.00",
+            "delivery_format": "online"
+        }
+
+        expected_query = (
+            "q=CV+%26+career"
+            "&amp;category=career-development"
+            "&amp;min_price=0.00"
+            "&amp;max_price=0.00"
+            "&amp;delivery_format=online"
+        )
+
+        # Verify the first page and its Next link.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data=filters
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_items"], 10)
+        self.assertEqual(len(response.context["items"]), 9)
+
+        self.assertContains(
+            response,
+            f"?page=2&amp;{expected_query}"
+        )
+
+        # Verify the second page and its Previous link.
+        response = self.client.get(
+            reverse("catalog:list"),
+            data={**filters, "page": "2"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_items"], 10)
+        self.assertEqual(response.context["page_obj"].number, 2)
+        self.assertEqual(len(response.context["items"]), 1)
+
+        self.assertContains(
+            response,
+            "CV &amp; career workshop 09"
+        )
+
+        self.assertContains(
+            response,
+            f"?page=1&amp;{expected_query}"
+        )

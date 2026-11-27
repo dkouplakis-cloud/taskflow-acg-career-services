@@ -87,9 +87,9 @@
             <div class="brand">
 
                 <a
-                    href="{% url 'core:home' %}"
+                    href="{% if can_access_workspace %}{% url 'core:home' %}{% else %}{% url 'catalog:list' %}{% endif %}"
                     class="brand-link"
-                    aria-label="TaskFlow - My Projects"
+                    aria-label="TaskFlow - ACG Career Services"
                 >
 
                     <span class="brand-name">
@@ -117,7 +117,6 @@
                 separately to ensure the menu works.
             -->
 
-            {% if user.is_authenticated %}
             <button
                 class="menu-toggle"
                 type="button"
@@ -143,21 +142,21 @@
                 aria-label="Main navigation"
             >
 
-            <!--
-                Home navigation.
+            {% if user.is_authenticated %}
 
-                Available to both guests and authenticated users.
-                Uses Django's named URL instead of the original
-                midterm index.html address.
-            -->
-            <a
-                href="{% url 'core:home' %}"
-                {% if request.resolver_match.view_name == 'core:home' %}
-                    aria-current="page"
+                <!-- Home is restricted to authorized workspace members. -->
+                {% if can_access_workspace %}
+
+                    <a
+                        href="{% url 'core:home' %}"
+                        {% if request.resolver_match.view_name == 'core:home' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Home
+                    </a>
+
                 {% endif %}
-            >
-                Home
-            </a>
 
             <!-- About: original Career Services page. -->
             <a
@@ -178,6 +177,7 @@
             >
                 Contact
             </a>
+        {% endif %}
 
             <!-- User-facing Career Services Catalogue -->
             <a
@@ -201,6 +201,16 @@
                         {% endif %}
                     >
                         My Projects
+                    </a>
+
+                    <!-- Calendar for authorized workspace members. -->
+                    <a
+                        href="{% url 'projects:schedule' %}"
+                        {% if request.resolver_match.view_name == 'projects:schedule' %}
+                            aria-current="page"
+                        {% endif %}
+                    >
+                        Schedule
                     </a>
 
                     <!-- Authorized workspace analytics -->
@@ -238,12 +248,19 @@
                     Sign In
                 </a>
 
+                <!-- Public student registration. -->
+                <a
+                    href="{% url 'student_register' %}"
+                    {% if request.resolver_match.view_name == 'student_register' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Register
+                </a>
+
             {% endif %}
 
             </nav>
-
-        {% endif %}
-
 
 
             <!-- ==================================

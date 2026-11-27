@@ -22,6 +22,7 @@ from .cart import (
     save_cart,
 )
 from .models import CatalogItem
+from .visibility import get_visible_category_ids
 
 
 @login_required
@@ -32,12 +33,13 @@ def add_to_cart(request, slug):
     authenticated user's session cart.
     """
 
+    # Prevent hidden services from being added directly.
     item = get_object_or_404(
         CatalogItem,
         slug=slug,
         is_active=True,
         is_available=True,
-        category__is_active=True,
+        category_id__in=get_visible_category_ids(),
     )
 
     cart = load_cart(request)
@@ -85,6 +87,9 @@ def cart_detail(request):
 
     cart = load_cart(request)
 
+    # Retrieve categories belonging to active hierarchies.
+    visible_category_ids = get_visible_category_ids()
+
     # Retrieve all existing cart items, including
     # services that have become unavailable.
     items = (
@@ -107,11 +112,12 @@ def cart_detail(request):
         quantity = cart[str(item.pk)]
         subtotal = item.price * quantity
 
-        # Check whether this service can be ordered.
+        # Check service availability and its complete
+        # category hierarchy before allowing checkout.
         can_checkout = (
             item.is_active
             and item.is_available
-            and item.category.is_active
+            and item.category_id in visible_category_ids
         )
 
         if not can_checkout:
@@ -163,12 +169,13 @@ def update_cart_quantity(request, slug):
     maximum are accepted.
     """
 
+    # Prevent quantity updates for hidden services.
     item = get_object_or_404(
         CatalogItem,
         slug=slug,
         is_active=True,
         is_available=True,
-        category__is_active=True,
+        category_id__in=get_visible_category_ids(),
     )
 
     cart = load_cart(request)

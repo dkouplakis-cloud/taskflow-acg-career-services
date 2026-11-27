@@ -748,9 +748,11 @@
    ========================================================== */
 
 .tf-public-catalog .tf-catalog-search {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 22px;
 
     margin-bottom: 32px;
     padding: 24px 28px;
@@ -763,7 +765,6 @@
 
 /* Search input container */
 .tf-public-catalog .tf-catalog-search__field {
-    flex: 1;
     min-width: 0;
 }
 
@@ -821,9 +822,11 @@
 /* Search and Clear buttons */
 .tf-public-catalog .tf-catalog-search__actions {
     display: flex;
+    grid-column: 1 / -1;
     align-items: center;
+    justify-content: flex-end;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .tf-public-catalog .tf-catalog-search__submit,
@@ -878,15 +881,9 @@
 /* Tablet and mobile layouts */
 @media (max-width: 767.98px) {
     .tf-public-catalog .tf-catalog-search {
-        flex-direction: column;
-        align-items: stretch;
-
+        grid-template-columns: minmax(0, 1fr);
         padding: 20px;
         gap: 18px;
-    }
-
-    .tf-public-catalog .tf-catalog-search__field {
-        width: 100%;
     }
 
     .tf-public-catalog .tf-catalog-search__actions {
@@ -915,10 +912,8 @@
    Professional, responsive dropdown styling.
    ========================================================== */
 
-/* Category field container */
 .tf-public-catalog .tf-catalog-search__category {
-    flex: 0 1 250px;
-    min-width: 180px;
+    min-width: 0;
 }
 
 /* Category dropdown */
@@ -981,15 +976,6 @@
     color-scheme: dark;
 }
 
-/* Tablet and mobile */
-@media (max-width: 767.98px) {
-    .tf-public-catalog .tf-catalog-search__category {
-        flex: 1 1 auto;
-        width: 100%;
-        min-width: 0;
-    }
-}
-
 /* Very narrow screens */
 @media (max-width: 400px) {
     .tf-public-catalog .tf-catalog-search__select {
@@ -1039,4 +1025,186 @@
     .tf-public-catalog .tf-catalog-card__link {
         transition: none;
     }
+}
+
+/* ==========================================================
+   ADVANCED CATALOGUE FILTERS
+   Responsive controls and accessible validation feedback.
+   ========================================================== */
+
+.tf-public-catalog .tf-catalog-filters {
+    grid-column: 1 / -1;
+    min-width: 0;
+
+    margin: 0;
+    padding: 20px;
+
+    background: var(--catalog-surface-soft);
+    border: 1px solid var(--catalog-border);
+    border-radius: 12px;
+}
+
+/* Advanced filtering section heading */
+.tf-public-catalog .tf-catalog-filters__heading {
+    float: left;
+    width: 100%;
+
+    margin: 0 0 6px;
+    padding: 0;
+
+    color: var(--catalog-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+/* Supporting text beneath the filter heading */
+.tf-public-catalog .tf-catalog-filters__description {
+    clear: both;
+
+    margin: 0 0 22px;
+
+    color: var(--catalog-muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+/* Equal-width controls on larger screens */
+.tf-public-catalog .tf-catalog-filters__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 18px;
+}
+
+.tf-public-catalog .tf-catalog-filters__field {
+    min-width: 0;
+}
+
+/* Separate controls visually from their surrounding panel */
+.tf-public-catalog .tf-catalog-filters__field
+.tf-catalog-search__input,
+.tf-public-catalog .tf-catalog-filters__field
+.tf-catalog-search__select {
+    background-color: var(--catalog-surface);
+}
+
+/* Server-side validation feedback */
+.tf-public-catalog .tf-catalog-filters__errors {
+    margin: 10px 0 0;
+    padding: 0;
+
+    color: #b42318;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.5;
+
+    list-style: none;
+    overflow-wrap: anywhere;
+}
+
+.tf-public-catalog .tf-catalog-filters__field
+[aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+/* Maintain readable validation feedback in dark mode */
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) .tf-catalog-filters__errors {
+    color: #fda4af;
+}
+
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) .tf-catalog-filters__field [aria-invalid="true"] {
+    border-color: #fda4af;
+}
+
+/* Stack advanced controls on smaller screens */
+@media (max-width: 767.98px) {
+    .tf-public-catalog .tf-catalog-filters {
+        padding: 16px;
+    }
+
+    .tf-public-catalog .tf-catalog-filters__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Improve filter control contrast in light mode. */
+[data-theme="light"] .tf-public-catalog .tf-catalog-search__input,
+[data-theme="light"] .tf-public-catalog .tf-catalog-search__select {
+    background-color: #ffffff;
+    border: 1px solid #94a3b8;
+    color: #172033;
+}
+
+/* Provide clearer separation for the advanced filters panel. */
+[data-theme="light"] .tf-public-catalog .tf-catalog-filters {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* Improve placeholder readability. */
+[data-theme="light"] .tf-public-catalog
+.tf-catalog-search__input::placeholder {
+    color: #64748b;
+}
+
+/* Establish a clear secondary button hierarchy. */
+[data-theme="light"] .tf-public-catalog
+.tf-catalog-search__clear {
+    background-color: #ffffff;
+    border: 1px solid #94a3b8;
+    color: #334155;
+}
+
+[data-theme="light"] .tf-public-catalog
+.tf-catalog-search__clear:hover {
+    background-color: #e2e8f0;
+    border-color: #64748b;
+    color: #0f172a;
+}
+
+/* ==========================================================
+   CATALOGUE EMPTY STATES AND VALIDATION
+   ========================================================== */
+
+/* Provide a direct recovery action when no results match. */
+.tf-public-catalog .tf-catalog-empty__action {
+    margin-top: 24px;
+}
+
+/* Highlight invalid fields after theme-specific styling. */
+.tf-public-catalog .tf-catalog-filters__field
+[aria-invalid="true"],
+[data-theme="light"] .tf-public-catalog
+.tf-catalog-filters__field [aria-invalid="true"] {
+    border-color: #b42318;
+}
+
+.tf-public-catalog .tf-catalog-filters__field
+[aria-invalid="true"]:focus {
+    border-color: #b42318;
+    box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.15);
+}
+
+/* Maintain readable invalid field indicators in dark mode. */
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) .tf-catalog-filters__field [aria-invalid="true"] {
+    border-color: #fda4af;
+}
+
+:is(
+    [data-theme="dark"] .tf-public-catalog,
+    .tf-public-catalog[data-theme="dark"]
+) .tf-catalog-filters__field [aria-invalid="true"]:focus {
+    border-color: #fda4af;
+    box-shadow: 0 0 0 3px rgba(253, 164, 175, 0.15);
 }

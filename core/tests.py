@@ -4,7 +4,11 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import resolve_url
 from django.test import RequestFactory
+from datetime import timedelta
 
+from django.utils import timezone
+from projects.models import Project, ProjectAccess
+from tasks.models import Task
 from django.urls import reverse
 from .permissions import role_required
 from django.contrib.auth import get_user_model
@@ -2314,3 +2318,418 @@ class StudentRegistrationTests(TestCase):
         # Internal workspace access must remain forbidden.
         response = self.client.get("/projects/")
         self.assertEqual(response.status_code, 403)
+
+class HomeWorkspaceAuthorizationTests(TestCase):
+    """
+    Verify that the Home dashboard respects workspace
+    membership and project-level authorization.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        User = get_user_model()
+
+        # Create the authorized workspace groups.
+        cls.staff_group, _ = Group.objects.get_or_create(
+            name="Career Services Staff"
+        )
+
+        cls.faculty_group, _ = Group.objects.get_or_create(
+            name="Authorized Faculty"
+        )
+
+        cls.assistant_group, _ = Group.objects.get_or_create(
+            name="Career Services Student Assistants"
+        )
+
+        # Create accounts representing different access levels.
+        cls.staff = User.objects.create_user(
+            username="home_staff_test"
+        )
+
+        cls.faculty = User.objects.create_user(
+            username="home_faculty_test"
+        )
+
+        cls.assistant = User.objects.create_user(
+            username="home_assistant_test"
+        )
+
+        cls.student = User.objects.create_user(
+            username="home_student_test"
+        )
+
+        cls.admin = User.objects.create_user(
+            username="home_admin_test"
+        )
+
+        # Assign explicit workspace membership.
+        cls.staff.groups.add(cls.staff_group)
+        cls.faculty.groups.add(cls.faculty_group)
+        cls.assistant.groups.add(cls.assistant_group)
+
+        # Administrator status alone must not grant
+        # access to confidential workspace information.
+        cls.admin.profile.role = UserProfile.Role.ADMIN
+        cls.admin.profile.save(update_fields=["role"])
+
+        today = timezone.localdate()
+
+        # Create a project accessible to scoped members.
+        cls.visible_project = Project.objects.create(
+            owner=cls.staff,
+            name="Authorized Career Project",
+            status=Project.Status.ACTIVE,
+            deadline=today + timedelta(days=4)
+        )
+
+        # Previous ownership must not replace an explicit grant.
+        cls.hidden_project = Project.objects.create(
+            owner=cls.assistant,
+            name="Confidential Internal Project",
+            status=Project.Status.ACTIVE,
+            deadline=today - timedelta(days=1)
+        )
+
+        # Grant access to only the authorized project.
+        ProjectAccess.objects.create(
+            project=cls.visible_project,
+            user=cls.faculty,
+            access_level=ProjectAccess.AccessLevel.VIEWER
+        )
+
+        ProjectAccess.objects.create(
+            project=cls.visible_project,
+            user=cls.assistant,
+            access_level=ProjectAccess.AccessLevel.CONTRIBUTOR
+        )
+
+        # Create tasks across both projects.
+        cls.visible_task = Task.objects.create(
+            project=cls.visible_project,
+            name="Authorized Career Task",
+            due_date=today + timedelta(days=1)
+        )
+
+        cls.visible_overdue_task = Task.objects.create(
+            project=cls.visible_project,
+            name="Authorized Overdue Task",
+            due_date=today - timedelta(days=1)
+        )
+
+        cls.hidden_task = Task.objects.create(
+            project=cls.hidden_project,
+            name="Confidential Internal Task",
+            due_date=today
+        )
+
+        cls.hidden_overdue_task = Task.objects.create(
+            project=cls.hidden_project,
+            name="Confidential Overdue Task",
+            due_date=today - timedelta(days=2)
+        )
+
+    def test_anonymous_user_cannot_access_home(self):
+        # Home must remain protected by authentication.
+        url = reverse("core:home")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(
+            response,
+            f"{resolve_url(settings.LOGIN_URL)}?next={url}",
+            fetch_redirect_response=False
+        )
+
+    def test_regular_student_cannot_access_home_even_if_owner(self):
+        # Simulate ownership remaining after authorization changes.
+        self.hidden_project.owner = self.student
+        self.hidden_project.save(update_fields=["owner"])
+
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+    def test_administrator_without_membership_cannot_access_home(self):
+        # Administrative roles and workspace membership are separate.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+    def test_staff_can_view_all_workspace_projects(self):
+        # Career Services staff have office-wide visibility.
+        self.client.force_login(self.staff)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_projects"], 2)
+        self.assertEqual(response.context["active_projects"], 2)
+        self.assertEqual(response.context["total_tasks"], 4)
+
+        self.assertContains(response, self.visible_task.name)
+        self.assertContains(response, self.hidden_task.name)
+
+    def test_scoped_members_only_see_explicitly_granted_projects(self):
+        # Faculty and assistants must receive only assigned data.
+        for user in (self.faculty, self.assistant):
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+
+                response = self.client.get(reverse("core:home"))
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context["total_projects"], 1)
+                self.assertEqual(response.context["active_projects"], 1)
+                self.assertEqual(response.context["total_tasks"], 2)
+
+                self.assertEqual(
+                    response.context["featured_project"],
+                    self.visible_project
+                )
+
+                self.assertEqual(
+                    response.context["featured_project_task_count"],
+                    2
+                )
+
+                self.assertEqual(
+                    {
+                        task.pk
+                        for task in response.context["recent_tasks"]
+                    },
+                    {
+                        self.visible_task.pk,
+                        self.visible_overdue_task.pk
+                    }
+                )
+
+                self.assertEqual(
+                    list(response.context["upcoming_task_deadlines"]),
+                    [self.visible_task]
+                )
+
+                self.assertEqual(
+                    list(response.context["overdue_tasks"]),
+                    [self.visible_overdue_task]
+                )
+
+                self.assertEqual(
+                    list(response.context["upcoming_project_deadlines"]),
+                    [self.visible_project]
+                )
+
+                self.assertEqual(
+                    list(response.context["overdue_projects"]),
+                    []
+                )
+
+                self.assertEqual(
+                    response.context["next_deadline"]["project"],
+                    self.visible_project
+                )
+
+                self.assertContains(
+                    response,
+                    self.visible_project.name
+                )
+
+                self.assertNotContains(
+                    response,
+                    self.hidden_project.name
+                )
+
+                self.assertNotContains(
+                    response,
+                    self.hidden_task.name
+                )
+
+                self.assertNotContains(
+                    response,
+                    self.hidden_overdue_task.name
+                )
+
+    def test_revoked_membership_blocks_home_immediately(self):
+        # A previous project grant must not override revoked
+        # workspace membership during an authenticated session.
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(reverse("core:home"))
+        self.assertEqual(response.status_code, 200)
+
+        self.assistant.groups.remove(self.assistant_group)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertRedirects(
+            response,
+            reverse("catalog:list"),
+            fetch_redirect_response=False
+        )
+
+    def test_revoked_project_grant_removes_dashboard_data(self):
+        # Workspace membership alone does not grant project access.
+        self.client.force_login(self.assistant)
+
+        response = self.client.get(reverse("core:home"))
+        self.assertEqual(response.context["total_projects"], 1)
+
+        ProjectAccess.objects.filter(
+            project=self.visible_project,
+            user=self.assistant
+        ).delete()
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_projects"], 0)
+        self.assertEqual(response.context["total_tasks"], 0)
+        self.assertIsNone(response.context["featured_project"])
+        self.assertIsNone(response.context["next_deadline"])
+
+        self.assertEqual(
+            list(response.context["recent_tasks"]),
+            []
+        )
+
+        self.assertNotContains(
+            response,
+            self.visible_project.name
+        )
+
+        self.assertNotContains(
+            response,
+            self.hidden_project.name
+        )
+
+    def test_navigation_respects_workspace_membership(self):
+        # Home and Schedule links must reflect authorization.
+        scenarios = (
+            (self.staff, True),
+            (self.faculty, True),
+            (self.assistant, True),
+            (self.student, False),
+            (self.admin, False),
+        )
+
+        routes = (
+            "core:home",
+            "projects:project_list",
+            "projects:schedule",
+            "projects:analytics",
+        )
+
+        for user, authorized in scenarios:
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+
+                response = self.client.get(
+                    reverse("catalog:list")
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                for route in routes:
+                    link = f'href="{reverse(route)}"'
+
+                    if authorized:
+                        self.assertContains(response, link)
+                    else:
+                        self.assertNotContains(response, link)
+
+    def test_staff_empty_state_allows_project_creation(self):
+        # Remove projects from the isolated test database.
+        Project.objects.all().delete()
+
+        self.client.force_login(self.staff)
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_projects"], 0)
+        self.assertEqual(response.context["total_tasks"], 0)
+
+        self.assertContains(
+            response,
+            "Your next project starts here."
+        )
+
+        self.assertContains(
+            response,
+            "Create a project"
+        )
+
+        self.assertContains(
+            response,
+            f'href="{reverse("projects:project_create")}"'
+        )
+
+        self.assertNotContains(
+            response,
+            "No assigned projects yet."
+        )
+
+    def test_scoped_empty_state_hides_project_creation(self):
+        # Remove explicit project grants while preserving
+        # faculty and student assistant workspace membership.
+        ProjectAccess.objects.filter(
+            user__in=[self.faculty, self.assistant]
+        ).delete()
+
+        for user in (self.faculty, self.assistant):
+            with self.subTest(username=user.username):
+                self.client.force_login(user)
+
+                response = self.client.get(
+                    reverse("core:home")
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response.context["total_projects"], 0
+                )
+                self.assertEqual(
+                    response.context["total_tasks"], 0
+                )
+
+                self.assertContains(
+                    response,
+                    "No assigned projects yet."
+                )
+
+                self.assertContains(
+                    response,
+                    "View My Projects"
+                )
+
+                self.assertContains(
+                    response,
+                    f'href="{reverse("projects:project_list")}"'
+                )
+
+                self.assertNotContains(
+                    response,
+                    f'href="{reverse("projects:project_create")}"'
+                )
+
+                self.assertNotContains(
+                    response,
+                    "Create a project"
+                )
+
+                self.assertNotContains(
+                    response,
+                    self.hidden_project.name
+                )
