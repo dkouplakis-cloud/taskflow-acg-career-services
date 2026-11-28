@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import resolve_url
 from django.test import RequestFactory
 from datetime import timedelta
-
+from django.test import TransactionTestCase
 from django.utils import timezone
 from projects.models import Project, ProjectAccess
 from tasks.models import Task
@@ -3964,6 +3964,1148 @@ class UserManagementAccessTests(TestCase):
         self.assertIsNone(registration.reviewed_by)
         self.assertIsNone(registration.reviewed_at)
 
+    def assert_identity_contention_handled(
+        self,
+        *,
+        url,
+        data,
+        redirect_url,
+        expected_message
+    ):
+        """
+        Simulate database lock acquisition failure
+        and verify controlled application feedback.
+
+        No account or registration information may
+        change when the transaction cannot proceed.
+        """
+
+        from unittest.mock import patch
+
+        from django.contrib.messages import get_messages
+        from django.db import OperationalError
+
+        from .models import (
+            AccountIdentityLock,
+            StudentRegistrationRequest,
+        )
+
+        User = get_user_model()
+
+        # Capture the database state before submission.
+        original_user_count = User.objects.count()
+
+        original_registrations = list(
+            StudentRegistrationRequest.objects
+            .order_by("pk")
+            .values()
+        )
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        # Simulate contention during acquisition of
+        # the shared account identity lock.
+        with patch(
+            "core.account_identity."
+            "AccountIdentityLock.objects.filter",
+            side_effect=OperationalError(
+                "database is locked"
+            )
+        ) as lock_query:
+
+            response = self.client.post(
+                url,
+                data=data
+            )
+
+        lock_query.assert_called_once_with(pk=1)
+
+        # Verify that the request fails gracefully.
+        self.assertRedirects(
+            response,
+            redirect_url,
+            fetch_redirect_response=False
+        )
+
+        feedback = [
+            str(message)
+            for message in get_messages(
+                response.wsgi_request
+            )
+        ]
+
+        self.assertTrue(
+            any(
+                expected_message in message
+                for message in feedback
+            )
+        )
+
+        # Internal database errors must not be disclosed.
+        self.assertFalse(
+            any(
+                "database is locked" in message.lower()
+                for message in feedback
+            )
+        )
+
+        # Verify that no account data was created.
+        self.assertEqual(
+            User.objects.count(),
+            original_user_count
+        )
+
+        # Existing registration records must be preserved.
+        self.assertEqual(
+            list(
+                StudentRegistrationRequest.objects
+                .order_by("pk")
+                .values()
+            ),
+            original_registrations
+        )
+
+        # The failed operation must not change the revision.
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
+        return response
+
+    def test_admin_creation_handles_database_contention(self):
+        # Administrators must receive controlled feedback
+        # when the account creation lock is unavailable.
+        self.client.force_login(self.admin)
+
+        url = reverse("user_management:user_create")
+
+        self.assert_identity_contention_handled(
+            url=url,
+            data=self.get_valid_creation_data(),
+            redirect_url=url,
+            expected_message=(
+                "Account creation is temporarily unavailable."
+            )
+        )
+
+    def test_student_registration_handles_database_contention(self):
+        # Public registration must fail safely when
+        # the shared synchronization lock is unavailable.
+        url = reverse("student_register")
+
+        self.assert_identity_contention_handled(
+            url=url,
+            data=self.get_valid_creation_data(),
+            redirect_url=url,
+            expected_message=(
+                "Student registration is temporarily unavailable."
+            )
+        )
+
+    def test_registration_approval_handles_database_contention(self):
+        # A failed approval must preserve the application
+        # and must not create a student account.
+        registration = self.create_registration_request()
+
+        self.client.force_login(self.admin)
+
+        self.assert_identity_contention_handled(
+            url=reverse(
+                "registration_management:request_approve",
+                kwargs={"pk": registration.pk}
+            ),
+            data={},
+            redirect_url=reverse(
+                "registration_management:request_list"
+            ),
+            expected_message=(
+                "Registration approval is temporarily unavailable."
+            )
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            "pending"
+        )
+
+    def test_registration_rejection_handles_database_contention(self):
+        # A failed rejection must not change the
+        # existing pending registration decision.
+        registration = self.create_registration_request()
+
+        self.client.force_login(self.admin)
+
+        self.assert_identity_contention_handled(
+            url=reverse(
+                "registration_management:request_reject",
+                kwargs={"pk": registration.pk}
+            ),
+            data={},
+            redirect_url=reverse(
+                "registration_management:request_list"
+            ),
+            expected_message=(
+                "Registration rejection is temporarily unavailable."
+            )
+        )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            "pending"
+        )
+
+    def get_valid_edit_data(self, **overrides):
+        """
+        Return valid account editing information
+        for administrative user management tests.
+        """
+
+        data = {
+            "username": "updated_directory_student",
+            "first_name": "Updated",
+            "last_name": "Student",
+            "email": "updated.student@example.com",
+        }
+
+        data.update(overrides)
+
+        return data
+
+    def get_account_snapshot(self, account):
+        """
+        Capture persisted account information to verify
+        that unsuccessful editing operations change nothing.
+        """
+
+        User = get_user_model()
+
+        return User.objects.filter(
+            pk=account.pk
+        ).values().get()
+
+    def test_admin_can_access_user_edit_form(self):
+        # Authorized administrators must receive
+        # a prepopulated account editing form.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(
+            response,
+            "user_management/user_edit.html"
+        )
+
+        form = response.context["form"]
+
+        self.assertEqual(
+            form.instance.pk,
+            self.student.pk
+        )
+
+        self.assertEqual(
+            form.initial["username"],
+            self.student.username
+        )
+
+        self.assertEqual(
+            form.initial["email"],
+            self.student.email
+        )
+
+        self.assertEqual(
+            set(form.fields),
+            {
+                "username",
+                "first_name",
+                "last_name",
+                "email",
+            }
+        )
+
+    def test_edit_button_visible_for_authorized_account(self):
+        # Prevent regressions in the view-to-template
+        # permission context and editing navigation.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            )
+        )
+
+        edit_url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(
+            response.context["can_edit_account"]
+        )
+
+        self.assertContains(
+            response,
+            f'href="{edit_url}"'
+        )
+
+    def test_anonymous_user_cannot_edit_accounts(self):
+        # Anonymous visitors must authenticate before
+        # accessing administrative account operations.
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post(
+            url,
+            self.get_valid_edit_data()
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(
+            self.get_account_snapshot(self.student),
+            original_account
+        )
+
+    def test_non_administrators_cannot_edit_accounts(self):
+        # Neither regular nor privileged application
+        # users may access administrative editing.
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        for actor in (self.student, self.power_user):
+
+            with self.subTest(actor=actor.username):
+
+                self.client.force_login(actor)
+
+                original_account = (
+                    self.get_account_snapshot(self.student)
+                )
+
+                response = self.client.get(url)
+
+                self.assertEqual(
+                    response.status_code,
+                    403
+                )
+
+                response = self.client.post(
+                    url,
+                    self.get_valid_edit_data()
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    403
+                )
+
+                self.assertEqual(
+                    self.get_account_snapshot(self.student),
+                    original_account
+                )
+
+    def test_application_admin_cannot_edit_protected_accounts(self):
+        # Ordinary application administrators cannot
+        # modify Django staff or superuser identities.
+        User = get_user_model()
+
+        User.objects.filter(
+            pk=self.admin.pk
+        ).update(
+            is_staff=False,
+            is_superuser=False
+        )
+
+        self.admin.refresh_from_db()
+
+        self.client.force_login(self.admin)
+
+        scenarios = (
+            (True, False),
+            (True, True),
+        )
+
+        for is_staff, is_superuser in scenarios:
+
+            with self.subTest(
+                is_staff=is_staff,
+                is_superuser=is_superuser
+            ):
+
+                User.objects.filter(
+                    pk=self.student.pk
+                ).update(
+                    is_staff=is_staff,
+                    is_superuser=is_superuser
+                )
+
+                original_account = (
+                    self.get_account_snapshot(self.student)
+                )
+
+                detail_url = reverse(
+                    "user_management:user_detail",
+                    kwargs={"pk": self.student.pk}
+                )
+
+                edit_url = reverse(
+                    "user_management:user_edit",
+                    kwargs={"pk": self.student.pk}
+                )
+
+                response = self.client.get(detail_url)
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+                self.assertFalse(
+                    response.context["can_edit_account"]
+                )
+
+                self.assertNotContains(
+                    response,
+                    f'href="{edit_url}"'
+                )
+
+                self.assertEqual(
+                    self.client.get(edit_url).status_code,
+                    403
+                )
+
+                self.assertEqual(
+                    self.client.post(
+                        edit_url,
+                        self.get_valid_edit_data()
+                    ).status_code,
+                    403
+                )
+
+                self.assertEqual(
+                    self.get_account_snapshot(self.student),
+                    original_account
+                )
+
+    def test_application_admin_cannot_edit_another_admin(self):
+        # Protect other administrator identities from
+        # ordinary application administrator accounts.
+        User = get_user_model()
+
+        User.objects.filter(
+            pk=self.admin.pk
+        ).update(
+            is_staff=False,
+            is_superuser=False
+        )
+
+        self.admin.refresh_from_db()
+
+        other_admin = User.objects.create_user(
+            username="protected_other_admin",
+            email="other.admin@example.com",
+            password="Forest!Silver84Ocean"
+        )
+
+        other_admin.profile.role = (
+            UserProfile.Role.ADMIN
+        )
+
+        other_admin.profile.save(
+            update_fields=["role"]
+        )
+
+        self.client.force_login(self.admin)
+
+        original_account = self.get_account_snapshot(
+            other_admin
+        )
+
+        detail_url = reverse(
+            "user_management:user_detail",
+            kwargs={"pk": other_admin.pk}
+        )
+
+        edit_url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": other_admin.pk}
+        )
+
+        response = self.client.get(detail_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertFalse(
+            response.context["can_edit_account"]
+        )
+
+        self.assertNotContains(
+            response,
+            f'href="{edit_url}"'
+        )
+
+        self.assertEqual(
+            self.client.get(edit_url).status_code,
+            403
+        )
+
+        self.assertEqual(
+            self.client.post(
+                edit_url,
+                self.get_valid_edit_data()
+            ).status_code,
+            403
+        )
+
+        self.assertEqual(
+            self.get_account_snapshot(other_admin),
+            original_account
+        )
+
+    def test_superuser_administrator_can_edit_protected_account(self):
+        # A Django superuser with the application
+        # Administrator role may edit protected accounts.
+        User = get_user_model()
+
+        User.objects.filter(
+            pk=self.admin.pk
+        ).update(
+            is_staff=True,
+            is_superuser=True
+        )
+
+        User.objects.filter(
+            pk=self.student.pk
+        ).update(
+            is_staff=True,
+            is_superuser=True
+        )
+
+        self.admin.refresh_from_db()
+
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(
+            url,
+            self.get_valid_edit_data()
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            ),
+            fetch_redirect_response=False
+        )
+
+        self.student.refresh_from_db()
+
+        self.assertEqual(
+            self.student.first_name,
+            "Updated"
+        )
+
+        self.assertTrue(self.student.is_staff)
+        self.assertTrue(self.student.is_superuser)
+
+    def test_admin_can_edit_own_unprotected_account(self):
+        # Administrators may maintain their own identity
+        # without modifying their administrative role.
+        User = get_user_model()
+
+        User.objects.filter(
+            pk=self.admin.pk
+        ).update(
+            is_staff=False,
+            is_superuser=False
+        )
+
+        self.admin.refresh_from_db()
+
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.admin.pk}
+        )
+
+        response = self.client.post(
+            url,
+            self.get_valid_edit_data(
+                username=self.admin.username,
+                first_name="Updated",
+                last_name="Administrator",
+                email=self.admin.email
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.admin.pk}
+            ),
+            fetch_redirect_response=False
+        )
+
+        self.admin.refresh_from_db()
+
+        self.admin.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.admin.first_name,
+            "Updated"
+        )
+
+        self.assertEqual(
+            self.admin.profile.role,
+            UserProfile.Role.ADMIN
+        )
+
+    def test_edit_missing_account_returns_404(self):
+        # Missing accounts must not create new records
+        # or expose internal database errors.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": 999999}
+        )
+
+        self.assertEqual(
+            self.client.get(url).status_code,
+            404
+        )
+
+        self.assertEqual(
+            self.client.post(
+                url,
+                self.get_valid_edit_data()
+            ).status_code,
+            404
+        )
+
+    def test_user_edit_rejects_unsupported_methods(self):
+        # Editing supports GET, HEAD and POST only.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        for method in ("PUT", "PATCH", "DELETE"):
+
+            with self.subTest(method=method):
+
+                response = self.client.generic(
+                    method,
+                    url
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    405
+                )
+
+    def test_user_edit_persists_only_authorized_fields(self):
+        # Verify successful editing while rejecting
+        # attempts to manipulate protected properties.
+        self.client.force_login(self.admin)
+
+        account = self.power_user
+
+        original_password = account.password
+
+        original_role = account.profile.role
+
+        original_active = account.is_active
+
+        original_staff = account.is_staff
+
+        original_superuser = account.is_superuser
+
+        original_groups = set(
+            account.groups.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        original_permissions = set(
+            account.user_permissions.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": account.pk}
+        )
+
+        data = self.get_valid_edit_data(
+            email="UPDATED.STUDENT@EXAMPLE.COM",
+            role="admin",
+            is_staff="true",
+            is_superuser="true",
+            is_active="false",
+            password="UnauthorizedPassword123!",
+            groups=[],
+            user_permissions=[]
+        )
+
+        response = self.client.post(url, data)
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": account.pk}
+            ),
+            fetch_redirect_response=False
+        )
+
+        account.refresh_from_db()
+
+        account.profile.refresh_from_db()
+
+        # Verify the four permitted identity changes.
+        self.assertEqual(
+            account.username,
+            "updated_directory_student"
+        )
+
+        self.assertEqual(
+            account.first_name,
+            "Updated"
+        )
+
+        self.assertEqual(
+            account.last_name,
+            "Student"
+        )
+
+        self.assertEqual(
+            account.email,
+            "updated.student@example.com"
+        )
+
+        # Verify that protected information is unchanged.
+        self.assertEqual(
+            account.password,
+            original_password
+        )
+
+        self.assertEqual(
+            account.profile.role,
+            original_role
+        )
+
+        self.assertEqual(
+            account.is_active,
+            original_active
+        )
+
+        self.assertEqual(
+            account.is_staff,
+            original_staff
+        )
+
+        self.assertEqual(
+            account.is_superuser,
+            original_superuser
+        )
+
+        self.assertEqual(
+            set(
+                account.groups.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_groups
+        )
+
+        self.assertEqual(
+            set(
+                account.user_permissions.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_permissions
+        )
+
+    def test_user_edit_accepts_unchanged_identifiers(self):
+        # Existing usernames and email addresses
+        # must not conflict with the account itself.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        response = self.client.post(
+            url,
+            self.get_valid_edit_data(
+                username=self.student.username,
+                email=self.student.email
+            )
+        )
+
+        self.assertRedirects(
+            response,
+            reverse(
+                "user_management:user_detail",
+                kwargs={"pk": self.student.pk}
+            ),
+            fetch_redirect_response=False
+        )
+
+        self.student.refresh_from_db()
+
+        self.assertEqual(
+            self.student.first_name,
+            "Updated"
+        )
+
+    def test_user_edit_rejects_duplicate_identifiers(self):
+        # Registered usernames and email addresses
+        # must remain unique regardless of letter case.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        scenarios = (
+            ("username", self.admin.username),
+            ("username", self.admin.username.upper()),
+            ("email", self.admin.email),
+            ("email", self.admin.email.upper()),
+        )
+
+        for field, value in scenarios:
+
+            with self.subTest(
+                field=field,
+                value=value
+            ):
+
+                response = self.client.post(
+                    url,
+                    self.get_valid_edit_data(
+                        **{field: value}
+                    )
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+                self.assertIn(
+                    field,
+                    response.context["form"].errors
+                )
+
+                self.assertEqual(
+                    self.get_account_snapshot(self.student),
+                    original_account
+                )
+
+    def test_user_edit_rejects_pending_registration_conflicts(self):
+        # Pending registration requests reserve
+        # usernames and email addresses.
+        registration = self.create_registration_request()
+
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        scenarios = (
+            ("username", registration.username),
+            ("username", registration.username.upper()),
+            ("email", registration.email),
+            ("email", registration.email.upper()),
+        )
+
+        for field, value in scenarios:
+
+            with self.subTest(
+                field=field,
+                value=value
+            ):
+
+                response = self.client.post(
+                    url,
+                    self.get_valid_edit_data(
+                        **{field: value}
+                    )
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+                self.assertIn(
+                    field,
+                    response.context["form"].errors
+                )
+
+                self.assertEqual(
+                    self.get_account_snapshot(self.student),
+                    original_account
+                )
+
+        registration.refresh_from_db()
+
+        self.assertEqual(
+            registration.status,
+            "pending"
+        )
+
+    def test_user_edit_rejects_invalid_identity_information(self):
+        # Invalid or incomplete account information
+        # must never be persisted.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        scenarios = (
+            ("username", ""),
+            ("username", "invalid username"),
+            ("username", "a" * 151),
+            ("first_name", ""),
+            ("first_name", "a" * 151),
+            ("last_name", ""),
+            ("last_name", "a" * 151),
+            ("email", ""),
+            ("email", "invalid-email-address"),
+        )
+
+        for field, value in scenarios:
+
+            with self.subTest(
+                field=field,
+                value=value
+            ):
+
+                response = self.client.post(
+                    url,
+                    self.get_valid_edit_data(
+                        **{field: value}
+                    )
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+                self.assertIn(
+                    field,
+                    response.context["form"].errors
+                )
+
+                self.assertEqual(
+                    self.get_account_snapshot(self.student),
+                    original_account
+                )
+
+    def test_user_edit_requires_csrf_token(self):
+        # Account editing must reject POST requests
+        # without valid cross-site request forgery protection.
+        from django.test import Client
+
+        csrf_client = Client(
+            enforce_csrf_checks=True
+        )
+
+        csrf_client.force_login(self.admin)
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        response = csrf_client.post(
+            reverse(
+                "user_management:user_edit",
+                kwargs={"pk": self.student.pk}
+            ),
+            self.get_valid_edit_data()
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        self.assertEqual(
+            self.get_account_snapshot(self.student),
+            original_account
+        )
+
+    def test_user_edit_handles_database_contention(self):
+        # Failed lock acquisition must preserve the
+        # existing account and allow a safe manual retry.
+        self.client.force_login(self.admin)
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        self.assert_identity_contention_handled(
+            url=url,
+            data=self.get_valid_edit_data(),
+            redirect_url=url,
+            expected_message=(
+                "Account editing is temporarily unavailable."
+            )
+        )
+
+        self.assertEqual(
+            self.get_account_snapshot(self.student),
+            original_account
+        )
+
+    def test_user_edit_rolls_back_after_database_failure(self):
+        # Verify rollback when an integrity failure
+        # occurs after the account has been written.
+        from unittest.mock import patch
+
+        from django.db import IntegrityError
+
+        from .models import AccountIdentityLock
+
+        User = get_user_model()
+
+        self.client.force_login(self.admin)
+
+        original_account = self.get_account_snapshot(
+            self.student
+        )
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        original_save = User.save
+
+        def save_then_fail(instance, *args, **kwargs):
+
+            # Perform the actual database update.
+            original_save(
+                instance,
+                *args,
+                **kwargs
+            )
+
+            # Simulate an integrity failure before
+            # the enclosing transaction can commit.
+            raise IntegrityError(
+                "Simulated account update failure"
+            )
+
+        url = reverse(
+            "user_management:user_edit",
+            kwargs={"pk": self.student.pk}
+        )
+
+        with patch.object(
+            User,
+            "save",
+            autospec=True,
+            side_effect=save_then_fail
+        ) as mocked_save:
+
+            response = self.client.post(
+                url,
+                self.get_valid_edit_data()
+            )
+
+        mocked_save.assert_called_once()
+
+        self.assertRedirects(
+            response,
+            url,
+            fetch_redirect_response=False
+        )
+
+        # Both the account changes and synchronization
+        # revision must have been rolled back.
+        self.assertEqual(
+            self.get_account_snapshot(self.student),
+            original_account
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
 class AccountIdentityTransactionTests(TestCase):
     """
     Verify the shared account identity transaction
@@ -4091,6 +5233,1552 @@ class AccountIdentityTransactionTests(TestCase):
             User.objects.filter(
                 username="rollback_identity_test"
             ).exists()
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
+    def test_contention_detects_native_sqlite_error_codes(self):
+        # Native SQLite error codes must take precedence
+        # over potentially ambiguous error messages.
+        import sqlite3
+
+        from django.db import OperationalError
+        from .account_identity import (
+            is_account_database_contention,
+        )
+
+        scenarios = (
+            (sqlite3.SQLITE_BUSY, True),
+            (sqlite3.SQLITE_LOCKED, True),
+            (sqlite3.SQLITE_BUSY | (1 << 8), True),
+            (sqlite3.SQLITE_LOCKED | (1 << 8), True),
+            (sqlite3.SQLITE_ERROR, False),
+            (sqlite3.SQLITE_IOERR, False),
+        )
+
+        for error_code, expected in scenarios:
+
+            with self.subTest(error_code=error_code):
+
+                native_error = sqlite3.OperationalError(
+                    "Simulated SQLite database error"
+                )
+
+                native_error.sqlite_errorcode = error_code
+
+                error = OperationalError(
+                    "Simulated database operation failure"
+                )
+
+                error.__cause__ = native_error
+
+                self.assertEqual(
+                    is_account_database_contention(error),
+                    expected
+                )
+
+    def test_contention_detects_supported_error_messages(self):
+        # Verify compatibility when native SQLite
+        # error codes are unavailable.
+        from django.db import OperationalError
+        from .account_identity import (
+            is_account_database_contention,
+        )
+
+        scenarios = (
+            ("database is locked", True),
+            ("database table is locked", True),
+            ("database table is locked: auth_user", True),
+            ("database schema is locked", True),
+            ("database schema is locked: main", True),
+            ("no such table: auth_user", False),
+            ("disk I/O error", False),
+            ("unable to open database file", False),
+        )
+
+        for message, expected in scenarios:
+
+            with self.subTest(message=message):
+
+                error = OperationalError(message)
+
+                self.assertEqual(
+                    is_account_database_contention(error),
+                    expected
+                )
+
+    def test_identity_contention_rolls_back_changes(self):
+        # A temporary database error must roll back
+        # account creation and the synchronization revision.
+        from django.db import OperationalError
+
+        from .account_identity import (
+            AccountIdentityBusyError,
+            account_identity_transaction,
+        )
+
+        from .models import AccountIdentityLock
+
+        User = get_user_model()
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        original_count = User.objects.count()
+
+        with self.assertRaises(AccountIdentityBusyError):
+
+            with account_identity_transaction():
+
+                User.objects.create_user(
+                    username="contention_rollback_user",
+                    email="contention.rollback@example.com",
+                    password="Forest!Silver84Ocean"
+                )
+
+                # Simulate contention after a database write.
+                raise OperationalError(
+                    "database is locked"
+                )
+
+        self.assertEqual(
+            User.objects.count(),
+            original_count
+        )
+
+        self.assertFalse(
+            User.objects.filter(
+                username="contention_rollback_user"
+            ).exists()
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
+    def test_unrelated_operational_error_is_not_suppressed(self):
+        # Unexpected database failures must propagate
+        # instead of being misclassified as contention.
+        from django.db import OperationalError
+
+        from .account_identity import (
+            account_identity_transaction,
+        )
+
+        from .models import AccountIdentityLock
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        original_error = OperationalError(
+            "no such table: unexpected_table"
+        )
+
+        with self.assertRaises(OperationalError) as caught:
+
+            with account_identity_transaction():
+
+                raise original_error
+
+        self.assertIs(
+            caught.exception,
+            original_error
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
+class AccountIdentityConcurrencyTests(TransactionTestCase):
+    """
+    Verify actual SQLite database contention using
+    independent connections and concurrent transactions.
+
+    TransactionTestCase permits real database commits
+    and rollbacks, unlike Django's ordinary TestCase.
+    """
+
+    def setUp(self):
+        from django.db import connection
+        from .models import AccountIdentityLock
+
+        # These tests specifically exercise SQLite's
+        # database locking and contention behaviour.
+        if connection.vendor != "sqlite":
+            self.skipTest(
+                "SQLite-specific concurrency tests."
+            )
+
+        # Database flushes may remove migration-created
+        # records between TransactionTestCase tests.
+        AccountIdentityLock.objects.get_or_create(
+            pk=1,
+            defaults={"revision": 0}
+        )
+
+    def get_concurrent_account_data(self):
+        """
+        Return credentials shared by the competing
+        registration and account creation operations.
+        """
+
+        return {
+            "username": "concurrent_student",
+            "first_name": "Concurrent",
+            "last_name": "Student",
+            "email": "concurrent.student@example.com",
+            "password1": "Forest!Silver84Ocean",
+            "password2": "Forest!Silver84Ocean",
+        }
+
+    def exercise_concurrent_transactions(
+        self,
+        *,
+        rollback_first_transaction=False
+    ):
+        """
+        Hold a real database transaction open in a
+        separate thread while attempting account creation
+        through another database connection.
+        """
+
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Event
+
+        from django.contrib.auth.hashers import make_password
+
+        from django.db import (
+            connection,
+            connections,
+            transaction,
+        )
+
+        from .account_identity import (
+            AccountIdentityBusyError,
+            account_identity_transaction,
+        )
+
+        from .models import (
+            AccountIdentityLock,
+            StudentRegistrationRequest,
+        )
+
+        from .user_management_forms import (
+            AdminUserCreationForm,
+        )
+
+        data = self.get_concurrent_account_data()
+
+        password_hash = make_password(
+            data["password1"]
+        )
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        # Coordinate the two transactions without relying
+        # on arbitrary sleep durations.
+        lock_acquired = Event()
+        release_lock = Event()
+
+        def hold_registration_transaction():
+            """
+            Create a pending application while retaining
+            the shared identity lock until signalled.
+            """
+
+            # Django provides thread-local connections.
+            worker_connection = connections["default"]
+
+            try:
+
+                with account_identity_transaction():
+
+                    StudentRegistrationRequest.objects.create(
+                        username=data["username"],
+                        first_name=data["first_name"],
+                        last_name=data["last_name"],
+                        email=data["email"],
+                        password_hash=password_hash,
+                        status=(
+                            StudentRegistrationRequest
+                            .Status.PENDING
+                        ),
+                    )
+
+                    # Inform the competing transaction
+                    # that the database write lock is held.
+                    lock_acquired.set()
+
+                    if not release_lock.wait(timeout=10):
+
+                        raise TimeoutError(
+                            "Concurrent transaction "
+                            "release timed out."
+                        )
+
+                    if rollback_first_transaction:
+
+                        # Explicitly roll back the registration
+                        # and synchronization revision.
+                        transaction.set_rollback(True)
+
+            finally:
+
+                # Release this thread's database connection.
+                worker_connection.close()
+
+        # Temporarily shorten SQLite's lock waiting period
+        # for the competing connection in this test only.
+        with connection.cursor() as cursor:
+
+            cursor.execute("PRAGMA busy_timeout")
+
+            original_timeout = cursor.fetchone()[0]
+
+            cursor.execute("PRAGMA busy_timeout = 100")
+
+        try:
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+
+                future = executor.submit(
+                    hold_registration_transaction
+                )
+
+                try:
+
+                    self.assertTrue(
+                        lock_acquired.wait(timeout=10),
+                        "The first transaction did not acquire "
+                        "the account identity lock."
+                    )
+
+                    # This must encounter genuine contention,
+                    # not a mocked database exception.
+                    with self.assertRaises(
+                        AccountIdentityBusyError
+                    ):
+
+                        with account_identity_transaction():
+
+                            # Validation must not begin while
+                            # the competing transaction holds
+                            # the synchronization lock.
+                            self.fail(
+                                "The competing transaction "
+                                "entered the protected block."
+                            )
+
+                finally:
+
+                    # Always release the worker, even if an
+                    # assertion fails, to avoid a deadlock.
+                    release_lock.set()
+
+                # Propagate unexpected worker exceptions.
+                future.result(timeout=10)
+
+        finally:
+
+            # Restore the original database timeout.
+            with connection.cursor() as cursor:
+
+                cursor.execute(
+                    f"PRAGMA busy_timeout = {int(original_timeout)}"
+                )
+
+        # Only the committed transaction may retain
+        # its synchronization revision update.
+        expected_revision = original_revision
+
+        if not rollback_first_transaction:
+            expected_revision += 1
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            expected_revision
+        )
+
+        # No account may have been created by the
+        # unsuccessful competing transaction.
+        User = get_user_model()
+
+        self.assertFalse(
+            User.objects.filter(
+                username=data["username"]
+            ).exists()
+        )
+
+        # Retry after the first transaction has released
+        # the lock, revalidating all account identifiers.
+        with account_identity_transaction():
+
+            form = AdminUserCreationForm(data=data)
+
+            if rollback_first_transaction:
+
+                self.assertTrue(
+                    form.is_valid(),
+                    form.errors.as_text()
+                )
+
+                account = form.save()
+
+                self.assertEqual(
+                    account.profile.role,
+                    UserProfile.Role.REGULAR
+                )
+
+            else:
+
+                self.assertFalse(form.is_valid())
+
+                self.assertIn(
+                    "username",
+                    form.errors
+                )
+
+                self.assertIn(
+                    "email",
+                    form.errors
+                )
+
+        return data
+
+    def test_committed_registration_blocks_concurrent_creation(self):
+        # A committed registration must reserve both
+        # identifiers against subsequent account creation.
+        from .models import StudentRegistrationRequest
+
+        User = get_user_model()
+
+        data = self.exercise_concurrent_transactions()
+
+        self.assertEqual(
+            StudentRegistrationRequest.objects.filter(
+                username=data["username"],
+                email=data["email"],
+                status=(
+                    StudentRegistrationRequest.Status.PENDING
+                )
+            ).count(),
+            1
+        )
+
+        self.assertFalse(
+            User.objects.filter(
+                username=data["username"]
+            ).exists()
+        )
+
+    def test_rolled_back_registration_allows_account_creation(self):
+        # A rolled-back registration must not permanently
+        # reserve the username or email address.
+        from .models import StudentRegistrationRequest
+
+        User = get_user_model()
+
+        data = self.exercise_concurrent_transactions(
+            rollback_first_transaction=True
+        )
+
+        self.assertFalse(
+            StudentRegistrationRequest.objects.filter(
+                username=data["username"]
+            ).exists()
+        )
+
+        account = User.objects.get(
+            username=data["username"]
+        )
+
+        self.assertEqual(
+            account.email,
+            data["email"]
+        )
+
+        self.assertTrue(
+            account.check_password(data["password1"])
+        )
+
+        self.assertFalse(account.is_staff)
+        self.assertFalse(account.is_superuser)
+        self.assertFalse(account.groups.exists())
+
+class UserRoleManagementTests(TestCase):
+    """
+    Verify secure application role assignment.
+
+    Application roles must remain independent of
+    Django privileges and workspace authorization.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        from django.contrib.auth.models import Group, Permission
+
+        User = get_user_model()
+
+        # Create an ordinary application administrator.
+        cls.admin = User.objects.create_user(
+            username="role_test_admin",
+            email="role.admin@example.com",
+            password="Forest!Silver84Ocean"
+        )
+
+        cls.admin.profile.role = UserProfile.Role.ADMIN
+        cls.admin.profile.save(update_fields=["role"])
+
+        # Create a Django superuser with application
+        # Administrator authorization.
+        cls.super_admin = User.objects.create_superuser(
+            username="role_test_super_admin",
+            email="role.superadmin@example.com",
+            password="Forest!Silver84Ocean"
+        )
+
+        cls.super_admin.profile.role = UserProfile.Role.ADMIN
+        cls.super_admin.profile.save(update_fields=["role"])
+
+        # Create an ordinary registered account.
+        cls.student = User.objects.create_user(
+            username="role_test_student",
+            email="role.student@example.com",
+            password="Forest!Silver84Ocean"
+        )
+
+        # Create a privileged application account.
+        cls.power_user = User.objects.create_user(
+            username="role_test_power",
+            email="role.power@example.com",
+            password="Forest!Silver84Ocean"
+        )
+
+        cls.power_user.profile.role = UserProfile.Role.POWER
+        cls.power_user.profile.save(update_fields=["role"])
+
+        # Create a protected Django staff account.
+        cls.staff_account = User.objects.create_user(
+            username="role_test_staff",
+            email="role.staff@example.com",
+            password="Forest!Silver84Ocean",
+            is_staff=True
+        )
+
+        # Existing memberships and permissions must
+        # survive application role changes.
+        cls.workspace_group, _ = Group.objects.get_or_create(
+            name="Career Services Student Assistants"
+        )
+
+        cls.power_user.groups.add(cls.workspace_group)
+
+        permission = Permission.objects.get(
+            content_type__app_label="auth",
+            codename="view_user"
+        )
+
+        cls.power_user.user_permissions.add(permission)
+
+    def test_application_admin_assignable_roles(self):
+        # Ordinary administrators may assign only
+        # Regular User and Power User roles.
+        from .user_role_services import get_assignable_roles
+
+        self.assertEqual(
+            set(
+                get_assignable_roles(
+                    self.admin,
+                    self.student
+                )
+            ),
+            {
+                UserProfile.Role.REGULAR,
+                UserProfile.Role.POWER,
+            }
+        )
+
+    def test_superuser_admin_assignable_roles(self):
+        # Superusers with the Administrator role
+        # may assign all three application roles.
+        from .user_role_services import get_assignable_roles
+
+        self.assertEqual(
+            set(
+                get_assignable_roles(
+                    self.super_admin,
+                    self.student
+                )
+            ),
+            set(UserProfile.Role.values)
+        )
+
+    def test_admin_can_promote_regular_user(self):
+        # Ordinary administrators may promote
+        # registered users to the Power User role.
+        from .user_role_services import change_user_role
+
+        change_user_role(
+            administrator=self.admin,
+            account_id=self.student.pk,
+            new_role=UserProfile.Role.POWER
+        )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.POWER
+        )
+
+    def test_role_change_preserves_other_permissions(self):
+        # Changing an application role must not change
+        # account identity, credentials or other permissions.
+        from .user_role_services import change_user_role
+
+        User = get_user_model()
+
+        original_account = User.objects.filter(
+            pk=self.power_user.pk
+        ).values().get()
+
+        original_groups = set(
+            self.power_user.groups.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        original_permissions = set(
+            self.power_user.user_permissions.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        change_user_role(
+            administrator=self.admin,
+            account_id=self.power_user.pk,
+            new_role=UserProfile.Role.REGULAR
+        )
+
+        self.power_user.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.power_user.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        self.assertEqual(
+            User.objects.filter(
+                pk=self.power_user.pk
+            ).values().get(),
+            original_account
+        )
+
+        self.assertEqual(
+            set(
+                self.power_user.groups.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_groups
+        )
+
+        self.assertEqual(
+            set(
+                self.power_user.user_permissions.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_permissions
+        )
+
+    def test_ordinary_admin_cannot_assign_admin_role(self):
+        # Prevent unauthorized creation of additional
+        # application administrator accounts.
+        from django.core.exceptions import PermissionDenied
+
+        from .user_role_services import change_user_role
+
+        with self.assertRaises(PermissionDenied):
+
+            change_user_role(
+                administrator=self.admin,
+                account_id=self.student.pk,
+                new_role=UserProfile.Role.ADMIN
+            )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_superuser_can_assign_admin_without_other_privileges(self):
+        # Administrator assignment must not automatically
+        # grant Django privileges or workspace membership.
+        from .permissions import can_access_workspace
+        from .user_role_services import change_user_role
+
+        change_user_role(
+            administrator=self.super_admin,
+            account_id=self.student.pk,
+            new_role=UserProfile.Role.ADMIN
+        )
+
+        self.student.refresh_from_db()
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.ADMIN
+        )
+
+        self.assertFalse(self.student.is_staff)
+        self.assertFalse(self.student.is_superuser)
+        self.assertFalse(self.student.groups.exists())
+
+        self.assertFalse(
+            self.student.user_permissions.exists()
+        )
+
+        self.assertFalse(
+            can_access_workspace(self.student)
+        )
+
+        # The new role must nevertheless grant access
+        # to authorized application administration.
+        self.client.force_login(self.student)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_non_administrators_cannot_assign_roles(self):
+        # Reject unauthorized role changes regardless
+        # of the requesting user's existing role.
+        from django.contrib.auth.models import AnonymousUser
+        from django.core.exceptions import PermissionDenied
+
+        from .user_role_services import change_user_role
+
+        for actor in (
+            AnonymousUser(),
+            self.student,
+            self.power_user,
+        ):
+
+            with self.subTest(actor=str(actor)):
+
+                with self.assertRaises(PermissionDenied):
+
+                    change_user_role(
+                        administrator=actor,
+                        account_id=self.staff_account.pk,
+                        new_role=UserProfile.Role.POWER
+                    )
+
+        self.staff_account.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.staff_account.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_administrators_cannot_modify_own_roles(self):
+        # Prevent administrative self-demotion and
+        # accidental loss of administrative access.
+        from django.core.exceptions import PermissionDenied
+
+        from .user_role_services import (
+            change_user_role,
+            get_assignable_roles,
+        )
+
+        for actor in (
+            self.admin,
+            self.super_admin,
+        ):
+
+            with self.subTest(actor=actor.username):
+
+                self.assertEqual(
+                    get_assignable_roles(actor, actor),
+                    ()
+                )
+
+                with self.assertRaises(PermissionDenied):
+
+                    change_user_role(
+                        administrator=actor,
+                        account_id=actor.pk,
+                        new_role=UserProfile.Role.REGULAR
+                    )
+
+                actor.profile.refresh_from_db()
+
+                self.assertEqual(
+                    actor.profile.role,
+                    UserProfile.Role.ADMIN
+                )
+
+    def test_ordinary_admin_cannot_modify_protected_accounts(self):
+        # Protect other administrators and accounts
+        # with elevated Django privileges.
+        from django.core.exceptions import PermissionDenied
+
+        from .user_role_services import (
+            change_user_role,
+            get_assignable_roles,
+        )
+
+        for target in (
+            self.staff_account,
+            self.super_admin,
+        ):
+
+            with self.subTest(target=target.username):
+
+                original_role = target.profile.role
+
+                self.assertEqual(
+                    get_assignable_roles(
+                        self.admin,
+                        target
+                    ),
+                    ()
+                )
+
+                with self.assertRaises(PermissionDenied):
+
+                    change_user_role(
+                        administrator=self.admin,
+                        account_id=target.pk,
+                        new_role=UserProfile.Role.POWER
+                    )
+
+                target.profile.refresh_from_db()
+
+                self.assertEqual(
+                    target.profile.role,
+                    original_role
+                )
+
+    def test_superuser_can_demote_another_administrator(self):
+        # Authorized demotion must preserve an active
+        # administrator and revoke administrative access.
+        from .user_role_services import change_user_role
+
+        change_user_role(
+            administrator=self.super_admin,
+            account_id=self.admin.pk,
+            new_role=UserProfile.Role.POWER
+        )
+
+        self.admin.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.admin.profile.role,
+            UserProfile.Role.POWER
+        )
+
+        self.assertTrue(
+            UserProfile.objects.filter(
+                role=UserProfile.Role.ADMIN,
+                user__is_active=True
+            ).exists()
+        )
+
+        # The demoted administrator must lose access
+        # to restricted administrative endpoints.
+        self.client.force_login(self.admin)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_invalid_role_is_rejected(self):
+        # Reject manipulated or nonexistent role identifiers.
+        from django.core.exceptions import ValidationError
+
+        from .user_role_services import change_user_role
+
+        for role in (
+            "superuser",
+            "staff",
+            "invalid_role",
+            "",
+        ):
+
+            with self.subTest(role=role):
+
+                with self.assertRaises(ValidationError):
+
+                    change_user_role(
+                        administrator=self.super_admin,
+                        account_id=self.student.pk,
+                        new_role=role
+                    )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_role_service_rechecks_current_authorization(self):
+        # A previously authenticated administrator must
+        # not retain authority after demotion or deactivation.
+        from django.core.exceptions import PermissionDenied
+
+        from .user_role_services import change_user_role
+
+        User = get_user_model()
+
+        # Revoke the administrator's database role
+        # without refreshing the in-memory actor.
+        UserProfile.objects.filter(
+            user_id=self.admin.pk
+        ).update(
+            role=UserProfile.Role.REGULAR
+        )
+
+        with self.assertRaises(PermissionDenied):
+
+            change_user_role(
+                administrator=self.admin,
+                account_id=self.student.pk,
+                new_role=UserProfile.Role.POWER
+            )
+
+        # Restore the role, but deactivate the account.
+        UserProfile.objects.filter(
+            user_id=self.admin.pk
+        ).update(
+            role=UserProfile.Role.ADMIN
+        )
+
+        User.objects.filter(
+            pk=self.admin.pk
+        ).update(
+            is_active=False
+        )
+
+        with self.assertRaises(PermissionDenied):
+
+            change_user_role(
+                administrator=self.admin,
+                account_id=self.student.pk,
+                new_role=UserProfile.Role.POWER
+            )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def get_role_url(self, account):
+        """Return the account's role management URL."""
+        return reverse(
+            "user_management:user_role_edit",
+            kwargs={"pk": account.pk}
+        )
+
+    def get_detail_url(self, account):
+        """Return the account's details URL."""
+        return reverse(
+            "user_management:user_detail",
+            kwargs={"pk": account.pk}
+        )
+
+    def test_role_endpoint_displays_authorized_choices(self):
+        # Available form choices must reflect the
+        # requesting administrator's authority.
+        scenarios = (
+            (
+                self.admin,
+                {"regular", "power"}
+            ),
+            (
+                self.super_admin,
+                {"regular", "power", "admin"}
+            ),
+        )
+
+        for actor, expected_roles in scenarios:
+
+            with self.subTest(actor=actor.username):
+
+                self.client.force_login(actor)
+
+                response = self.client.get(
+                    self.get_role_url(self.student)
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                self.assertTemplateUsed(
+                    response,
+                    "user_management/user_role_edit.html"
+                )
+
+                form = response.context["form"]
+
+                self.assertEqual(
+                    set(form.fields),
+                    {"role"}
+                )
+
+                self.assertEqual(
+                    {value for value, label
+                     in form.fields["role"].choices},
+                    expected_roles
+                )
+
+                self.assertEqual(
+                    form.initial["role"],
+                    UserProfile.Role.REGULAR
+                )
+
+                self.assertFalse(form.is_bound)
+
+    def test_manage_role_button_visibility(self):
+        # Navigation must use the same permission
+        # policy as the protected role endpoint.
+        scenarios = (
+            (self.admin, self.student, True),
+            (self.admin, self.admin, False),
+            (self.admin, self.super_admin, False),
+            (self.admin, self.staff_account, False),
+            (self.super_admin, self.student, True),
+            (self.super_admin, self.admin, True),
+            (self.super_admin, self.super_admin, False),
+        )
+
+        for actor, target, allowed in scenarios:
+
+            with self.subTest(
+                actor=actor.username,
+                target=target.username
+            ):
+
+                self.client.force_login(actor)
+
+                response = self.client.get(
+                    self.get_detail_url(target)
+                )
+
+                self.assertEqual(response.status_code, 200)
+
+                self.assertEqual(
+                    response.context["can_manage_role"],
+                    allowed
+                )
+
+                link = (
+                    f'href="{self.get_role_url(target)}"'
+                )
+
+                if allowed:
+                    self.assertContains(response, link)
+                else:
+                    self.assertNotContains(response, link)
+
+    def test_anonymous_role_endpoint_access_is_denied(self):
+        # Anonymous visitors cannot view or submit
+        # application role management requests.
+        url = self.get_role_url(self.student)
+
+        self.assertEqual(
+            self.client.get(url).status_code,
+            302
+        )
+
+        self.assertEqual(
+            self.client.post(
+                url,
+                {"role": "admin"}
+            ).status_code,
+            302
+        )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_non_admin_role_endpoint_access_is_denied(self):
+        # Regular and Power Users must not access
+        # administrative role management endpoints.
+        url = self.get_role_url(self.student)
+
+        for actor in (self.student, self.power_user):
+
+            with self.subTest(actor=actor.username):
+
+                self.client.force_login(actor)
+
+                self.assertEqual(
+                    self.client.get(url).status_code,
+                    403
+                )
+
+                self.assertEqual(
+                    self.client.post(
+                        url,
+                        {"role": "admin"}
+                    ).status_code,
+                    403
+                )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_role_endpoint_protects_restricted_accounts(self):
+        # Direct URL access must remain prohibited
+        # even when navigation buttons are hidden.
+        scenarios = (
+            (self.admin, self.admin),
+            (self.admin, self.super_admin),
+            (self.admin, self.staff_account),
+            (self.super_admin, self.super_admin),
+        )
+
+        for actor, target in scenarios:
+
+            with self.subTest(
+                actor=actor.username,
+                target=target.username
+            ):
+
+                self.client.force_login(actor)
+
+                original_role = target.profile.role
+
+                url = self.get_role_url(target)
+
+                self.assertEqual(
+                    self.client.get(url).status_code,
+                    403
+                )
+
+                self.assertEqual(
+                    self.client.post(
+                        url,
+                        {"role": "regular"}
+                    ).status_code,
+                    403
+                )
+
+                target.profile.refresh_from_db()
+
+                self.assertEqual(
+                    target.profile.role,
+                    original_role
+                )
+
+    def test_role_endpoint_rejects_manipulated_choices(self):
+        # Forged POST parameters must not bypass
+        # the administrator's assignment authority.
+        self.client.force_login(self.admin)
+
+        url = self.get_role_url(self.student)
+
+        for role in (
+            "admin",
+            "superuser",
+            "staff",
+            "invalid_role",
+            "",
+        ):
+
+            with self.subTest(role=role):
+
+                response = self.client.post(
+                    url,
+                    {"role": role}
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    200
+                )
+
+                self.assertIn(
+                    "role",
+                    response.context["form"].errors
+                )
+
+                self.student.profile.refresh_from_db()
+
+                self.assertEqual(
+                    self.student.profile.role,
+                    UserProfile.Role.REGULAR
+                )
+
+    def test_role_endpoint_preserves_independent_permissions(self):
+        # An authorized role change must preserve
+        # all unrelated account properties.
+        User = get_user_model()
+
+        self.client.force_login(self.admin)
+
+        account = self.power_user
+
+        original_account = User.objects.filter(
+            pk=account.pk
+        ).values().get()
+
+        original_groups = set(
+            account.groups.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        original_permissions = set(
+            account.user_permissions.values_list(
+                "pk",
+                flat=True
+            )
+        )
+
+        response = self.client.post(
+            self.get_role_url(account),
+            {
+                "role": "regular",
+                "is_staff": "true",
+                "is_superuser": "true",
+                "is_active": "false",
+                "username": "unauthorized_username",
+                "password": "UnauthorizedPassword123!",
+                "groups": [self.workspace_group.pk],
+            }
+        )
+
+        self.assertRedirects(
+            response,
+            self.get_detail_url(account),
+            fetch_redirect_response=False
+        )
+
+        account.refresh_from_db()
+        account.profile.refresh_from_db()
+
+        self.assertEqual(
+            account.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        self.assertEqual(
+            User.objects.filter(
+                pk=account.pk
+            ).values().get(),
+            original_account
+        )
+
+        self.assertEqual(
+            set(
+                account.groups.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_groups
+        )
+
+        self.assertEqual(
+            set(
+                account.user_permissions.values_list(
+                    "pk",
+                    flat=True
+                )
+            ),
+            original_permissions
+        )
+
+    def test_superuser_can_assign_admin_through_endpoint(self):
+        # Authorized Administrator assignment must
+        # not grant Django or workspace privileges.
+        from .permissions import can_access_workspace
+
+        self.client.force_login(self.super_admin)
+
+        response = self.client.post(
+            self.get_role_url(self.student),
+            {"role": "admin"}
+        )
+
+        self.assertRedirects(
+            response,
+            self.get_detail_url(self.student),
+            fetch_redirect_response=False
+        )
+
+        self.student.refresh_from_db()
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.ADMIN
+        )
+
+        self.assertFalse(self.student.is_staff)
+        self.assertFalse(self.student.is_superuser)
+        self.assertFalse(self.student.groups.exists())
+
+        self.assertFalse(
+            self.student.user_permissions.exists()
+        )
+
+        self.assertFalse(
+            can_access_workspace(self.student)
+        )
+
+        # The newly assigned application role must
+        # permit access to application administration.
+        self.client.force_login(self.student)
+
+        response = self.client.get(
+            reverse("user_management:user_list")
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_role_endpoint_rejects_missing_accounts_and_methods(self):
+        # Missing accounts and unsupported methods
+        # must receive appropriate HTTP responses.
+        self.client.force_login(self.admin)
+
+        missing_url = reverse(
+            "user_management:user_role_edit",
+            kwargs={"pk": 999999}
+        )
+
+        self.assertEqual(
+            self.client.get(missing_url).status_code,
+            404
+        )
+
+        self.assertEqual(
+            self.client.post(
+                missing_url,
+                {"role": "power"}
+            ).status_code,
+            404
+        )
+
+        url = self.get_role_url(self.student)
+
+        for method in ("PUT", "PATCH", "DELETE"):
+
+            with self.subTest(method=method):
+
+                response = self.client.generic(
+                    method,
+                    url
+                )
+
+                self.assertEqual(
+                    response.status_code,
+                    405
+                )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_role_endpoint_requires_csrf_protection(self):
+        # Reject forged cross-site requests that
+        # do not provide a valid CSRF token.
+        from django.test import Client
+
+        csrf_client = Client(
+            enforce_csrf_checks=True
+        )
+
+        csrf_client.force_login(self.admin)
+
+        response = csrf_client.post(
+            self.get_role_url(self.student),
+            {"role": "power"}
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+    def test_role_endpoint_handles_database_contention(self):
+        # Temporary lock contention must produce
+        # safe feedback without modifying roles.
+        from unittest.mock import patch
+
+        from django.contrib.messages import get_messages
+        from django.db import OperationalError
+
+        from .models import AccountIdentityLock
+
+        self.client.force_login(self.admin)
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        url = self.get_role_url(self.student)
+
+        with patch(
+            "core.account_identity."
+            "AccountIdentityLock.objects.filter",
+            side_effect=OperationalError(
+                "database is locked"
+            )
+        ) as lock_query:
+
+            response = self.client.post(
+                url,
+                {"role": "power"}
+            )
+
+        lock_query.assert_called_once_with(pk=1)
+
+        self.assertRedirects(
+            response,
+            url,
+            fetch_redirect_response=False
+        )
+
+        feedback = [
+            str(message)
+            for message in get_messages(
+                response.wsgi_request
+            )
+        ]
+
+        self.assertTrue(
+            any(
+                "Role management is temporarily unavailable"
+                in message
+                for message in feedback
+            )
+        )
+
+        self.assertFalse(
+            any(
+                "database is locked" in message.lower()
+                for message in feedback
+            )
+        )
+
+        self.student.profile.refresh_from_db()
+
+        self.assertEqual(
+            self.student.profile.role,
+            UserProfile.Role.REGULAR
+        )
+
+        self.assertEqual(
+            AccountIdentityLock.objects.get(pk=1).revision,
+            original_revision
+        )
+
+    def test_role_endpoint_rolls_back_after_database_failure(self):
+        # Verify that a failure occurring after
+        # persistence reverses the complete transaction.
+        from unittest.mock import patch
+
+        from django.db import IntegrityError
+
+        from .models import AccountIdentityLock
+
+        self.client.force_login(self.admin)
+
+        original_profile = UserProfile.objects.filter(
+            user_id=self.student.pk
+        ).values().get()
+
+        original_revision = (
+            AccountIdentityLock.objects.get(pk=1).revision
+        )
+
+        original_save = UserProfile.save
+
+        def save_then_fail(instance, *args, **kwargs):
+
+            # Execute the real profile database update.
+            original_save(
+                instance,
+                *args,
+                **kwargs
+            )
+
+            # Simulate failure before transaction commit.
+            raise IntegrityError(
+                "Simulated role update failure"
+            )
+
+        url = self.get_role_url(self.student)
+
+        with patch.object(
+            UserProfile,
+            "save",
+            autospec=True,
+            side_effect=save_then_fail
+        ) as mocked_save:
+
+            response = self.client.post(
+                url,
+                {"role": "power"}
+            )
+
+        mocked_save.assert_called_once()
+
+        self.assertRedirects(
+            response,
+            url,
+            fetch_redirect_response=False
+        )
+
+        # Both the profile and synchronization revision
+        # must retain their original persisted values.
+        self.assertEqual(
+            UserProfile.objects.filter(
+                user_id=self.student.pk
+            ).values().get(),
+            original_profile
         )
 
         self.assertEqual(

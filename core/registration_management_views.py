@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
-
+from .account_identity import AccountIdentityBusyError
 from .models import StudentRegistrationRequest, UserProfile
 from .permissions import role_required
 from .registration_services import (
@@ -133,6 +133,16 @@ def registration_request_approve(request, pk):
             reviewer=request.user,
         )
 
+    except AccountIdentityBusyError:
+
+        # Preserve the pending application when
+        # the approval transaction cannot proceed.
+        messages.error(
+            request,
+            "Registration approval is temporarily unavailable. "
+            "Please try again in a moment."
+        )
+
     except (RegistrationApprovalError, ValidationError) as exc:
         # Display validation or application-state errors
         # without creating an account.
@@ -192,6 +202,16 @@ def registration_request_reject(request, pk):
         reject_student_registration(
             application_id=application.pk,
             reviewer=request.user,
+        )
+
+    except AccountIdentityBusyError:
+
+        # Preserve the pending application when
+        # the rejection transaction cannot proceed.
+        messages.error(
+            request,
+            "Registration rejection is temporarily unavailable. "
+            "Please try again in a moment."
         )
 
     except RegistrationRejectionError as exc:

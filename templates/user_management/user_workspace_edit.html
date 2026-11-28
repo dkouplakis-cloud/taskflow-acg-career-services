@@ -1,0 +1,665 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Manage Workspace Access | TaskFlow{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/catalog-management.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'css/user-edit.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container tf-user-edit-page tf-user-role-page tf-user-workspace-page">
+
+    <!-- Administration navigation hierarchy. -->
+    <nav class="tf-edit-breadcrumb"
+         aria-label="Breadcrumb">
+
+        <ol>
+
+            <li>
+                <a href="{% url 'catalog_management:dashboard' %}">
+                    Administration
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'user_management:user_list' %}">
+                    Manage Users
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'user_management:user_detail' account.pk %}">
+                    User Details
+                </a>
+            </li>
+
+            <li aria-current="page">
+                Workspace Access
+            </li>
+
+        </ol>
+
+    </nav>
+
+    <!-- Page heading and contextual navigation. -->
+    <header class="tf-edit-header">
+
+        <div>
+
+            <span class="tf-edit-eyebrow">
+                Workspace Authorization
+            </span>
+
+            <h1>Manage workspace access</h1>
+
+            <p class="tf-edit-muted">
+                Control access to the confidential
+                Career Services workspace.
+            </p>
+
+        </div>
+
+        <a href="{% url 'user_management:user_detail' account.pk %}"
+           class="tf-edit-button tf-edit-button-secondary">
+
+            <span aria-hidden="true">&larr;</span>
+            User Details
+
+        </a>
+
+    </header>
+
+    <!-- Identify the account being managed. -->
+    <section class="tf-edit-account-summary"
+             aria-labelledby="workspace-account-heading">
+
+        <div class="tf-edit-avatar"
+             aria-hidden="true">
+
+            {{ account.first_name|default:account.username|slice:":1"|upper }}
+
+        </div>
+
+        <div class="tf-edit-account-information">
+
+            <span class="tf-edit-overline">
+                Managing workspace access for
+            </span>
+
+            <h2 id="workspace-account-heading">
+
+                {{ account.get_full_name|default:account.username }}
+
+            </h2>
+
+            <p class="tf-edit-muted">
+                @{{ account.username }}
+            </p>
+
+            <div class="tf-edit-account-meta">
+
+                <span>Account #{{ account.pk }}</span>
+
+                <span aria-hidden="true">&middot;</span>
+
+                <span>
+                    {{ account.profile.get_role_display|default:"No application profile" }}
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="tf-edit-account-badges">
+
+            {% if account.is_active %}
+
+                <span class="tf-edit-status tf-edit-status-active">
+                    Active account
+                </span>
+
+            {% else %}
+
+                <span class="tf-edit-status tf-edit-status-inactive">
+                    Inactive account
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- Display the current workspace authorization state. -->
+    <section class="tf-edit-panel tf-workspace-overview"
+             aria-labelledby="workspace-overview-heading">
+
+        <h2 id="workspace-overview-heading">
+            Current authorization
+        </h2>
+
+        <dl class="tf-workspace-metrics">
+
+            <div class="tf-workspace-metric">
+
+                <dt>Workspace membership</dt>
+
+                <dd>
+
+                    {% if current_memberships %}
+
+                        <ul class="tf-workspace-memberships">
+
+                            {% for membership in current_memberships %}
+
+                                <li>{{ membership }}</li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    {% else %}
+
+                        No workspace access
+
+                    {% endif %}
+
+                </dd>
+
+                <p class="tf-edit-muted">
+
+                    {% if not account.is_active %}
+
+                        Workspace access is disabled
+                        while the account is inactive.
+
+                    {% elif current_memberships %}
+
+                        Explicit workspace authorization
+                        has been assigned.
+
+                    {% else %}
+
+                        Internal Career Services access
+                        is not authorized.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+            <div class="tf-workspace-metric">
+
+                <dt>Existing project grants</dt>
+
+                <dd class="tf-workspace-grant-count">
+                    {{ project_grant_count }}
+                </dd>
+
+                <p class="tf-edit-muted">
+                    Explicit project authorization records.
+                </p>
+
+            </div>
+
+        </dl>
+
+    </section>
+
+    <!-- Identify ambiguous legacy membership configurations. -->
+    {% if has_multiple_memberships %}
+
+        <div class="tf-workspace-warning">
+
+            <h2>Multiple memberships detected</h2>
+
+            <p>
+                This account currently belongs to multiple
+                workspace groups. Select a single authorized
+                membership to resolve this configuration.
+                Existing project grants will be removed.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    <!-- Explain the restrictions on inactive accounts. -->
+    {% if not account.is_active %}
+
+        <div class="tf-role-notice">
+
+            <h3>Inactive account</h3>
+
+            <p>
+                This account cannot receive new workspace
+                authorization. Existing memberships and
+                obsolete project grants may be revoked.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    <!-- Accessible form validation feedback. -->
+    {% if form.errors %}
+
+        <div class="tf-edit-error-summary"
+             role="alert">
+
+            <h2>Workspace access could not be updated</h2>
+
+            <p>
+                Review the reported errors and try again.
+            </p>
+
+            {{ form.non_field_errors }}
+
+            <!-- Expose validation errors from the hidden state field. -->
+            {{ form.state_token.errors }}
+
+        </div>
+
+    {% endif %}
+
+    <div class="tf-edit-grid">
+
+        <!-- Secure workspace membership management form. -->
+        <form method="post"
+              action="{% url 'user_management:user_workspace_edit' account.pk %}"
+              class="tf-edit-panel tf-edit-form">
+
+            {% csrf_token %}
+
+            <!-- Preserve the signed authorization snapshot. -->
+            {{ form.state_token }}
+
+            <header class="tf-edit-panel-header">
+
+                <span class="tf-edit-section-number"
+                      aria-hidden="true">
+                    01
+                </span>
+
+                <div>
+
+                    <h2>Workspace membership</h2>
+
+                    <p class="tf-edit-muted">
+                        Manage explicit internal authorization.
+                    </p>
+
+                </div>
+
+            </header>
+
+            <div class="tf-edit-form-content">
+
+                <fieldset class="tf-edit-fieldset">
+
+                    <legend>Assign workspace access</legend>
+
+                    <p class="tf-edit-muted tf-edit-section-description">
+                        Select the appropriate authorization
+                        category for this account.
+                        Only one workspace membership
+                        may be assigned.
+                    </p>
+
+                    {% include "user_management/_form_field.html" with field=form.membership only %}
+
+                </fieldset>
+
+                <!-- Explain the effect on project authorization. -->
+                <section class="tf-workspace-warning"
+                         aria-labelledby="project-grant-warning">
+
+                    <span class="tf-workspace-warning-label">
+                        Important authorization notice
+                    </span>
+
+                    <h3 id="project-grant-warning">
+                        Project authorization warning
+                    </h3>
+
+                    <p>
+                        Changing or revoking workspace membership
+                        removes the account's existing project
+                        authorization grants.
+                    </p>
+
+                    {% if project_grant_count %}
+
+                        <p class="tf-workspace-warning-count">
+
+                            {{ project_grant_count }}
+                            existing project grant{{ project_grant_count|pluralize }}
+                            may be affected.
+
+                        </p>
+
+                    {% else %}
+
+                        <p>
+                            This account currently has no
+                            explicit project grants.
+                        </p>
+
+                    {% endif %}
+
+                    <p>
+                        Retaining an unchanged, authorized
+                        workspace membership preserves
+                        existing project grants.
+                    </p>
+
+                    <p>
+                        Selecting no workspace access removes
+                        any remaining obsolete project grants.
+                        Restoring membership later does not
+                        restore previous project assignments.
+                    </p>
+
+                </section>
+
+                <!-- Require explicit server-validated acknowledgment. -->
+                <div class="tf-workspace-confirmation">
+
+                    <div class="tf-workspace-confirmation-control">
+
+                        {{ form.confirm_change }}
+
+                        <div>
+
+                            <label for="{{ form.confirm_change.id_for_label }}"
+                                   class="tf-workspace-confirmation-label">
+
+                                {{ form.confirm_change.label }}
+
+                            </label>
+
+                            <p id="{{ form.confirm_change.auto_id }}_helptext"
+                               class="tf-edit-muted">
+
+                                {{ form.confirm_change.help_text }}
+
+                            </p>
+
+                            {{ form.confirm_change.errors }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Explain the administrative security policy. -->
+                <div class="tf-role-authority">
+
+                    <h3>Assignment authority</h3>
+
+                    <p>
+                        Workspace membership management
+                        requires both the Administrator
+                        application role and Django
+                        superuser authority.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <footer class="tf-edit-form-footer">
+
+                <div>
+
+                    <strong>Confirm authorization update</strong>
+
+                    <p class="tf-edit-muted">
+                        Review the selected membership before saving.
+                    </p>
+
+                </div>
+
+                <div class="tf-edit-actions">
+
+                    <a href="{% url 'user_management:user_detail' account.pk %}"
+                       class="tf-edit-button tf-edit-button-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="tf-edit-button tf-edit-button-primary">
+                        Update Workspace Access
+                    </button>
+
+                </div>
+
+            </footer>
+
+        </form>
+
+        <!-- Contextual authorization guidance. -->
+        <aside class="tf-edit-sidebar"
+               aria-label="Workspace authorization guidance">
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="membership-reference-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2 id="membership-reference-heading">
+                            Membership categories
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Internal authorization levels
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <dl class="tf-role-reference">
+
+                    <div>
+
+                        <dt>Career Services Staff</dt>
+
+                        <dd>
+                            Office-wide project visibility,
+                            project creation and internal
+                            task management.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Authorized Faculty</dt>
+
+                        <dd>
+                            Access restricted to explicitly
+                            assigned projects, according to
+                            Viewer or Contributor permissions.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Career Services Student Assistants</dt>
+
+                        <dd>
+                            Scoped internal access to explicitly
+                            assigned projects alongside
+                            student-facing services.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>No workspace access</dt>
+
+                        <dd>
+                            Internal projects and tasks
+                            remain inaccessible.
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+            </section>
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="project-access-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2 id="project-access-heading">
+                            Project authorization
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Scoped access permissions
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <dl class="tf-role-reference">
+
+                    <div>
+
+                        <dt>Viewer</dt>
+
+                        <dd>
+                            May view explicitly assigned
+                            projects and their tasks.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Contributor</dt>
+
+                        <dd>
+                            May view assigned projects and
+                            create or modify their tasks,
+                            subject to application restrictions.
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+            </section>
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="independent-access-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        04
+                    </span>
+
+                    <div>
+
+                        <h2 id="independent-access-heading">
+                            Independent permissions
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Unaffected by this operation
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <ul class="tf-edit-security-list">
+
+                    <li>
+
+                        <strong>Application role</strong>
+
+                        <p>
+                            Administrator, Power User and
+                            Regular User roles remain unchanged.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Django privileges</strong>
+
+                        <p>
+                            Staff and superuser flags,
+                            individual permissions and
+                            unrelated groups remain unchanged.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Account credentials</strong>
+
+                        <p>
+                            Account identity and authentication
+                            credentials are not modified.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Project ownership</strong>
+
+                        <p>
+                            Existing projects, ownership
+                            relationships and tasks are preserved.
+                        </p>
+
+                    </li>
+
+                </ul>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

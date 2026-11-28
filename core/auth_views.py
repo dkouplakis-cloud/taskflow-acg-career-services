@@ -15,7 +15,10 @@ from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
-from .account_identity import account_identity_transaction
+from .account_identity import (
+    AccountIdentityBusyError,
+    account_identity_transaction,
+)
 from .forms import StudentRegistrationForm
 from .models import StudentRegistrationRequest, UserProfile
 from .permissions import can_access_workspace
@@ -108,6 +111,18 @@ def student_register(request):
                     )
 
                     application_created = True
+
+        except AccountIdentityBusyError:
+
+            # Temporary database contention must not
+            # produce an unhandled registration error.
+            messages.error(
+                request,
+                "Student registration is temporarily unavailable. "
+                "Please try again in a moment."
+            )
+
+            return redirect("student_register")
 
         except IntegrityError:
 

@@ -1,0 +1,429 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Manage Application Role | TaskFlow{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/catalog-management.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'css/user-edit.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container tf-user-edit-page tf-user-role-page">
+
+    <!-- Administration navigation hierarchy. -->
+    <nav class="tf-edit-breadcrumb"
+         aria-label="Breadcrumb">
+
+        <ol>
+
+            <li>
+                <a href="{% url 'catalog_management:dashboard' %}">
+                    Administration
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'user_management:user_list' %}">
+                    Manage Users
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'user_management:user_detail' account.pk %}">
+                    User Details
+                </a>
+            </li>
+
+            <li aria-current="page">
+                Manage Role
+            </li>
+
+        </ol>
+
+    </nav>
+
+    <!-- Page heading and contextual navigation. -->
+    <header class="tf-edit-header">
+
+        <div>
+
+            <span class="tf-edit-eyebrow">
+                Access Management
+            </span>
+
+            <h1>Manage application role</h1>
+
+            <p class="tf-edit-muted">
+                Control the account's application-level
+                privileges and authorization.
+            </p>
+
+        </div>
+
+        <a href="{% url 'user_management:user_detail' account.pk %}"
+           class="tf-edit-button tf-edit-button-secondary">
+
+            <span aria-hidden="true">&larr;</span>
+            User Details
+
+        </a>
+
+    </header>
+
+    <!-- Identify the account whose role is being managed. -->
+    <section class="tf-edit-account-summary"
+             aria-labelledby="role-account-heading">
+
+        <div class="tf-edit-avatar"
+             aria-hidden="true">
+
+            {{ account.first_name|default:account.username|slice:":1"|upper }}
+
+        </div>
+
+        <div class="tf-edit-account-information">
+
+            <span class="tf-edit-overline">
+                Managing access for
+            </span>
+
+            <h2 id="role-account-heading">
+
+                {{ account.get_full_name|default:account.username }}
+
+            </h2>
+
+            <p class="tf-edit-muted">
+                @{{ account.username }}
+            </p>
+
+            <div class="tf-edit-account-meta">
+
+                <span>Account #{{ account.pk }}</span>
+
+                <span aria-hidden="true">&middot;</span>
+
+                <span>
+                    {{ account.profile.get_role_display }}
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="tf-edit-account-badges">
+
+            {% if account.is_active %}
+
+                <span class="tf-edit-status tf-edit-status-active">
+                    Active account
+                </span>
+
+            {% else %}
+
+                <span class="tf-edit-status tf-edit-status-inactive">
+                    Inactive account
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- Accessible validation feedback. -->
+    {% if form.errors %}
+
+        <div class="tf-edit-error-summary"
+             role="alert">
+
+            <h2>Application role could not be updated</h2>
+
+            <p>
+                Review the reported errors and try again.
+            </p>
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+    <div class="tf-edit-grid">
+
+        <!-- Secure application role assignment form. -->
+        <form method="post"
+              action="{% url 'user_management:user_role_edit' account.pk %}"
+              class="tf-edit-panel tf-edit-form">
+
+            {% csrf_token %}
+
+            <header class="tf-edit-panel-header">
+
+                <span class="tf-edit-section-number"
+                      aria-hidden="true">
+                    01
+                </span>
+
+                <div>
+
+                    <h2>Role assignment</h2>
+
+                    <p class="tf-edit-muted">
+                        Manage application-level access.
+                    </p>
+
+                </div>
+
+            </header>
+
+            <div class="tf-edit-form-content">
+
+                <!-- Show the currently persisted role. -->
+                <div class="tf-role-current">
+
+                    <span class="tf-edit-overline">
+                        Current application role
+                    </span>
+
+                    <strong>
+                        {{ account.profile.get_role_display }}
+                    </strong>
+
+                </div>
+
+                <fieldset class="tf-edit-fieldset">
+
+                    <legend>Assign application role</legend>
+
+                    <p class="tf-edit-muted tf-edit-section-description">
+                        Only roles that you are authorized
+                        to assign are available below.
+                    </p>
+
+                    {% include "user_management/_form_field.html" with field=form.role only %}
+
+                </fieldset>
+
+                <!-- Explain the administrator's assignment authority. -->
+                <div class="tf-role-authority">
+
+                    <h3>Assignment authority</h3>
+
+                    {% if can_assign_administrator %}
+
+                        <p>
+                            You are authorized to assign
+                            all three application roles.
+                        </p>
+
+                    {% else %}
+
+                        <p>
+                            You may assign Regular User
+                            and Power User roles.
+                            Administrator assignment
+                            requires Django superuser authority.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- Explain the consequences of permission changes. -->
+                <div class="tf-role-notice">
+
+                    <h3>Permission changes</h3>
+
+                    <p>
+                        Changing an application role may grant
+                        or revoke access to restricted application
+                        functionality.
+                    </p>
+
+                    <p>
+                        Django authentication privileges,
+                        workspace memberships and account
+                        credentials are managed independently.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Explicit confirmation and cancellation actions. -->
+            <footer class="tf-edit-form-footer">
+
+                <div>
+
+                    <strong>Confirm role assignment</strong>
+
+                    <p class="tf-edit-muted">
+                        Review the selected role before saving.
+                    </p>
+
+                </div>
+
+                <div class="tf-edit-actions">
+
+                    <a href="{% url 'user_management:user_detail' account.pk %}"
+                       class="tf-edit-button tf-edit-button-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="tf-edit-button tf-edit-button-primary">
+                        Update Role
+                    </button>
+
+                </div>
+
+            </footer>
+
+        </form>
+
+        <!-- Contextual authorization information. -->
+        <aside class="tf-edit-sidebar"
+               aria-label="Application role guidance">
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="role-reference-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2 id="role-reference-heading">
+                            Application roles
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Available access levels
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <dl class="tf-role-reference">
+
+                    <div>
+
+                        <dt>Administrator</dt>
+
+                        <dd>
+                            Authorized management of accounts,
+                            catalogue content and student
+                            registration applications.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Power User</dt>
+
+                        <dd>
+                            Privileged application role with
+                            access determined by existing
+                            authorization policies.
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Regular User</dt>
+
+                        <dd>
+                            Standard account access to
+                            authorized application services.
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+            </section>
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="role-protection-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2 id="role-protection-heading">
+                            Independent permissions
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Unaffected by this operation
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <ul class="tf-edit-security-list">
+
+                    <li>
+
+                        <strong>Workspace memberships</strong>
+
+                        <p>
+                            Career Services workspace access
+                            requires separate authorization.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Django privileges</strong>
+
+                        <p>
+                            Staff, superuser and individual
+                            permissions remain unchanged.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Account credentials</strong>
+
+                        <p>
+                            Usernames, email addresses and
+                            passwords are not modified.
+                        </p>
+
+                    </li>
+
+                </ul>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}

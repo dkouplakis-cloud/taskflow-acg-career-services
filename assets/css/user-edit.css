@@ -1,0 +1,1150 @@
+
+/* ==========================================================
+   TASKFLOW | ACG CAREER SERVICES
+   Administrative account editing interface
+
+   Page-scoped design tokens, accessible theme colours,
+   responsive panels and reusable form presentation.
+   ========================================================== */
+
+
+/* ----------------------------------------------------------
+   1. Light theme design tokens
+   ---------------------------------------------------------- */
+
+.tf-user-edit-page {
+    --edit-surface: #ffffff;
+    --edit-surface-secondary: #f8fafc;
+    --edit-input: #ffffff;
+    --edit-text: #17243a;
+    --edit-muted: #526179;
+    --edit-border: #d7e0eb;
+    --edit-input-border: #64748b;
+    --edit-accent: #1d4ed8;
+    --edit-accent-surface: #eaf1ff;
+    --edit-success: #166534;
+    --edit-success-surface: #dcfce7;
+    --edit-error: #991b1b;
+    --edit-error-surface: #fef2f2;
+    --edit-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+    --edit-focus: #2563eb;
+    --edit-control-scheme: light;
+    --edit-warning-background: #fffbeb;
+    --edit-warning-border: #b45309;
+    --edit-warning-heading: #92400e;
+    --edit-warning-text: #78350f;
+
+    padding-top: 32px;
+    padding-bottom: 48px;
+    color: var(--edit-text);
+}
+
+
+/* ----------------------------------------------------------
+   2. Dark theme design tokens
+
+   Support class-based and attribute-based theme selectors.
+   ---------------------------------------------------------- */
+
+:is(
+    .dark-mode,
+    .dark-theme,
+    .theme-dark,
+    .dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+) .tf-user-edit-page {
+    --edit-surface: #172336;
+    --edit-surface-secondary: #1c2b40;
+    --edit-input: #101b2c;
+    --edit-text: #f1f5f9;
+    --edit-muted: #aebdd0;
+    --edit-border: #34465e;
+    --edit-input-border: #64748b;
+    --edit-accent: #93c5fd;
+    --edit-accent-surface: #243f65;
+    --edit-success: #86efac;
+    --edit-success-surface: #153a30;
+    --edit-error: #fca5a5;
+    --edit-error-surface: #3c202a;
+    --edit-shadow: 0 8px 26px rgba(0, 0, 0, 0.18);
+    --edit-focus: #93c5fd;
+    --edit-control-scheme: dark;
+    --edit-warning-background: #30271c;
+    --edit-warning-border: #a17b40;
+    --edit-warning-heading: #fde68a;
+    --edit-warning-text: #e5d7bd;
+}
+
+
+/* ----------------------------------------------------------
+   3. Typography and breadcrumbs
+   ---------------------------------------------------------- */
+
+.tf-user-edit-page h1,
+.tf-user-edit-page h2,
+.tf-user-edit-page legend,
+.tf-user-edit-page strong {
+    color: var(--edit-text);
+}
+
+.tf-user-edit-page .tf-edit-muted {
+    color: var(--edit-muted);
+}
+
+.tf-user-edit-page .tf-edit-breadcrumb {
+    margin-bottom: 24px;
+}
+
+.tf-edit-breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 0.85rem;
+}
+
+.tf-edit-breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--edit-muted);
+}
+
+.tf-edit-breadcrumb li + li::before {
+    content: "/";
+    color: var(--edit-muted);
+}
+
+.tf-edit-breadcrumb a {
+    color: var(--edit-accent);
+    text-decoration: none;
+}
+
+.tf-edit-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.tf-edit-breadcrumb [aria-current="page"] {
+    color: var(--edit-text);
+    font-weight: 600;
+}
+
+
+/* ----------------------------------------------------------
+   4. Page heading
+   ---------------------------------------------------------- */
+
+.tf-edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.tf-edit-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--edit-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.tf-edit-header h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.8rem, 3vw, 2.35rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+}
+
+.tf-edit-header p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+
+/* ----------------------------------------------------------
+   5. Account summary
+   ---------------------------------------------------------- */
+
+.tf-edit-account-summary {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    background: var(--edit-surface);
+    border: 1px solid var(--edit-border);
+    border-radius: 16px;
+    box-shadow: var(--edit-shadow);
+}
+
+.tf-edit-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--edit-accent-surface);
+    color: var(--edit-accent);
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.tf-edit-account-information {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tf-edit-overline {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--edit-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.tf-edit-account-information h2 {
+    margin: 0 0 4px;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.tf-edit-account-information p {
+    margin: 0 0 7px;
+    font-size: 0.875rem;
+}
+
+.tf-edit-account-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    color: var(--edit-muted);
+    font-size: 0.78rem;
+}
+
+.tf-edit-account-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.tf-edit-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.tf-edit-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.tf-edit-status-active {
+    background: var(--edit-success-surface);
+    color: var(--edit-success);
+}
+
+.tf-edit-status-inactive {
+    background: var(--edit-surface-secondary);
+    color: var(--edit-muted);
+}
+
+.tf-edit-status-current {
+    background: var(--edit-accent-surface);
+    color: var(--edit-accent);
+}
+
+
+/* ----------------------------------------------------------
+   6. Main administration grid and panel surfaces
+   ---------------------------------------------------------- */
+
+.tf-edit-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 0.48fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.tf-edit-panel {
+    min-width: 0;
+    background: var(--edit-surface);
+    border: 1px solid var(--edit-border);
+    border-radius: 16px;
+    box-shadow: var(--edit-shadow);
+}
+
+.tf-edit-sidebar {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+}
+
+.tf-edit-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--edit-border);
+}
+
+.tf-edit-section-number {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    background: var(--edit-accent-surface);
+    color: var(--edit-accent);
+    border-radius: 11px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.tf-edit-panel-header h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.tf-edit-panel-header p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+
+/* ----------------------------------------------------------
+   7. Account editing fields
+   ---------------------------------------------------------- */
+
+.tf-edit-form-content {
+    padding: 24px;
+}
+
+.tf-edit-fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.tf-edit-fieldset + .tf-edit-fieldset {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--edit-border);
+}
+
+.tf-user-edit-page .tf-edit-fieldset legend {
+    float: none;
+    width: auto;
+    margin: 0 0 6px;
+    padding: 0;
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.tf-edit-section-description {
+    margin: 0 0 20px;
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+.tf-edit-fields {
+    display: grid;
+    gap: 20px;
+}
+
+.tf-edit-name-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.tf-user-edit-page label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--edit-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tf-user-edit-page .form-control {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 14px;
+    background: var(--edit-input);
+    border: 1px solid var(--edit-input-border);
+    border-radius: 9px;
+    color: var(--edit-text);
+    font-size: 0.9rem;
+    box-shadow: none;
+    transition: border-color 150ms ease,
+                box-shadow 150ms ease;
+}
+
+.tf-user-edit-page .form-control::placeholder {
+    color: var(--edit-muted);
+    opacity: 1;
+}
+
+.tf-user-edit-page .form-control:focus {
+    background: var(--edit-input);
+    color: var(--edit-text);
+    border-color: var(--edit-focus);
+    outline: 2px solid var(--edit-focus);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.tf-user-edit-page .form-text,
+.tf-user-edit-page .helptext,
+.tf-user-edit-page .text-body-secondary,
+.tf-user-edit-page [id$="_helptext"] {
+    color: var(--edit-muted);
+    font-size: 0.77rem;
+    line-height: 1.6;
+}
+
+.tf-edit-required-note {
+    margin: 22px 0 0;
+    color: var(--edit-muted);
+    font-size: 0.78rem;
+}
+
+
+/* ----------------------------------------------------------
+   8. Read-only account access panel
+   ---------------------------------------------------------- */
+
+.tf-edit-access-list {
+    padding: 4px 24px;
+    margin: 0;
+}
+
+.tf-edit-access-list > div {
+    padding: 16px 0;
+}
+
+.tf-edit-access-list > div + div {
+    border-top: 1px solid var(--edit-border);
+}
+
+.tf-edit-access-list dt {
+    margin-bottom: 7px;
+    color: var(--edit-muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.tf-edit-access-list dd {
+    margin: 0;
+    color: var(--edit-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.tf-edit-group {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.tf-edit-panel-note {
+    margin: 4px 16px 16px;
+    padding: 13px 15px;
+    background: var(--edit-surface-secondary);
+    border: 1px solid var(--edit-border);
+    border-radius: 9px;
+    color: var(--edit-muted);
+    font-size: 0.78rem;
+    line-height: 1.65;
+}
+
+
+/* ----------------------------------------------------------
+   9. Security guidance
+   ---------------------------------------------------------- */
+
+.tf-edit-security-list {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 22px 24px;
+    list-style: none;
+}
+
+.tf-edit-security-list li {
+    position: relative;
+    padding-left: 15px;
+}
+
+.tf-edit-security-list li::before {
+    position: absolute;
+    top: 7px;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--edit-accent);
+    content: "";
+}
+
+.tf-edit-security-list strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.83rem;
+    font-weight: 650;
+}
+
+.tf-edit-security-list p {
+    margin: 0;
+    color: var(--edit-muted);
+    font-size: 0.8rem;
+    line-height: 1.65;
+}
+
+
+/* ----------------------------------------------------------
+   10. Form actions and buttons
+   ---------------------------------------------------------- */
+
+.tf-edit-form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 24px;
+    background: var(--edit-surface-secondary);
+    border-top: 1px solid var(--edit-border);
+    border-radius: 0 0 16px 16px;
+}
+
+.tf-edit-form-footer strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.88rem;
+}
+
+.tf-edit-form-footer p {
+    margin: 0;
+    font-size: 0.78rem;
+}
+
+.tf-edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tf-user-edit-page .tf-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 150ms ease,
+                border-color 150ms ease;
+}
+
+.tf-user-edit-page .tf-edit-button-secondary {
+    background: var(--edit-surface);
+    border-color: var(--edit-input-border);
+    color: var(--edit-text);
+}
+
+.tf-user-edit-page .tf-edit-button-secondary:hover {
+    background: var(--edit-surface-secondary);
+    border-color: var(--edit-accent);
+    color: var(--edit-text);
+}
+
+.tf-user-edit-page .tf-edit-button-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.tf-user-edit-page .tf-edit-button-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+.tf-user-edit-page a:focus-visible,
+.tf-user-edit-page button:focus-visible {
+    outline: 2px solid var(--edit-focus);
+    outline-offset: 3px;
+}
+
+
+/* ----------------------------------------------------------
+   11. Accessible validation feedback
+   ---------------------------------------------------------- */
+
+.tf-edit-error-summary {
+    padding: 20px;
+    margin-bottom: 24px;
+    background: var(--edit-error-surface);
+    border: 1px solid var(--edit-error);
+    border-radius: 12px;
+    color: var(--edit-error);
+}
+
+.tf-user-edit-page .tf-edit-error-summary h2 {
+    margin: 0 0 8px;
+    color: var(--edit-error);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.tf-edit-error-summary p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.tf-user-edit-page .errorlist,
+.tf-user-edit-page .invalid-feedback,
+.tf-user-edit-page .text-danger {
+    color: var(--edit-error);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.tf-user-edit-page .errorlist {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.tf-user-edit-page .form-control[aria-invalid="true"],
+.tf-user-edit-page .form-control.is-invalid {
+    border: 2px solid var(--edit-error);
+}
+
+
+/* ----------------------------------------------------------
+   12. Responsive layouts
+   ---------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+
+    .tf-edit-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-edit-sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+
+}
+
+@media (max-width: 767.98px) {
+
+    .tf-user-edit-page {
+        padding-top: 24px;
+        padding-bottom: 32px;
+    }
+
+    .tf-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .tf-edit-sidebar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-edit-account-summary {
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 18px;
+    }
+
+    .tf-edit-account-badges {
+        justify-content: flex-start;
+    }
+
+    .tf-edit-avatar {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+    }
+
+    .tf-edit-panel-header,
+    .tf-edit-form-content,
+    .tf-edit-form-footer {
+        padding: 18px;
+    }
+
+    .tf-edit-access-list,
+    .tf-edit-security-list {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+}
+
+@media (max-width: 479.98px) {
+
+    .tf-edit-name-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tf-edit-account-badges {
+        flex-basis: 100%;
+    }
+
+    .tf-edit-actions {
+        width: 100%;
+    }
+
+    .tf-edit-actions .tf-edit-button {
+        flex: 1 1 120px;
+    }
+
+    .tf-edit-account-information h2 {
+        font-size: 1rem;
+    }
+
+}
+
+
+/* ----------------------------------------------------------
+   13. Reduced motion accessibility
+   ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tf-user-edit-page .form-control,
+    .tf-user-edit-page .tf-edit-button {
+        transition: none;
+    }
+
+}
+
+/* ----------------------------------------------------------
+   14. Application role management
+
+   Reuse existing administration design tokens and scope
+   role-specific components to the role management page.
+   ---------------------------------------------------------- */
+
+.tf-user-role-page .tf-role-current {
+    margin-bottom: 26px;
+    padding: 18px 20px;
+    background: var(--edit-surface-secondary);
+    border: 1px solid var(--edit-border);
+    border-left: 4px solid var(--edit-accent);
+    border-radius: 10px;
+}
+
+.tf-user-role-page .tf-role-current strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+
+/* Theme-aware native dropdown with accessible focus. */
+
+.tf-user-role-page .form-select {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    appearance: auto;
+    color-scheme: var(--edit-control-scheme);
+    background-color: var(--edit-input);
+    background-image: none;
+    border: 1px solid var(--edit-input-border);
+    border-radius: 9px;
+    color: var(--edit-text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.tf-user-role-page .form-select:focus {
+    background-color: var(--edit-input);
+    color: var(--edit-text);
+    border-color: var(--edit-focus);
+    outline: 2px solid var(--edit-focus);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.tf-user-role-page .form-select[aria-invalid="true"],
+.tf-user-role-page .form-select.is-invalid {
+    border: 2px solid var(--edit-error);
+}
+
+.tf-user-role-page .form-select option {
+    background-color: var(--edit-input);
+    color: var(--edit-text);
+}
+
+
+/* Assignment authority and permission guidance. */
+
+.tf-user-role-page .tf-role-authority {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--edit-border);
+}
+
+.tf-user-role-page .tf-role-authority h3,
+.tf-user-role-page .tf-role-notice h3 {
+    margin: 0 0 8px;
+    color: var(--edit-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.tf-user-role-page .tf-role-authority p,
+.tf-user-role-page .tf-role-notice p {
+    margin: 0;
+    color: var(--edit-muted);
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+.tf-user-role-page .tf-role-notice {
+    margin-top: 24px;
+    padding: 18px 20px;
+    background: var(--edit-surface-secondary);
+    border: 1px solid var(--edit-border);
+    border-radius: 10px;
+}
+
+.tf-user-role-page .tf-role-notice p + p {
+    margin-top: 10px;
+}
+
+
+/* Application role reference panel. */
+
+.tf-user-role-page .tf-role-reference {
+    margin: 0;
+    padding: 4px 24px;
+}
+
+.tf-user-role-page .tf-role-reference > div {
+    padding: 18px 0;
+}
+
+.tf-user-role-page .tf-role-reference > div + div {
+    border-top: 1px solid var(--edit-border);
+}
+
+.tf-user-role-page .tf-role-reference dt {
+    margin-bottom: 7px;
+    color: var(--edit-accent);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.tf-user-role-page .tf-role-reference dd {
+    margin: 0;
+    color: var(--edit-muted);
+    font-size: 0.8rem;
+    line-height: 1.65;
+}
+
+
+/* Maintain comfortable spacing on smaller screens. */
+
+@media (max-width: 767.98px) {
+
+    .tf-user-role-page .tf-role-reference {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .tf-user-role-page .tf-role-current,
+    .tf-user-role-page .tf-role-notice {
+        padding: 15px;
+    }
+
+}
+
+/* ----------------------------------------------------------
+   15. Workspace authorization management
+
+   Extend the shared account administration components
+   without affecting the existing Edit User or Role pages.
+   ---------------------------------------------------------- */
+
+
+/* Current authorization overview and project grant metrics. */
+
+.tf-user-workspace-page .tf-workspace-overview {
+    margin-bottom: 24px;
+    padding: 24px;
+}
+
+.tf-user-workspace-page .tf-workspace-overview h2 {
+    margin: 0 0 20px;
+    color: var(--edit-text);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.tf-user-workspace-page .tf-workspace-metrics {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 18px;
+    margin: 0;
+}
+
+.tf-user-workspace-page .tf-workspace-metric {
+    min-width: 0;
+    padding: 18px 20px;
+    background: var(--edit-surface-secondary);
+    border: 1px solid var(--edit-border);
+    border-radius: 10px;
+}
+
+.tf-user-workspace-page .tf-workspace-metric dt {
+    margin-bottom: 10px;
+    color: var(--edit-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.tf-user-workspace-page .tf-workspace-metric dd {
+    margin: 0 0 10px;
+    color: var(--edit-text);
+    font-size: 1.05rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.tf-user-workspace-page .tf-workspace-metric p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.65;
+}
+
+.tf-user-workspace-page
+.tf-workspace-metric dd.tf-workspace-grant-count {
+    color: var(--edit-accent);
+    font-size: 2rem;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.tf-user-workspace-page .tf-workspace-memberships {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Explicit authorization warnings. */
+
+.tf-user-workspace-page .tf-workspace-warning {
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--edit-warning-background);
+    border: 1px solid var(--edit-warning-border);
+    border-left: 4px solid var(--edit-warning-border);
+    border-radius: 10px;
+}
+
+.tf-user-workspace-page .tf-workspace-warning-label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--edit-warning-heading);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tf-user-workspace-page .tf-workspace-warning h2,
+.tf-user-workspace-page .tf-workspace-warning h3 {
+    margin: 0 0 12px;
+    color: var(--edit-warning-heading);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.tf-user-workspace-page .tf-workspace-warning p {
+    margin: 0;
+    color: var(--edit-warning-text);
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+.tf-user-workspace-page .tf-workspace-warning p + p {
+    margin-top: 10px;
+}
+
+.tf-user-workspace-page .tf-workspace-warning-count {
+    font-weight: 700;
+}
+
+
+/* Accessible membership confirmation control. */
+
+.tf-user-workspace-page .tf-workspace-confirmation {
+    padding: 18px 20px;
+    background: var(--edit-surface-secondary);
+    border: 1px solid var(--edit-border);
+    border-radius: 10px;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation-control {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    background-color: var(--edit-input);
+    border: 1px solid var(--edit-input-border);
+    border-radius: 5px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation
+.form-check-input:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation
+.form-check-input:focus-visible {
+    outline: 2px solid var(--edit-focus);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation
+.form-check-input[aria-invalid="true"] {
+    border: 2px solid var(--edit-error);
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--edit-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.7;
+}
+
+.tf-user-workspace-page .tf-workspace-confirmation
+.errorlist {
+    margin: 10px 0 0;
+    padding: 0;
+    color: var(--edit-error);
+    font-size: 0.8rem;
+    font-weight: 600;
+    list-style: none;
+}
+
+
+/* Accommodate the longer workspace management action. */
+
+.tf-user-workspace-page .tf-edit-form-footer {
+    flex-wrap: wrap;
+    row-gap: 18px;
+}
+
+.tf-user-workspace-page .tf-edit-actions {
+    flex-wrap: wrap;
+}
+
+.tf-user-workspace-page .tf-edit-button {
+    white-space: normal;
+    text-align: center;
+}
+
+
+/* Responsive authorization overview. */
+
+@media (max-width: 767.98px) {
+
+    .tf-user-workspace-page .tf-workspace-overview {
+        padding: 18px;
+    }
+
+    .tf-user-workspace-page .tf-workspace-metrics {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .tf-user-workspace-page .tf-workspace-warning,
+    .tf-user-workspace-page .tf-workspace-confirmation,
+    .tf-user-workspace-page .tf-workspace-metric {
+        padding: 16px;
+    }
+
+}
+
+@media (max-width: 479.98px) {
+
+    .tf-user-workspace-page .tf-edit-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tf-user-workspace-page .tf-edit-actions
+    .tf-edit-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+}

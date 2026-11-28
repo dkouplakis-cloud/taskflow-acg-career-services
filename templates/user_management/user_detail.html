@@ -74,12 +74,25 @@
 
     <div class="tf-category-page-header__actions">
 
+      <!-- Return to the registered account directory. -->
       <a
         href="{% url 'user_management:user_list' %}"
         class="btn btn-outline-secondary fw-semibold"
       >
         Back to Users
       </a>
+
+      <!-- Display editing actions only when authorized. -->
+      {% if can_edit_account %}
+
+        <a
+          href="{% url 'user_management:user_edit' account.pk %}"
+          class="btn btn-primary fw-semibold"
+        >
+          Edit User
+        </a>
+
+      {% endif %}
 
     </div>
 
@@ -217,6 +230,37 @@
           </h2>
 
           <p>Application roles and explicit group memberships.</p>
+
+          <!-- Display only authorized account management actions. -->
+          {% if can_manage_role or can_manage_workspace %}
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+
+              {% if can_manage_role %}
+
+                <a
+                  href="{% url 'user_management:user_role_edit' account.pk %}"
+                  class="btn btn-primary fw-semibold"
+                >
+                  Manage Role
+                </a>
+
+              {% endif %}
+
+              {% if can_manage_workspace %}
+
+                <a
+                  href="{% url 'user_management:user_workspace_edit' account.pk %}"
+                  class="btn tf-workspace-action fw-semibold"
+                >
+                  Manage Workspace Access
+                </a>
+
+              {% endif %}
+
+            </div>
+
+          {% endif %}
 
         </header>
 

@@ -2028,3 +2028,100 @@ section[aria-labelledby="category-directory-title"] > .card {
         align-self: stretch;
     }
 }
+
+/* ----------------------------------------------------------
+   Workspace access management action
+
+   Provide a distinct, high-contrast administrative action
+   consistent with TaskFlow's light and dark themes.
+   ---------------------------------------------------------- */
+
+.tf-user-detail-panel__header .tf-workspace-action {
+    --workspace-action-bg: #eff6ff;
+    --workspace-action-text: #1e40af;
+    --workspace-action-border: #7597d1;
+
+    --workspace-action-hover-bg: #dbeafe;
+    --workspace-action-hover-text: #1e3a8a;
+    --workspace-action-hover-border: #2563eb;
+
+    --workspace-action-active-bg: #bfdbfe;
+    --workspace-action-focus: #1d4ed8;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--workspace-action-bg);
+    color: var(--workspace-action-text);
+    border: 1px solid var(--workspace-action-border);
+
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    white-space: normal;
+
+    box-shadow: none;
+
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+}
+
+
+/* Dark-mode administrative action palette. */
+
+:is(
+    .dark-mode,
+    .dark-theme,
+    .theme-dark,
+    .dark,
+    [data-theme="dark"],
+    [data-bs-theme="dark"]
+)
+.tf-user-detail-panel__header .tf-workspace-action {
+    --workspace-action-bg: #233d58;
+    --workspace-action-text: #e0f2fe;
+    --workspace-action-border: #739bc3;
+
+    --workspace-action-hover-bg: #304f70;
+    --workspace-action-hover-text: #ffffff;
+    --workspace-action-hover-border: #93c5fd;
+
+    --workspace-action-active-bg: #1b324b;
+    --workspace-action-focus: #93c5fd;
+}
+
+
+/* Clear visual feedback during interaction. */
+
+.tf-user-detail-panel__header .tf-workspace-action:hover {
+    background-color: var(--workspace-action-hover-bg);
+    color: var(--workspace-action-hover-text);
+    border-color: var(--workspace-action-hover-border);
+    text-decoration: none;
+}
+
+.tf-user-detail-panel__header .tf-workspace-action:active {
+    background-color: var(--workspace-action-active-bg);
+    color: var(--workspace-action-text);
+    border-color: var(--workspace-action-hover-border);
+}
+
+.tf-user-detail-panel__header .tf-workspace-action:focus-visible {
+    outline: 2px solid var(--workspace-action-focus);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+
+/* Respect reduced-motion accessibility preferences. */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .tf-user-detail-panel__header .tf-workspace-action {
+        transition: none;
+    }
+
+}

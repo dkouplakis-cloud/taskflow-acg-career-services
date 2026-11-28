@@ -1,0 +1,434 @@
+
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Edit User | TaskFlow{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet"
+          href="{% static 'css/catalog-management.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'css/user-edit.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container tf-user-edit-page">
+
+    <!-- Administration navigation hierarchy. -->
+    <nav class="tf-edit-breadcrumb"
+         aria-label="Breadcrumb">
+
+        <ol>
+            <li>
+                <a href="{% url 'catalog_management:dashboard' %}">
+                    Administration
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'user_management:user_list' %}">
+                    Manage Users
+                </a>
+            </li>
+
+            <li aria-current="page">
+                Edit User
+            </li>
+        </ol>
+
+    </nav>
+
+    <!-- Page heading and contextual navigation. -->
+    <header class="tf-edit-header">
+
+        <div>
+
+            <span class="tf-edit-eyebrow">
+                User Management
+            </span>
+
+            <h1>Edit user account</h1>
+
+            <p class="tf-edit-muted">
+                Manage account identity and personal information.
+            </p>
+
+        </div>
+
+        <a href="{% url 'user_management:user_detail' account.pk %}"
+           class="tf-edit-button tf-edit-button-secondary">
+
+            <span aria-hidden="true">&larr;</span>
+            User Details
+
+        </a>
+
+    </header>
+
+    <!-- Summary of the account currently being edited. -->
+    <section class="tf-edit-account-summary"
+             aria-labelledby="editing-account-heading">
+
+        <div class="tf-edit-avatar"
+             aria-hidden="true">
+            {{ form.initial.username|slice:":1"|upper }}
+        </div>
+
+        <div class="tf-edit-account-information">
+
+            <span class="tf-edit-overline">
+                Editing account
+            </span>
+
+            <h2 id="editing-account-heading">
+                {{ form.initial.username }}
+            </h2>
+
+            <p class="tf-edit-muted">
+                {{ form.initial.email|default:"No email address" }}
+            </p>
+
+            <div class="tf-edit-account-meta">
+
+                <span>Account #{{ account.pk }}</span>
+
+                <span aria-hidden="true">&middot;</span>
+
+                <span>
+                    {{ account.profile.get_role_display|default:"Not assigned" }}
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="tf-edit-account-badges">
+
+            {% if account.is_active %}
+
+                <span class="tf-edit-status tf-edit-status-active">
+                    Active account
+                </span>
+
+            {% else %}
+
+                <span class="tf-edit-status tf-edit-status-inactive">
+                    Inactive account
+                </span>
+
+            {% endif %}
+
+            {% if is_current_account %}
+
+                <span class="tf-edit-status tf-edit-status-current">
+                    Your account
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- Display validation errors before the editing form. -->
+    {% if form.errors %}
+
+        <div class="tf-edit-error-summary"
+             role="alert">
+
+            <h2>Changes could not be saved</h2>
+
+            <p>
+                Correct the errors identified below
+                and submit the form again.
+            </p>
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+    <div class="tf-edit-grid">
+
+        <!-- Main account editing panel. -->
+        <form method="post"
+              action="{% url 'user_management:user_edit' account.pk %}"
+              class="tf-edit-panel tf-edit-form">
+
+            {% csrf_token %}
+
+            <header class="tf-edit-panel-header">
+
+                <span class="tf-edit-section-number"
+                      aria-hidden="true">
+                    01
+                </span>
+
+                <div>
+
+                    <h2>Account information</h2>
+
+                    <p class="tf-edit-muted">
+                        Update the user's registered identity.
+                    </p>
+
+                </div>
+
+            </header>
+
+            <div class="tf-edit-form-content">
+
+                <fieldset class="tf-edit-fieldset">
+
+                    <legend>Account identity</legend>
+
+                    <p class="tf-edit-muted tf-edit-section-description">
+                        These identifiers are associated
+                        with the user's account.
+                    </p>
+
+                    <div class="tf-edit-fields">
+
+                        <div>
+                            {% include "user_management/_form_field.html" with field=form.username only %}
+                        </div>
+
+                        <div>
+                            {% include "user_management/_form_field.html" with field=form.email only %}
+                        </div>
+
+                    </div>
+
+                </fieldset>
+
+                <fieldset class="tf-edit-fieldset">
+
+                    <legend>Personal information</legend>
+
+                    <p class="tf-edit-muted tf-edit-section-description">
+                        Maintain the user's registered name.
+                    </p>
+
+                    <div class="tf-edit-name-grid">
+
+                        <div>
+                            {% include "user_management/_form_field.html" with field=form.first_name only %}
+                        </div>
+
+                        <div>
+                            {% include "user_management/_form_field.html" with field=form.last_name only %}
+                        </div>
+
+                    </div>
+
+                </fieldset>
+
+                <p class="tf-edit-required-note">
+                    All account information fields are required.
+                </p>
+
+            </div>
+
+            <!-- Integrated form submission area. -->
+            <footer class="tf-edit-form-footer">
+
+                <div>
+
+                    <strong>Save account changes</strong>
+
+                    <p class="tf-edit-muted">
+                        Review the information before saving.
+                    </p>
+
+                </div>
+
+                <div class="tf-edit-actions">
+
+                    <a href="{% url 'user_management:user_detail' account.pk %}"
+                       class="tf-edit-button tf-edit-button-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="tf-edit-button tf-edit-button-primary">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </footer>
+
+        </form>
+
+        <!-- Contextual account access and security information. -->
+        <aside class="tf-edit-sidebar"
+               aria-label="Account management information">
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="account-access-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        02
+                    </span>
+
+                    <div>
+
+                        <h2 id="account-access-heading">
+                            Account access
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Current account permissions
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <dl class="tf-edit-access-list">
+
+                    <div>
+
+                        <dt>Application role</dt>
+
+                        <dd>
+                            {{ account.profile.get_role_display|default:"Not assigned" }}
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Account status</dt>
+
+                        <dd>
+
+                            {% if account.is_active %}
+
+                                <span class="tf-edit-status tf-edit-status-active">
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="tf-edit-status tf-edit-status-inactive">
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </dd>
+
+                    </div>
+
+                    <div>
+
+                        <dt>Group memberships</dt>
+
+                        <dd>
+
+                            {% for group in account.groups.all %}
+
+                                <span class="tf-edit-group">
+                                    {{ group.name }}
+                                </span>
+
+                            {% empty %}
+
+                                <span class="tf-edit-muted">
+                                    No groups assigned
+                                </span>
+
+                            {% endfor %}
+
+                        </dd>
+
+                    </div>
+
+                </dl>
+
+                <div class="tf-edit-panel-note">
+
+                    Access permissions are managed
+                    separately from account identity.
+
+                </div>
+
+            </section>
+
+            <section class="tf-edit-panel"
+                     aria-labelledby="security-guidance-heading">
+
+                <header class="tf-edit-panel-header">
+
+                    <span class="tf-edit-section-number"
+                          aria-hidden="true">
+                        03
+                    </span>
+
+                    <div>
+
+                        <h2 id="security-guidance-heading">
+                            Security guidance
+                        </h2>
+
+                        <p class="tf-edit-muted">
+                            Important editing restrictions
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <ul class="tf-edit-security-list">
+
+                    <li>
+
+                        <strong>Unique identifiers</strong>
+
+                        <p>
+                            Usernames and email addresses
+                            cannot conflict with other accounts.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Registration protection</strong>
+
+                        <p>
+                            Pending applications reserve
+                            their requested identifiers.
+                        </p>
+
+                    </li>
+
+                    <li>
+
+                        <strong>Credential protection</strong>
+
+                        <p>
+                            Existing passwords and permissions
+                            remain unchanged.
+                        </p>
+
+                    </li>
+
+                </ul>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+{% endblock %}
